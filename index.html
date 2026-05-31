@@ -2217,15 +2217,30 @@ function setupEventListeners() {
 })();
 
 async function init() {
+async function init() {
     document.getElementById('importDataBtn').disabled = true;
+    
+    // 1. Fetch the master coaster list
     try {
-        const res = await fetch('./master_coasters.json');
+        const res = await fetch('./master_coasters.json?v=' + Date.now());
         masterCoasters = await res.json();
         document.getElementById('importDataBtn').disabled = false;
     } catch(e) {
         console.error("Failed to load master_coasters.json", e);
     }
 
+    // 2. Auto-fetch your personal profile data
+    try {
+        const profileRes = await fetch('./thomas_tracker_profile.json?v=' + Date.now());
+        if (profileRes.ok) {
+            userProfile = await profileRes.json();
+            console.log("Profile automatically loaded from GitHub!");
+        }
+    } catch(e) {
+        console.log("No profile found on GitHub yet, starting fresh.");
+    }
+
+    // 3. Setup Dropdowns
     const currentYear = new Date().getFullYear();
     DOM.populateYearSelect('openingYear', 1900, currentYear, true);
     
@@ -2243,10 +2258,14 @@ async function init() {
         refreshDataForYear(e.target.value);
     });
 
+    // 4. Initialize everything else
     setupEventListeners();
     Chart.initialize();
     window._syncChartAspect();
     Spreadsheet.initialize();
+
+    // 5. Force the UI to render the data we just loaded
+    refreshDataForYear(currentYearStr);
 }
 
 if (document.readyState === 'loading') {
