@@ -6,8 +6,8 @@
     "category": "Giga Coaster",
     "type": "Giga Coaster",
     "openingYear": "2010",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_x2": {
     "name": "X2",
@@ -16,8 +16,8 @@
     "category": "Fourth Dimension Coaster",
     "type": "Fourth Dimension Coaster",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_magnum_xl_200": {
     "name": "Magnum XL-200",
@@ -26,8 +26,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "1989",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_viper": {
     "name": "Viper",
@@ -36,8 +36,8 @@
     "category": "Looper",
     "type": "Mega Looper",
     "openingYear": "1990",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_steel_vengeance": {
     "name": "Steel Vengeance",
@@ -46,8 +46,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_skyrush": {
     "name": "Skyrush",
@@ -56,8 +56,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "holiday_world_the_voyage": {
     "name": "The Voyage",
@@ -66,8 +66,8 @@
     "category": "Wooden Coaster",
     "type": "Steel-Support Woodie",
     "openingYear": "2006",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "carowinds_fury_325": {
     "name": "Fury 325",
@@ -76,8 +76,8 @@
     "category": "Giga Coaster",
     "type": "Giga Coaster",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "six_flags_great_adventure_el_toro": {
     "name": "El Toro",
@@ -86,8 +86,8 @@
     "category": "Wooden Coaster",
     "type": "Pre-Fab Woodie",
     "openingYear": "2006",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "islands_of_adventure_velocicoaster": {
     "name": "Velocicoaster",
@@ -96,8 +96,8 @@
     "category": "Launch Coaster",
     "type": "Blitz Coaster",
     "openingYear": "2021",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "cedar_point_maverick": {
     "name": "Maverick",
@@ -106,8 +106,8 @@
     "category": "Launch Coaster",
     "type": "Blitz Coaster",
     "openingYear": "2007",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "busch_gardens_tampa_bay_iron_gwazi": {
     "name": "Iron Gwazi",
@@ -116,8 +116,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2022",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "kennywood_phantom_s_revenge": {
     "name": "Phantom's Revenge",
@@ -126,8 +126,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "thorpe_park_hyperia": {
     "name": "Hyperia",
@@ -136,8 +136,8 @@
     "category": "Hypercoaster",
     "type": "Hyper Looper",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "canada_s_wonderland_alpenfury": {
     "name": "AlpenFury",
@@ -146,8 +146,8 @@
     "category": "Launch Coaster",
     "type": "Launched Looper",
     "openingYear": "2025",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "canada_s_wonderland_behemoth": {
     "name": "Behemoth",
@@ -156,8 +156,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "dollywood_lightning_rod": {
     "name": "Lightning Rod",
@@ -166,8 +166,8 @@
     "category": "Launch Coaster",
     "type": "Launched Hybrid",
     "openingYear": "2016",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kentucky_kingdom_storm_chaser": {
     "name": "Storm Chaser",
@@ -176,8 +176,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2016",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "hersheypark_wildcat_s_revenge": {
     "name": "Wildcat's Revenge",
@@ -186,8 +186,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2023",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "canada_s_wonderland_vortex": {
     "name": "Vortex",
@@ -196,8 +196,8 @@
     "category": "Suspended Coaster",
     "type": "Swinging Coaster",
     "openingYear": "1991",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_new_england_superman_the_ride": {
     "name": "Superman The Ride",
@@ -206,8 +206,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "cedar_point_millenium_force": {
     "name": "Millenium Force",
@@ -216,8 +216,8 @@
     "category": "Giga Coaster",
     "type": "Giga Coaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "busch_gardens_tampa_bay_montu": {
     "name": "Montu",
@@ -226,8 +226,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "canada_s_wonderland_leviathan": {
     "name": "Leviathan",
@@ -236,8 +236,8 @@
     "category": "Giga Coaster",
     "type": "Giga Coaster",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "holiday_world_the_legend": {
     "name": "The Legend",
@@ -246,8 +246,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_twisted_colossus": {
     "name": "Twisted Colossus",
@@ -256,8 +256,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "parc_ast_rix_toutatis": {
     "name": "Toutatis",
@@ -266,8 +266,8 @@
     "category": "Launch Coaster",
     "type": "Blitz Coaster",
     "openingYear": "2023",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_new_england_wicked_cyclone": {
     "name": "Wicked Cyclone",
@@ -276,8 +276,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "knott_s_berry_farm_ghostrider": {
     "name": "GhostRider",
@@ -286,8 +286,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "alton_towers_nemesis_reborn": {
     "name": "Nemesis Reborn",
@@ -296,8 +296,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1994",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_island_orion": {
     "name": "Orion",
@@ -306,8 +306,8 @@
     "category": "Giga Coaster",
     "type": "Giga Coaster",
     "openingYear": "2021",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_tatsu": {
     "name": "Tatsu",
@@ -316,8 +316,8 @@
     "category": "Flying Coaster",
     "type": "Flying Coaster",
     "openingYear": "2006",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "hersheypark_candymonium": {
     "name": "Candymonium",
@@ -326,8 +326,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2020",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "parc_ast_rix_oziris": {
     "name": "OzIris",
@@ -336,8 +336,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_twisted_timbers": {
     "name": "Twisted Timbers",
@@ -346,8 +346,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Conversion",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_island_diamondback": {
     "name": "Diamondback",
@@ -356,8 +356,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2009",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "islands_of_adventure_hagrid_s_motorbike_adventure": {
     "name": "Hagrid's Motorbike Adventure",
@@ -366,8 +366,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_america_batwing": {
     "name": "Batwing",
@@ -376,8 +376,8 @@
     "category": "Flying Coaster",
     "type": "Flying Dutchman",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_storm_runner": {
     "name": "Storm Runner",
@@ -386,8 +386,8 @@
     "category": "Launch Coaster",
     "type": "Accelerator Coaster",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "holiday_world_the_raven": {
     "name": "The Raven",
@@ -396,8 +396,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1995",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_grizzly": {
     "name": "Grizzly",
@@ -406,8 +406,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1982",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_wonder_woman_flight_of_courage": {
     "name": "Wonder Woman Flight of Courage",
@@ -416,8 +416,8 @@
     "category": "Looper",
     "type": "Single Rail",
     "openingYear": "2023",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_raptor": {
     "name": "Raptor",
@@ -426,8 +426,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1994",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_the_great_bear": {
     "name": "The Great Bear",
@@ -436,8 +436,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_great_adventure_flash_vertical_velocity": {
     "name": "Flash Vertical Velocity",
@@ -446,8 +446,8 @@
     "category": "Shuttle Coaster",
     "type": "Super Boomerang",
     "openingYear": "2025",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_jersey_devil": {
     "name": "Jersey Devil",
@@ -456,8 +456,8 @@
     "category": "Looper",
     "type": "Single Rail",
     "openingYear": "2021",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_alpengeist": {
     "name": "Alpengeist",
@@ -466,8 +466,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "islands_of_adventure_dueling_dragons": {
     "name": "Dueling Dragons",
@@ -476,8 +476,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1999",
-    "status": "Defunct",
-    "lastRide": "2015"
+    "lastRide": "2015",
+    "status": "Defunct"
   },
   "six_flags_great_adventure_nitro": {
     "name": "Nitro",
@@ -486,8 +486,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "lake_compounce_boulder_dash": {
     "name": "Boulder Dash",
@@ -496,8 +496,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "epcot_guardians_of_the_galaxy__cosmic_rewind": {
     "name": "Guardians of the Galaxy: Cosmic Rewind",
@@ -506,8 +506,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "3D Coaster",
     "openingYear": "2022",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "waldameer_ravine_flyer_ii": {
     "name": "Ravine Flyer II",
@@ -516,8 +516,8 @@
     "category": "Wooden Coaster",
     "type": "Steel-Support Woodie",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "carowinds_intimidator": {
     "name": "Intimidator",
@@ -526,8 +526,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2010",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "knott_s_berry_farm_silver_bullet": {
     "name": "Silver Bullet",
@@ -536,8 +536,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "dollywood_thunderhead": {
     "name": "Thunderhead",
@@ -546,8 +546,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kings_island_mystic_timbers": {
     "name": "Mystic Timbers",
@@ -556,8 +556,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2017",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_kingda_ka": {
     "name": "Kingda Ka",
@@ -566,8 +566,8 @@
     "category": "Launch Coaster",
     "type": "Stratocoaster",
     "openingYear": "2005",
-    "status": "Defunct",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Defunct"
   },
   "kings_island_the_bat": {
     "name": "The Bat",
@@ -576,8 +576,8 @@
     "category": "Suspended Coaster",
     "type": "Swinging Coaster",
     "openingYear": "1993",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "carowinds_afterburn": {
     "name": "Afterburn",
@@ -586,8 +586,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kings_island_banshee": {
     "name": "Banshee",
@@ -596,8 +596,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "holiday_world_thunderbird": {
     "name": "Thunderbird",
@@ -606,8 +606,8 @@
     "category": "Launch Coaster",
     "type": "Launched Wing Coaster",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "cedar_point_top_thrill_2": {
     "name": "Top Thrill 2",
@@ -616,8 +616,8 @@
     "category": "Launch Coaster",
     "type": "Swing Launched Strata",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "canada_s_wonderland_yukon_striker": {
     "name": "Yukon Striker",
@@ -626,8 +626,8 @@
     "category": "Dive Coaster",
     "type": "Hyper Dive",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_fahrenheit": {
     "name": "Fahrenheit",
@@ -636,8 +636,8 @@
     "category": "Looper",
     "type": "Vertical Lift Coaster",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_icon": {
     "name": "Icon",
@@ -646,8 +646,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kennywood_steel_curtain": {
     "name": "Steel Curtain",
@@ -656,8 +656,8 @@
     "category": "Looper",
     "type": "Hyper Looper",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_verbolten": {
     "name": "Verbolten",
@@ -666,8 +666,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_great_adventure_batman_the_ride": {
     "name": "Batman The Ride",
@@ -676,8 +676,8 @@
     "category": "Inverted Coaster",
     "type": "Batman Clone",
     "openingYear": "1993",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_apollo_s_chariot": {
     "name": "Apollo's Chariot",
@@ -686,8 +686,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_darien_lake_ride_of_steel": {
     "name": "Ride of Steel",
@@ -696,8 +696,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "knoebels_phoenix": {
     "name": "Phoenix",
@@ -706,8 +706,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1947",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "knott_s_berry_farm_hangtime": {
     "name": "Hangtime",
@@ -716,8 +716,8 @@
     "category": "Looper",
     "type": "Infinity Coaster",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "dorney_park_steel_force": {
     "name": "Steel Force",
@@ -726,8 +726,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_griffon": {
     "name": "Griffon",
@@ -736,8 +736,8 @@
     "category": "Dive Coaster",
     "type": "Dive Coaster",
     "openingYear": "2007",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "kings_dominion_volcano_the_blast_coaster": {
     "name": "Volcano the Blast Coaster",
@@ -746,8 +746,8 @@
     "category": "Launch Coaster",
     "type": "Inverted Launch Coaster",
     "openingYear": "1998",
-    "status": "Defunct",
-    "lastRide": "2006"
+    "lastRide": "2006",
+    "status": "Defunct"
   },
   "busch_gardens_tampa_bay_sheikra": {
     "name": "Sheikra",
@@ -756,8 +756,8 @@
     "category": "Dive Coaster",
     "type": "Dive Coaster",
     "openingYear": "2005",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_full_throttle": {
     "name": "Full Throttle",
@@ -766,8 +766,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2013",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kennywood_sky_rocket": {
     "name": "Sky Rocket",
@@ -776,8 +776,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "2010",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "the_adventuredome_canyon_blaster": {
     "name": "Canyon Blaster",
@@ -786,8 +786,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1993",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_batman_the_ride": {
     "name": "Batman The Ride",
@@ -796,8 +796,8 @@
     "category": "Inverted Coaster",
     "type": "Batman Clone",
     "openingYear": "1994",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "six_flags_america_superman__ride_of_steel": {
     "name": "Superman: Ride of Steel",
@@ -806,8 +806,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "alton_towers_galactica": {
     "name": "Galactica",
@@ -816,8 +816,8 @@
     "category": "Flying Coaster",
     "type": "Flying Coaster",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "the_adventuredome_el_loco": {
     "name": "El Loco",
@@ -826,8 +826,8 @@
     "category": "Looper",
     "type": "El Loco",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kentucky_kingdom_lightning_run": {
     "name": "Lightning Run",
@@ -836,8 +836,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Hyper GTX",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_valravn": {
     "name": "Valravn",
@@ -846,8 +846,8 @@
     "category": "Dive Coaster",
     "type": "Dive Coaster",
     "openingYear": "2016",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kings_dominion_dominator": {
     "name": "Dominator",
@@ -856,8 +856,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_the_big_one": {
     "name": "The Big One",
@@ -866,8 +866,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "1994",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_ninja": {
     "name": "Ninja",
@@ -876,8 +876,8 @@
     "category": "Suspended Coaster",
     "type": "Swinging Coaster",
     "openingYear": "1988",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kennywood_thunderbolt": {
     "name": "Thunderbolt",
@@ -886,8 +886,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1924 / 1968",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "thorpe_park_nemesis_inferno": {
     "name": "Nemesis Inferno",
@@ -896,8 +896,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "2003",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "stricker_s_grove_tornado": {
     "name": "Tornado",
@@ -906,8 +906,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1993",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "busch_gardens_tampa_bay_kumba": {
     "name": "Kumba",
@@ -916,8 +916,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1993",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "carowinds_copperhead_strike": {
     "name": "Copperhead Strike",
@@ -926,8 +926,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_big_bad_wolf": {
     "name": "Big Bad Wolf",
@@ -936,8 +936,8 @@
     "category": "Suspended Coaster",
     "type": "Swinging Coaster",
     "openingYear": "1984",
-    "status": "Defunct",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "Defunct"
   },
   "cedar_point_top_thrill_dragster": {
     "name": "Top Thrill Dragster",
@@ -946,8 +946,8 @@
     "category": "Launch Coaster",
     "type": "Stratocoaster",
     "openingYear": "2003",
-    "status": "Defunct",
-    "lastRide": "2013"
+    "lastRide": "2013",
+    "status": "Defunct"
   },
   "animal_kingdom_expedition_everest": {
     "name": "Expedition Everest",
@@ -956,8 +956,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Expedition Everest",
     "openingYear": "2006",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "parc_ast_rix_goudurix": {
     "name": "Goudurix",
@@ -966,8 +966,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1989",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "alton_towers_rita": {
     "name": "Rita",
@@ -976,8 +976,8 @@
     "category": "Launch Coaster",
     "type": "Accelerator Coaster",
     "openingYear": "2005",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "dorney_park_talon": {
     "name": "Talon",
@@ -986,8 +986,8 @@
     "category": "Inverted Coaster",
     "type": "Invert",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "luna_park_coney_island_coney_island_cyclone": {
     "name": "Coney Island Cyclone",
@@ -996,8 +996,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1927",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "knoebels_impulse": {
     "name": "Impulse",
@@ -1006,8 +1006,8 @@
     "category": "Looper",
     "type": "Eurofighter",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "wiener_prater_wiener_looping": {
     "name": "Wiener Looping",
@@ -1016,8 +1016,8 @@
     "category": "Looper",
     "type": "Stryker Coaster",
     "openingYear": "2025",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "islands_of_adventure_the_incredible_hulk": {
     "name": "The Incredible Hulk",
@@ -1026,8 +1026,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "nickelodeon_universe__nj__tmnt_shellraiser": {
     "name": "TMNT Shellraiser",
@@ -1036,8 +1036,8 @@
     "category": "Launch Coaster",
     "type": "Eurofighter",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_west_coast_racers": {
     "name": "West Coast Racers",
@@ -1046,8 +1046,8 @@
     "category": "Launch Coaster",
     "type": "Dueling Launch Coaster",
     "openingYear": "2020",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "lake_compounce_phobia_phear_coaster": {
     "name": "Phobia Phear Coaster",
@@ -1056,8 +1056,8 @@
     "category": "Launch Coaster",
     "type": "Sky Rocket II",
     "openingYear": "2016",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "dollywood_wild_eagle": {
     "name": "Wild Eagle",
@@ -1066,8 +1066,8 @@
     "category": "Looper",
     "type": "Wing Coaster",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "thorpe_park_swarm": {
     "name": "Swarm",
@@ -1076,8 +1076,8 @@
     "category": "Looper",
     "type": "Wing Coaster",
     "openingYear": "2012",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "thorpe_park_saw__the_ride": {
     "name": "SAW- the Ride",
@@ -1086,8 +1086,8 @@
     "category": "Looper",
     "type": "Eurofighter",
     "openingYear": "2009",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_island_invertigo": {
     "name": "Invertigo",
@@ -1096,8 +1096,8 @@
     "category": "Shuttle Coaster",
     "type": "Inverted Boomerang",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "hersheypark_wild_mouse": {
     "name": "Wild Mouse",
@@ -1106,8 +1106,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "knoebels_twister": {
     "name": "Twister",
@@ -1116,8 +1116,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "alton_towers_oblivion": {
     "name": "Oblivion",
@@ -1126,8 +1126,8 @@
     "category": "Dive Coaster",
     "type": "Dive Coaster",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_superman_ultimate_flight": {
     "name": "Superman Ultimate Flight",
@@ -1136,8 +1136,8 @@
     "category": "Flying Coaster",
     "type": "Flying Coaster",
     "openingYear": "2003",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_great_adventure_the_joker": {
     "name": "The Joker",
@@ -1146,8 +1146,8 @@
     "category": "Free Spin",
     "type": "Free Spin",
     "openingYear": "2016",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "universal_studios_orlando_revenge_of_the_mummy": {
     "name": "Revenge of the Mummy",
@@ -1156,8 +1156,8 @@
     "category": "Launch Coaster",
     "type": "Indoor Coaster",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2015"
+    "lastRide": "2015",
+    "status": "Operating"
   },
   "mgm___disney_s_hollywood_studios_rock__n__roller_coaster": {
     "name": "Rock 'N' Roller Coaster",
@@ -1166,8 +1166,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "dollywood_tennessee_tornado": {
     "name": "Tennessee Tornado",
@@ -1176,8 +1176,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kings_dominion_anaconda": {
     "name": "Anaconda",
@@ -1186,8 +1186,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1991",
-    "status": "Defunct",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Defunct"
   },
   "six_flags_great_adventure_medusa__bizarro_": {
     "name": "Medusa (Bizarro)",
@@ -1196,8 +1196,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "alton_towers_the_smiler": {
     "name": "The Smiler",
@@ -1206,8 +1206,8 @@
     "category": "Looper",
     "type": "Infinity Coaster",
     "openingYear": "2013",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "thorpe_park_colossus": {
     "name": "Colossus",
@@ -1216,8 +1216,8 @@
     "category": "Looper",
     "type": "10-Inversion Looper",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "universal_studios_orlando_hollywood_rip_ride_rockit": {
     "name": "Hollywood Rip Ride Rockit",
@@ -1226,8 +1226,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Vertical Lift Coaster",
     "openingYear": "2009",
-    "status": "Operating",
-    "lastRide": "2015"
+    "lastRide": "2015",
+    "status": "Operating"
   },
   "six_flags_darien_lake_boomerang": {
     "name": "Boomerang",
@@ -1236,8 +1236,8 @@
     "category": "Shuttle Coaster",
     "type": "Boomerang",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_gatekeeper": {
     "name": "Gatekeeper",
@@ -1246,8 +1246,8 @@
     "category": "Wing Coaster",
     "type": "Wing Coaster",
     "openingYear": "2013",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "funtown_splashtown_u_s_a__excalibur": {
     "name": "Excalibur",
@@ -1256,8 +1256,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_darien_lake_predator": {
     "name": "Predator",
@@ -1266,8 +1266,8 @@
     "category": "Wooden Coaster",
     "type": "Titan Track Woodie",
     "openingYear": "1990",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kentucky_kingdom_kentucky_flyer": {
     "name": "Kentucky Flyer",
@@ -1276,8 +1276,8 @@
     "category": "Wooden Coaster",
     "type": "Family Wooden Coaster",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "alton_towers_wicker_man": {
     "name": "Wicker Man",
@@ -1286,8 +1286,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_new_england_thunderbolt": {
     "name": "Thunderbolt",
@@ -1296,8 +1296,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1941",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_america_the_wild_one": {
     "name": "The Wild One",
@@ -1306,8 +1306,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1917",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "parc_ast_rix_trace_du_hourra": {
     "name": "Trace du Hourra",
@@ -1316,8 +1316,8 @@
     "category": "Bobsled",
     "type": "Bobsled",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "dollywood_firechaser_express": {
     "name": "Firechaser Express",
@@ -1326,8 +1326,8 @@
     "category": "Family Coaster",
     "type": "Family Launch Coaster",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_goliath": {
     "name": "Goliath",
@@ -1336,8 +1336,8 @@
     "category": "Hypercoaster",
     "type": "Hypercoaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_revolution": {
     "name": "Revolution",
@@ -1346,8 +1346,8 @@
     "category": "Launch Coaster",
     "type": "Shuttle Loop",
     "openingYear": "1979",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "california_adventure_california_screamin_": {
     "name": "California Screamin'",
@@ -1356,8 +1356,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2012"
+    "lastRide": "2012",
+    "status": "Operating"
   },
   "six_flags_america_the_joker_s_jinx": {
     "name": "The Joker's Jinx",
@@ -1366,8 +1366,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "canada_s_wonderland_dragon_fyre": {
     "name": "Dragon Fyre",
@@ -1376,8 +1376,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1981",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "carowinds_carolina_cyclone": {
     "name": "Carolina Cyclone",
@@ -1386,8 +1386,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1980",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "magic_kingdom_space_mountain": {
     "name": "Space Mountain",
@@ -1396,8 +1396,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Mini Coaster",
     "openingYear": "1975",
-    "status": "Operating",
-    "lastRide": "2018"
+    "lastRide": "2018",
+    "status": "Operating"
   },
   "canada_s_wonderland_thunder_run": {
     "name": "Thunder Run",
@@ -1406,8 +1406,8 @@
     "category": "Powered Coaster",
     "type": "Powered Coaster",
     "openingYear": "1986",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "cedar_point_wicked_twister": {
     "name": "Wicked Twister",
@@ -1416,8 +1416,8 @@
     "category": "Shuttle Coaster",
     "type": "Impulse Coaster",
     "openingYear": "2002",
-    "status": "Defunct",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Defunct"
   },
   "dorney_park_possessed": {
     "name": "Possessed",
@@ -1426,8 +1426,8 @@
     "category": "Shuttle Coaster",
     "type": "Impulse Coaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "carowinds_flying_cobras": {
     "name": "Flying Cobras",
@@ -1436,8 +1436,8 @@
     "category": "Shuttle Coaster",
     "type": "Boomerang",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "knott_s_berry_farm_sierra_sidewinder": {
     "name": "Sierra Sidewinder",
@@ -1446,8 +1446,8 @@
     "category": "Spinning Coaster",
     "type": "Spinning Coaster",
     "openingYear": "2007",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_invadr": {
     "name": "Invadr",
@@ -1456,8 +1456,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2017",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_apocalypse": {
     "name": "Apocalypse",
@@ -1466,8 +1466,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "2009",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "cedar_point_blue_streak": {
     "name": "Blue Streak",
@@ -1476,8 +1476,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1964",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "canada_s_wonderland_mighty_canadian_minebuster": {
     "name": "Mighty Canadian Minebuster",
@@ -1486,8 +1486,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1981",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_island_the_racer": {
     "name": "The Racer",
@@ -1496,8 +1496,8 @@
     "category": "Wooden Coaster",
     "type": "Dueling Woodie",
     "openingYear": "1972",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_avalanche__reptillian_": {
     "name": "Avalanche (Reptillian)",
@@ -1506,8 +1506,8 @@
     "category": "Bobsled",
     "type": "Bobsled",
     "openingYear": "1988",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "dorney_park_iron_menace": {
     "name": "Iron Menace",
@@ -1516,8 +1516,8 @@
     "category": "Dive Coaster",
     "type": "Dive Coaster",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "parc_ast_rix_p_gase_express": {
     "name": "Pégase Express",
@@ -1526,8 +1526,8 @@
     "category": "Family Coaster",
     "type": "Family Launch Coaster",
     "openingYear": "2017",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_tumbili": {
     "name": "Tumbili",
@@ -1536,8 +1536,8 @@
     "category": "Free Spin",
     "type": "Free Spin",
     "openingYear": "2022",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_gemini": {
     "name": "Gemini",
@@ -1546,8 +1546,8 @@
     "category": "Hybrid Coaster",
     "type": "Hybrid Coaster",
     "openingYear": "1978",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_infusion": {
     "name": "Infusion",
@@ -1556,8 +1556,8 @@
     "category": "Inverted Coaster",
     "type": "Suspended Looping Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "dollywood_dragonflier": {
     "name": "Dragonflier",
@@ -1566,8 +1566,8 @@
     "category": "Inverted Coaster",
     "type": "Family Invert",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "six_flags_america_professor_screamore_s_skywinder__mind_eraser_": {
     "name": "Professor Screamore's Skywinder (Mind Eraser)",
@@ -1576,8 +1576,8 @@
     "category": "Inverted Coaster",
     "type": "Suspended Looping Coaster",
     "openingYear": "1995",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_backlot_stunt_coaster": {
     "name": "Backlot Stunt Coaster",
@@ -1586,8 +1586,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2006",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_island_backlot_stunt_coaster": {
     "name": "Backlot Stunt Coaster",
@@ -1596,8 +1596,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "2005",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "busch_gardens_williamsburg_loch_ness_monster": {
     "name": "Loch Ness Monster",
@@ -1606,8 +1606,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1978",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_darien_lake_viper": {
     "name": "Viper",
@@ -1616,8 +1616,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1982",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_new_england_batman_the_dark_knight": {
     "name": "Batman the Dark Knight",
@@ -1626,8 +1626,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "cedar_point_rougarou": {
     "name": "Rougarou",
@@ -1636,8 +1636,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "dorney_park_hydra_the_revenge": {
     "name": "Hydra the Revenge",
@@ -1646,8 +1646,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2005",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_scream": {
     "name": "Scream",
@@ -1656,8 +1656,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2003",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "hersheypark_sooperdooperlooper": {
     "name": "SooperDooperLooper",
@@ -1666,8 +1666,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1977",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "adventureland_hurricane": {
     "name": "Hurricane",
@@ -1676,8 +1676,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Hurricane",
     "openingYear": "1991",
-    "status": "Defunct",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "Defunct"
   },
   "hersheypark_jolly_rancher_remix__sidewinder_": {
     "name": "Jolly Rancher Remix (Sidewinder)",
@@ -1686,8 +1686,8 @@
     "category": "Shuttle Coaster",
     "type": "Boomerang",
     "openingYear": "1991",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_island_snoopy_s_soapbox_racers": {
     "name": "Snoopy's Soapbox Racers",
@@ -1696,8 +1696,8 @@
     "category": "Shuttle Coaster",
     "type": "Family Boomerang",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kennywood_exterminator": {
     "name": "Exterminator",
@@ -1706,8 +1706,8 @@
     "category": "Spinning Coaster",
     "type": "Spinning Wild Mouse",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "carowinds_ricochet": {
     "name": "Ricochet",
@@ -1716,8 +1716,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "animal_kingdom_primeval_whirl": {
     "name": "Primeval Whirl",
@@ -1726,8 +1726,8 @@
     "category": "Wild Mouse",
     "type": "Spinning Wild Mouse",
     "openingYear": "2002",
-    "status": "Defunct",
-    "lastRide": "2018"
+    "lastRide": "2018",
+    "status": "Defunct"
   },
   "six_flags_america_rajun_cajun": {
     "name": "Rajun Cajun",
@@ -1736,8 +1736,8 @@
     "category": "Wild Mouse",
     "type": "Spinning Wild Mouse",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_nickelodeon_streak": {
     "name": "Nickelodeon Streak",
@@ -1746,8 +1746,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1933",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kennywood_jack_rabbit": {
     "name": "Jack Rabbit",
@@ -1756,8 +1756,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1920",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "hersheypark_comet": {
     "name": "Comet",
@@ -1766,8 +1766,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1946",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "kings_dominion_woodstock_express": {
     "name": "Woodstock Express",
@@ -1776,8 +1776,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1974",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "kings_island_the_beast": {
     "name": "The Beast",
@@ -1786,8 +1786,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1979",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "rye_playland_super_flight": {
     "name": "Super Flight",
@@ -1796,8 +1796,8 @@
     "category": "Flying Coaster",
     "type": "Volaire",
     "openingYear": "2004",
-    "status": "SBNO",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "SBNO"
   },
   "knott_s_berry_farm_pony_express": {
     "name": "Pony Express",
@@ -1806,8 +1806,8 @@
     "category": "Launch Coaster",
     "type": "Launched Family Coaster",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_the_new_revolution": {
     "name": "The New Revolution",
@@ -1816,8 +1816,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1976",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "luna_park_coney_island_thunderbolt": {
     "name": "Thunderbolt",
@@ -1826,8 +1826,8 @@
     "category": "Looper",
     "type": "Eurofighter",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "nickelodeon_universe__nj__nickelodeon_slime_streak": {
     "name": "Nickelodeon Slime Streak",
@@ -1836,8 +1836,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Mini Coaster",
     "openingYear": "2019",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "alton_towers_runaway_mine_train": {
     "name": "Runaway Mine Train",
@@ -1846,8 +1846,8 @@
     "category": "Powered Coaster",
     "type": "Powered Coaster",
     "openingYear": "1992",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_steeplechase": {
     "name": "Steeplechase",
@@ -1856,8 +1856,8 @@
     "category": "Steeplechase",
     "type": "Steeplechase",
     "openingYear": "1977",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kennywood_racer": {
     "name": "Racer",
@@ -1866,8 +1866,8 @@
     "category": "Wooden Coaster",
     "type": "Dueling Woodie",
     "openingYear": "1927",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "parc_ast_rix_tonnerre_2_zeus": {
     "name": "Tonnerre 2 Zeus",
@@ -1876,8 +1876,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_lightning_racers": {
     "name": "Lightning Racers",
@@ -1886,8 +1886,8 @@
     "category": "Wooden Coaster",
     "type": "Dueling Woodie",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "wiener_prater_die_gesengte_sau": {
     "name": "Die Gesengte Sau",
@@ -1896,8 +1896,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "2020",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "new_york_new_york_casino_big_apple_coaster__manhattan_express_": {
     "name": "Big Apple Coaster (Manhattan Express)",
@@ -1906,8 +1906,8 @@
     "category": "Hypercoaster",
     "type": "Hyper Looper",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_rapterra": {
     "name": "Rapterra",
@@ -1916,8 +1916,8 @@
     "category": "Launch Coaster",
     "type": "Launched Wing Coaster",
     "openingYear": "2025",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_superman__escape_from_krypton__f_": {
     "name": "Superman: Escape from Krypton (F)",
@@ -1926,8 +1926,8 @@
     "category": "Launch Coaster",
     "type": "Reverse Freefall Coaster",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "kings_dominion_flight_of_fear": {
     "name": "Flight of Fear",
@@ -1936,8 +1936,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_island_flight_of_fear": {
     "name": "Flight of Fear",
@@ -1946,8 +1946,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "playland_s_castaway_cove_gale_force": {
     "name": "Gale Force",
@@ -1956,8 +1956,8 @@
     "category": "Launch Coaster",
     "type": "Multi-Launch",
     "openingYear": "2017",
-    "status": "Operating",
-    "lastRide": "2019"
+    "lastRide": "2019",
+    "status": "Operating"
   },
   "six_flags_great_adventure_the_great_american_scream_machine": {
     "name": "The Great American Scream Machine",
@@ -1966,8 +1966,8 @@
     "category": "Looper",
     "type": "Mega Looper",
     "openingYear": "1989",
-    "status": "Defunct",
-    "lastRide": "2010"
+    "lastRide": "2010",
+    "status": "Defunct"
   },
   "dollywood_mystery_mine": {
     "name": "Mystery Mine",
@@ -1976,8 +1976,8 @@
     "category": "Looper",
     "type": "Eurofighter",
     "openingYear": "2007",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "six_flags_darien_lake_tantrum": {
     "name": "Tantrum",
@@ -1986,8 +1986,8 @@
     "category": "Looper",
     "type": "Eurofighter",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "disneyland_big_thunder_mountain_railroad": {
     "name": "Big Thunder Mountain Railroad",
@@ -1996,8 +1996,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1979",
-    "status": "Operating",
-    "lastRide": "2012"
+    "lastRide": "2012",
+    "status": "Operating"
   },
   "kings_island_adventure_express": {
     "name": "Adventure Express",
@@ -2006,8 +2006,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1991",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_runaway_mine_train": {
     "name": "Runaway Mine Train",
@@ -2016,8 +2016,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1974",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "magic_kingdom_big_thunder_mountain_railroad": {
     "name": "Big Thunder Mountain Railroad",
@@ -2026,8 +2026,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1980",
-    "status": "Operating",
-    "lastRide": "2018"
+    "lastRide": "2018",
+    "status": "Operating"
   },
   "six_flags_great_adventure_skull_mountain": {
     "name": "Skull Mountain",
@@ -2036,8 +2036,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Mini Coaster",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "hersheypark_laff_trakk": {
     "name": "Laff Trakk",
@@ -2046,8 +2046,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Spinning Coaster",
     "openingYear": "2015",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_great_adventure_the_dark_knight_coaster": {
     "name": "The Dark Knight Coaster",
@@ -2056,8 +2056,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "kentucky_kingdom_thunder_run": {
     "name": "Thunder Run",
@@ -2066,8 +2066,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1990",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "rye_playland_dragon_coaster": {
     "name": "Dragon Coaster",
@@ -2076,8 +2076,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1929",
-    "status": "Operating",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "Operating"
   },
   "six_flags_america_roar": {
     "name": "Roar",
@@ -2086,8 +2086,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_big_dipper": {
     "name": "Big Dipper",
@@ -2096,8 +2096,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1923",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "kings_dominion_racer_75": {
     "name": "Racer 75",
@@ -2106,8 +2106,8 @@
     "category": "Wooden Coaster",
     "type": "Dueling Woodie",
     "openingYear": "1975",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "waldameer_ravine_flyer_3": {
     "name": "Ravine Flyer 3",
@@ -2116,8 +2116,8 @@
     "category": "Family Coaster",
     "type": "Family Coaster",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_darien_lake_motocoaster": {
     "name": "Motocoaster",
@@ -2126,8 +2126,8 @@
     "category": "Launch Coaster",
     "type": "Family Launch Coaster",
     "openingYear": "2008",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_great_escape_steamin__demon": {
     "name": "Steamin' Demon",
@@ -2136,8 +2136,8 @@
     "category": "Looper",
     "type": "Loopscrew",
     "openingYear": "1978",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_island_woodstock_express": {
     "name": "Woodstock Express",
@@ -2146,8 +2146,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1972",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "canada_s_wonderland_wonder_mountain_s_gudardian": {
     "name": "Wonder Mountain's Gudardian",
@@ -2156,8 +2156,8 @@
     "category": "Family Coaster",
     "type": "Dark Ride Coaster / Shooter",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "alton_towers_th13teen": {
     "name": "Th13teen",
@@ -2166,8 +2166,8 @@
     "category": "Family Coaster",
     "type": "Family Launch Coaster",
     "openingYear": "2010",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_new_england_catwoman_s_whip": {
     "name": "Catwoman's Whip",
@@ -2176,8 +2176,8 @@
     "category": "Family Coaster",
     "type": "Tivoli",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "mgm___disney_s_hollywood_studios_slinky_dog_dash": {
     "name": "Slinky Dog Dash",
@@ -2186,8 +2186,8 @@
     "category": "Launch Coaster",
     "type": "Launch Coaster",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "six_flags_great_escape_canyon_blaster": {
     "name": "Canyon Blaster",
@@ -2196,8 +2196,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1972",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "six_flags_magic_mountain_gold_rusher": {
     "name": "Gold Rusher",
@@ -2206,8 +2206,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1971",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "dollywood_blazing_fury": {
     "name": "Blazing Fury",
@@ -2216,8 +2216,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Dark Ride Coaster",
     "openingYear": "1978",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "islands_of_adventure_flight_of_the_hippogriff": {
     "name": "Flight of the Hippogriff",
@@ -2226,8 +2226,8 @@
     "category": "Family Coaster",
     "type": "Junior Coaster",
     "openingYear": "2010",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "holiday_world_good_gravy_": {
     "name": "Good Gravy!",
@@ -2236,8 +2236,8 @@
     "category": "Shuttle Coaster",
     "type": "Family Boomerang",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "waldameer_steel_dragon": {
     "name": "Steel Dragon",
@@ -2246,8 +2246,8 @@
     "category": "Spinning Coaster",
     "type": "Spinning Coaster",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_iron_dragon": {
     "name": "Iron Dragon",
@@ -2256,8 +2256,8 @@
     "category": "Suspended Coaster",
     "type": "Swinging Coaster",
     "openingYear": "1987",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "six_flags_great_escape_bobcat": {
     "name": "Bobcat",
@@ -2266,8 +2266,8 @@
     "category": "Wooden Coaster",
     "type": "Family Wooden Coaster",
     "openingYear": "2024",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "blackpool_pleasure_beach_blue_flyer": {
     "name": "Blue Flyer",
@@ -2276,8 +2276,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1934",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_rolling_thunder": {
     "name": "Rolling Thunder",
@@ -2286,8 +2286,8 @@
     "category": "Wooden Coaster",
     "type": "Dueling Woodie",
     "openingYear": "1979",
-    "status": "Defunct",
-    "lastRide": "2013"
+    "lastRide": "2013",
+    "status": "Defunct"
   },
   "waldameer_comet": {
     "name": "Comet",
@@ -2296,8 +2296,8 @@
     "category": "Wooden Coaster",
     "type": "Family Wooden Coaster",
     "openingYear": "1951",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "stricker_s_grove_teddy_bear": {
     "name": "Teddy Bear",
@@ -2306,8 +2306,8 @@
     "category": "Wooden Coaster",
     "type": "Family Wooden Coaster",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "knoebels_kosmo_s_curves": {
     "name": "Kosmo's Curves",
@@ -2316,8 +2316,8 @@
     "category": "Family Coaster",
     "type": "Junior Coaster",
     "openingYear": "2009",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "waldameer_whirlwind": {
     "name": "Whirlwind",
@@ -2326,8 +2326,8 @@
     "category": "Spinning Coaster",
     "type": "Spinning Family Coaster",
     "openingYear": "2020",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_dominion_apple_zapple": {
     "name": "Apple Zapple",
@@ -2336,8 +2336,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "kings_dominion_great_pumpkin_coaster": {
     "name": "Great Pumpkin Coaster",
@@ -2346,8 +2346,8 @@
     "category": "Family Coaster",
     "type": "Kiddie Coaster",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "holiday_world_howler": {
     "name": "Howler",
@@ -2356,8 +2356,8 @@
     "category": "Family Coaster",
     "type": "Family Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_harley_quinn_crazy_train": {
     "name": "Harley Quinn Crazy Train",
@@ -2366,8 +2366,8 @@
     "category": "Family Coaster",
     "type": "Tivoli",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "hersheypark_roller_soaker": {
     "name": "Roller Soaker",
@@ -2376,8 +2376,8 @@
     "category": "Inverted Coaster",
     "type": "Water Coaster",
     "openingYear": "2002",
-    "status": "Defunct",
-    "lastRide": "2012"
+    "lastRide": "2012",
+    "status": "Defunct"
   },
   "cedar_point_corkscrew": {
     "name": "Corkscrew",
@@ -2386,8 +2386,8 @@
     "category": "Looper",
     "type": "Custom Looper",
     "openingYear": "1976",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "cedar_point_cedar_creek_mine_ride": {
     "name": "Cedar Creek Mine Ride",
@@ -2396,8 +2396,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1969",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "magic_kingdom_the_barnstormer": {
     "name": "The Barnstormer",
@@ -2406,8 +2406,8 @@
     "category": "Family Coaster",
     "type": "Junior Coaster",
     "openingYear": "1996",
-    "status": "Operating",
-    "lastRide": "2018"
+    "lastRide": "2018",
+    "status": "Operating"
   },
   "dorney_park_thunderhawk": {
     "name": "Thunderhawk",
@@ -2416,8 +2416,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1923",
-    "status": "Operating",
-    "lastRide": "2024"
+    "lastRide": "2024",
+    "status": "Operating"
   },
   "lake_compounce_wildcat": {
     "name": "Wildcat",
@@ -2426,8 +2426,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1927",
-    "status": "Operating",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Operating"
   },
   "kings_island_flying_ace_aerial_chase": {
     "name": "Flying Ace Aerial Chase",
@@ -2436,8 +2436,8 @@
     "category": "Inverted Coaster",
     "type": "Family Invert",
     "openingYear": "2001",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "carowinds_vortex": {
     "name": "Vortex",
@@ -2446,8 +2446,8 @@
     "category": "Looper",
     "type": "Stand-up",
     "openingYear": "1992",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "carowinds_carolina_goldrusher": {
     "name": "Carolina Goldrusher",
@@ -2456,8 +2456,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1973",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "hersheypark_trailblazer": {
     "name": "Trailblazer",
@@ -2466,8 +2466,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "1974",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "magic_kingdom_seven_dwarfs_mine_train": {
     "name": "Seven Dwarfs Mine Train",
@@ -2476,8 +2476,8 @@
     "category": "Mine Train",
     "type": "Mine Train",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2018"
+    "lastRide": "2018",
+    "status": "Operating"
   },
   "knott_s_berry_farm_coast_rider": {
     "name": "Coast Rider",
@@ -2486,8 +2486,8 @@
     "category": "Wild Mouse",
     "type": "Wild Mouse",
     "openingYear": "2013",
-    "status": "Operating",
-    "lastRide": "2023"
+    "lastRide": "2023",
+    "status": "Operating"
   },
   "canada_s_wonderland_wilde_beast": {
     "name": "Wilde Beast",
@@ -2496,8 +2496,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1981",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "adventureland_ladybug_coaster": {
     "name": "Ladybug Coaster",
@@ -2506,8 +2506,8 @@
     "category": "Family Coaster",
     "type": "Tivoli",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "Operating"
   },
   "six_flags_great_adventure_lil__devil": {
     "name": "Lil' Devil",
@@ -2516,8 +2516,8 @@
     "category": "Kiddie Coaster",
     "type": "Kiddie Coaster",
     "openingYear": "1999",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "luna_park_coney_island_soarin__eagle": {
     "name": "Soarin' Eagle",
@@ -2526,8 +2526,8 @@
     "category": "Flying Coaster",
     "type": "Volaire",
     "openingYear": "2002",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "house_of_frankenstein_frankencoaster": {
     "name": "Frankencoaster",
@@ -2536,8 +2536,8 @@
     "category": "Family Coaster",
     "type": "Not Really a Family Coaster? IDEK",
     "openingYear": "2004",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_america_firebird": {
     "name": "Firebird",
@@ -2546,8 +2546,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2018",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_great_adventure_green_lantern": {
     "name": "Green Lantern",
@@ -2556,8 +2556,8 @@
     "category": "Looper",
     "type": "Stand-up",
     "openingYear": "1997",
-    "status": "Defunct",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Defunct"
   },
   "six_flags_magic_mountain_riddler_s_revenge": {
     "name": "Riddler's Revenge",
@@ -2566,8 +2566,8 @@
     "category": "Looper",
     "type": "Stand-up",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2022"
+    "lastRide": "2022",
+    "status": "Operating"
   },
   "canada_s_wonderland_flight_deck": {
     "name": "Flight Deck",
@@ -2576,8 +2576,8 @@
     "category": "Inverted Coaster",
     "type": "Suspended Looping Coaster",
     "openingYear": "1995",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "six_flags_darien_lake_mind_eraser": {
     "name": "Mind Eraser",
@@ -2586,8 +2586,8 @@
     "category": "Inverted Coaster",
     "type": "Suspended Looping Coaster",
     "openingYear": "1997",
-    "status": "Operating",
-    "lastRide": "2025"
+    "lastRide": "2025",
+    "status": "Operating"
   },
   "hersheypark_wildcat": {
     "name": "Wildcat",
@@ -2596,8 +2596,8 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1996",
-    "status": "Defunct",
-    "lastRide": "2021"
+    "lastRide": "2021",
+    "status": "Defunct"
   },
   "kings_dominion_shockwave": {
     "name": "Shockwave",
@@ -2606,8 +2606,8 @@
     "category": "Looper",
     "type": "Stand-up",
     "openingYear": "1986",
-    "status": "Defunct",
-    "lastRide": "2006"
+    "lastRide": "2006",
+    "status": "Defunct"
   },
   "moreys_piers_wildwood_the_great_nor_easter": {
     "name": "The Great Nor'Easter",
@@ -2616,8 +2616,8 @@
     "category": "Inverted Coaster",
     "type": "Suspended Looping Coaster",
     "openingYear": "1995",
-    "status": "Operating",
-    "lastRide": "Pre 2010"
+    "lastRide": "Pre 2010",
+    "status": "Operating"
   },
   "universal_studios_orlando_escape_from_gringotts": {
     "name": "Escape from Gringotts",
@@ -2626,8 +2626,8 @@
     "category": "Launch Coaster",
     "type": "Dark Ride Coaster",
     "openingYear": "2014",
-    "status": "Operating",
-    "lastRide": "2016"
+    "lastRide": "2016",
+    "status": "Operating"
   },
   "cedar_point_mantis": {
     "name": "Mantis",
@@ -2636,8 +2636,8 @@
     "category": "Looper",
     "type": "Stand-up",
     "openingYear": "1996",
-    "status": "Defunct",
-    "lastRide": "2013"
+    "lastRide": "2013",
+    "status": "Defunct"
   },
   "seaworld_orlando_kraken": {
     "name": "Kraken",
@@ -2646,8 +2646,8 @@
     "category": "Looper",
     "type": "Floorless",
     "openingYear": "2000",
-    "status": "Operating",
-    "lastRide": "2003"
+    "lastRide": "2003",
+    "status": "Operating"
   },
   "disneyland_matterhorn_bobsleds": {
     "name": "Matterhorn Bobsleds",
@@ -2656,8 +2656,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Steel Coaster",
     "openingYear": "1959",
-    "status": "Operating",
-    "lastRide": "2012"
+    "lastRide": "2012",
+    "status": "Operating"
   },
   "disneyland_space_mountain": {
     "name": "Space Mountain",
@@ -2666,8 +2666,8 @@
     "category": "Non-Inverting Steel Coaster",
     "type": "Steel Coaster",
     "openingYear": "1977",
-    "status": "Operating",
-    "lastRide": "2012"
+    "lastRide": "2012",
+    "status": "Operating"
   },
   "seaworld_orlando_journey_to_atlantis": {
     "name": "Journey to Atlantis",
@@ -2676,8 +2676,8 @@
     "category": "Water Coaster",
     "type": "Water Coaster",
     "openingYear": "1998",
-    "status": "Operating",
-    "lastRide": "2003"
+    "lastRide": "2003",
+    "status": "Operating"
   },
   "cedar_point_mean_streak": {
     "name": "Mean Streak",
@@ -2686,7 +2686,7 @@
     "category": "Wooden Coaster",
     "type": "Woodie",
     "openingYear": "1991",
-    "status": "Defunct",
-    "lastRide": "2013"
+    "lastRide": "2013",
+    "status": "Defunct"
   }
 }
