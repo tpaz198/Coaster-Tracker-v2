@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a855f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#8b5cf6" media="(prefers-color-scheme: dark)">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Thomas XL-200's Coaster Credit Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Racing+Sans+One&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        *{margin:0;padding:0;box-sizing:border-box;}
+:root{--primary:#a855f7;--primary-hover:#9333ea;--accent:#06b6d4;--accent-pink:#ec4899;--bg:#f3e8ff;--bg-secondary:#fae8ff;--card-bg:#ffffff;--text:#1e1b4b;--text-secondary:#6b21a8;--border:#d8b4fe;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--shadow:0 1px 3px 0 rgb(0 0 0 / 0.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0 / 0.1);--shadow-bold:4px 4px 0px rgba(168,85,247,0.2);--new-credit-bg:#f0fdf4;--new-credit-border:#4ade80;--defunct-bg:#fef2f2;--defunct-border:#f87171;--credit-bg:#dcfce7;--credit-border:#16a34a;--credit-text:#15803d;--toggle-bg:#06b6d4;--toggle-hover:#0e7490;}
+@media (prefers-color-scheme:dark){:root{--primary:#8b5cf6;--primary-hover:#a78bfa;--accent:#22d3ee;--accent-pink:#fb7185;--bg:#020617;--bg-secondary:#0f172a;--card-bg:#1e293b;--text:#faf5ff;--text-secondary:#e9d5ff;--border:#a78bfa;--success:#4ade80;--warning:#fcd34d;--danger:#fb7185;--shadow:0 2px 4px 0 rgb(0 0 0 / 0.4);--shadow-lg:0 10px 20px -3px rgb(0 0 0 / 0.5);--shadow-bold:4px 4px 0px rgba(139,92,246,0.25);--new-credit-bg:rgba(74,222,128,0.2);--new-credit-border:#4ade80;--defunct-bg:rgba(248,113,113,0.2);--defunct-border:#fb7185;--credit-bg:rgba(74,222,128,0.15);--credit-border:#4ade80;--credit-text:#4ade80;--toggle-bg:#22d3ee;--toggle-hover:#06b6d4;}
+}
+body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
+@media (prefers-color-scheme:dark){body{background:linear-gradient(135deg,#020617 0%,#0f172a 50%,#020617 100%);background-attachment:fixed;}
+}
+.year-selector{display:flex;align-items:center;align-self:center;gap:0.5rem;}
+.year-selector label{font-weight:600;font-size:calc(1.1rem + 3px);color:var(--text-secondary);}
+.year-selector select{padding:0.5rem 1rem;border:2px solid var(--primary);border-radius:6px;background:var(--card-bg);color:var(--text);font-weight:700;font-size:1.2rem;cursor:pointer;}
+.header-right{display:flex;align-items:stretch;gap:1rem;flex:1;justify-content:flex-end;}
+.data-transfer{display:flex;flex-direction:column;gap:0.75rem;}
+.data-transfer-btn{padding:0.5rem 0.65rem;border:2px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:1.2rem;cursor:pointer;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;font-weight:600;white-space:nowrap;flex:1;display:flex;align-items:center;justify-content:center;}
+.data-transfer-btn:hover{border-color:var(--primary);background:var(--bg-secondary);}
+.app-content{display:block;}
+.container{max-width:1400px;margin:0 auto;padding:0 1.5rem;}
+header{padding:2rem 0;border-bottom:1px solid var(--border);margin-bottom:2rem;}
+.header-content{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp(1.5rem,4vw,2.25rem);font-weight:900;color:var(--text);letter-spacing:0.5px;text-shadow:3px 3px 0px rgba(217,70,239,0.4),6px 6px 0px rgba(217,70,239,0.2);}
+.stats-box{display:flex;flex-direction:column;gap:0.75rem;align-items:center;}
+.credit-count,.average-rating{min-width:11rem;text-align:center;padding:0.75rem 1.5rem;border-radius:8px;font-size:1.25rem;font-weight:700;box-shadow:var(--shadow-bold);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;}
+.credit-count{background:var(--credit-bg);color:var(--credit-text);border:3px solid var(--credit-border);}
+.average-rating{background:linear-gradient(135deg,#06b6d4 0%,#d946ef 100%);color:white;border:3px solid #06b6d4;font-weight:800;letter-spacing:1px;}
+@media (max-width:768px){.stats-box{flex-direction:row;justify-content:center;flex-wrap:nowrap;align-items:stretch;align-self:stretch;gap:0.6rem;}
+.credit-count,.average-rating{min-width:0;flex:1;padding:0.6rem 0.4rem;display:flex;align-items:center;justify-content:center;font-size:1rem;border-width:2.4px;}
+}
+.tab-nav{display:flex;gap:0.25rem;margin-top:1.5rem;border-bottom:4px solid var(--primary);padding-bottom:0;overflow:visible;flex-wrap:nowrap;justify-content:flex-start;}
+.tab-btn{padding:0.6rem 1rem;border:none;border-top:3px solid var(--border);border-left:3px solid var(--border);border-right:3px solid var(--border);border-bottom:none;background:var(--bg-secondary);color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px;border-radius:8px 8px 0 0;box-shadow:inset 2px 2px 4px rgba(0,0,0,0.1);position:relative;bottom:-4px;white-space:nowrap;flex:1;min-width:0;}
+@media (max-width:768px){.tab-btn{padding:0.5rem 0.75rem;font-size:0.9rem;}
+}
+@media (max-width:480px){.tab-btn{padding:0.5rem 0.6rem;font-size:calc(0.7rem + 3px);}
+}
+.tab-btn:hover{background:var(--bg);transform:translateY(-2px);bottom:-2px;}
+.tab-btn.active{background:var(--bg);border-color:var(--primary);border-bottom:4px solid var(--bg);box-shadow:none;font-weight:800;}
+.tab-content{display:block;}
+.tab-content.hidden{display:none;}
+.modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed var(--border);}
+.modal-actions .btn{flex:1;}
+.stats-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg-secondary);border-radius:10px;border:2px solid var(--border);box-shadow:var(--shadow);}
+.chart-controls{display:flex;justify-content:center;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+.chart-controls .btn{padding:0.5rem 1rem;font-size:0.9375rem;}
+.chart-limit-btn.active,.ot-chart-limit-btn.active{background:var(--toggle-bg);}
+.chart-limit-btn.active:hover,.ot-chart-limit-btn.active:hover{background:var(--toggle-hover);}
+.chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;}
+.chart-aspect-wrapper{position:relative;width:100%;padding-bottom:56.25%;}
+.chart-aspect-wrapper canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.chart-download-btn-container{display:flex;justify-content:center;margin-top:1rem;}
+.controls{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.controls .btn{font-size:1rem;}
+.search-box{flex:1;min-width:250px;position:relative;}
+.search-box input{width:100%;padding:0.75rem 1rem 0.75rem 2.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.875rem;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;}
+.search-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(217,70,239,0.15);}
+.search-box::before{content:'🔍';position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none;}
+.btn{padding:0.75rem 1.25rem;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:0.875rem;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:white !important;}
+.btn-primary:hover{background:var(--primary-hover);}
+.btn-danger{background:var(--danger);color:black !important;}
+.btn-danger:hover{filter:brightness(0.88);}
+background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--border);}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:0;padding:0;background:var(--bg-secondary);border-radius:8px;border:2px solid transparent;max-height:0;overflow:hidden;opacity:0;transition:all 0.3s ease;}
+.filters.active{max-height:800px;opacity:1;margin-bottom:1.5rem;padding:1.5rem;border-color:var(--border);}
+.filter-group label{display:block;font-weight:600;margin-bottom:0.5rem;color:var(--text);font-size:0.9375rem;}
+.filter-group select{width:100%;padding:0.625rem;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.9375rem;cursor:pointer;transition:all 0.2s;}
+.filter-group select:focus{outline:none;border-color:var(--primary);}
+@media (prefers-color-scheme:dark){.filter-group select{background:#0e7490;color:white;border:1px solid #06b6d4;}
+}
+.coaster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:3rem;}
+.coaster-card{background:var(--card-bg);border-radius:10px;padding:1.25rem;border:3px solid var(--border);transition:all 0.2s;cursor:pointer;box-shadow:3px 3px 0px rgba(0,0,0,0.1);display:flex;flex-direction:column;}
+.coaster-card.new-credit{background:var(--new-credit-bg);border-color:var(--new-credit-border);box-shadow:0 0 0 3px rgba(74,222,128,0.2),3px 3px 0px rgba(0,0,0,0.1);}
+.coaster-card.defunct{background:var(--defunct-bg);border-color:var(--defunct-border);box-shadow:0 0 0 3px rgba(248,113,113,0.2),3px 3px 0px rgba(0,0,0,0.1);}
+.coaster-card:hover{transform:translateY(-4px) rotate(0.5deg);box-shadow:6px 6px 0px rgba(0,0,0,0.15);border-color:var(--primary);}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;gap:0.75rem;}
+.card-title{font-size:1.4375rem;font-weight:600;color:var(--text);line-height:1.4;flex:1;}
+.ranking-badge{background:var(--primary);color:white;font-size:1.25rem;font-weight:600;padding:0.25rem 0.625rem;border-radius:6px;min-width:45px;text-align:center;text-shadow:2px 2px 3px rgba(0,0,0,0.4),1px 1px 1px rgba(0,0,0,0.5);}
+@media (prefers-color-scheme:dark){.ranking-badge{background:var(--rating-color,var(--primary));color:white !important;text-shadow:2px 2px 3px rgba(0,0,0,0.4),1px 1px 1px rgba(0,0,0,0.5) !important;}
+}
+.card-park{color:var(--text-secondary);font-size:1.25rem;margin-bottom:0.75rem;font-style:italic;}
+.card-details{display:grid;gap:0.5rem;margin-bottom:0.75rem;margin-top:auto;}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;font-size:1.0625rem;}
+.detail-label{color:var(--text-secondary);font-weight:500;}
+.detail-value{color:var(--text);font-weight:500;text-align:right;font-style:italic;}
+.card-details>.detail-row:first-child{min-height:4.2rem;}
+.rating-display{display:flex;align-items:center;gap:0.5rem;padding:0.625rem;background:var(--bg-secondary);border-radius:6px;margin-top:0.75rem;}
+.rating-stars{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.rating-fill{height:100%;border-radius:4px;transition:width 0.6s ease,background 0.6s ease;}
+.rating-number{font-size:1.375rem;font-weight:700;min-width:45px;text-align:right;transition:color 0.6s ease;}
+.status-badge{padding:0.25rem 0.625rem;border-radius:12px;font-size:0.8125rem;font-weight:600;text-transform:uppercase;text-align:center;display:inline-flex;align-items:center;justify-content:center;}
+.status-operating{background:rgba(16,185,129,0.2);color:var(--success);}
+.status-sbno{background:rgba(245,158,11,0.2);color:var(--warning);}
+.status-defunct{background:rgba(239,68,68,0.2);color:var(--danger);}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;padding:1rem;overflow-y:auto;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.modal.active{display:flex;align-items:center;justify-content:center;}
+body.modal-open{overflow:hidden;position:fixed;width:100%;}
+.modal-content{background:var(--card-bg);border-radius:12px;padding:2rem;max-width:800px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;}
+.modal-title{font-size:1.5625rem;font-weight:600;color:var(--text);line-height:1.3;}
+.close-btn{background:transparent;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;border-radius:6px;}
+.close-btn:hover{background:var(--bg-secondary);color:var(--text);}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;}
+.form-group{margin-bottom:1rem;}
+.form-group.full-width{grid-column:1 / -1;}
+.form-group label{display:block;font-weight:500;margin-bottom:0.5rem;color:var(--text);font-size:0.875rem;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.625rem 0.75rem;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.875rem;transition:all 0.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(217,70,239,0.15);}
+.form-group textarea{resize:vertical;min-height:100px;}
+.checkbox-group{display:flex;align-items:center;gap:0.625rem;padding:0.75rem;background:var(--bg-secondary);border-radius:6px;cursor:pointer;}
+.checkbox-group input[type="checkbox"]{width:18px;height:18px;cursor:pointer;}
+.checkbox-group label{margin:0;cursor:pointer;flex:1;}
+.form-group input:disabled,.form-group select:disabled{opacity:0.5;cursor:not-allowed;background:var(--bg-secondary) !important;}
+.form-actions{display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;}
+.form-actions .btn{flex:1;min-width:150px;}
+.detail-modal-grid{display:grid;gap:0.75rem;margin-bottom:1.5rem;}
+.detail-modal-two-col{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.detail-modal-two-col .detail-modal-row{grid-template-columns:105px 1fr;}
+.detail-modal-row{display:grid;grid-template-columns:140px 1fr;gap:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:6px;align-items:center;}
+.detail-modal-label{color:var(--text-secondary);font-weight:500;font-size:0.875rem;}
+.detail-modal-value{color:var(--text);font-weight:500;font-size:0.9375rem;}
+.comments-section{margin-top:1.5rem;padding:1rem;background:var(--bg-secondary);border-radius:6px;border-left:3px solid var(--primary);}
+.comments-label{color:var(--text);font-weight:600;font-size:1rem;margin-bottom:0.5rem;}
+.comments-text{color:var(--text);line-height:1.6;font-size:1rem;}
+.no-results{text-align:center;padding:4rem 2rem;color:var(--text-secondary);font-size:1rem;}
+.char-count{font-size:0.75rem;color:var(--text-secondary);text-align:right;margin-top:0.25rem;}
+.table-controls{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:8px;border:2px solid var(--border);align-items:flex-start;}
+.table-refresh-row{display:flex;justify-content:flex-start;margin-bottom:1rem;}
+.column-toggles{display:flex;flex-wrap:wrap;gap:0.5rem;flex:1;}
+.column-toggle{padding:0.5rem 0.75rem;background:var(--primary);color:white;border:2px solid var(--primary-hover);border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px;}
+.column-toggle.inactive{background:white;color:var(--text);border-color:rgba(255,255,255,0.5);}
+.column-toggle:hover{transform:translateY(-2px);box-shadow:0 4px 6px rgba(0,0,0,0.2);}
+@media (prefers-color-scheme:dark){.column-toggle{background:#0e7490 !important;border:2px solid #06b6d4 !important;color:white !important;}
+.column-toggle.inactive{background:var(--card-bg) !important;color:white !important;border-color:#0e7490 !important;}
+}
+.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
+.coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
+.coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
+.coaster-table th{padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);background:transparent;}
+.coaster-table th:hover{background:rgba(255,255,255,0.15);}
+.coaster-table th.sorted-asc::after{content:' ▲';font-size:0.7em;color:var(--accent);}
+.coaster-table th.sorted-desc::after{content:' ▼';font-size:0.7em;color:var(--accent);}
+.coaster-table th[data-sort-priority]::before{content:attr(data-sort-priority);font-size:0.6em;vertical-align:super;color:var(--accent);margin-right:2px;font-weight:700;}
+.coaster-table tbody tr{border-bottom:1px solid var(--border);transition:all 0.15s ease;}
+.coaster-table tbody tr:nth-child(even){background:rgba(0,0,0,0.02);}
+@media (prefers-color-scheme:dark){.coaster-table tbody tr:nth-child(even){background:rgba(255,255,255,0.02);}
+}
+@media (prefers-color-scheme:dark){.btn-primary,.ranking-badge,.column-toggle,.coaster-table thead{color:#1a2e7a;text-shadow:0 1px 2px rgba(240,171,252,0.4);}
+}
+.coaster-table tbody tr:hover{background:var(--bg);transform:scale(1.002);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.coaster-table tbody tr.new-credit-row{background:var(--new-credit-bg);border-left:4px solid var(--new-credit-border);}
+.coaster-table tbody tr.defunct-row{background:var(--defunct-bg);border-left:4px solid var(--defunct-border);}
+.coaster-table td{padding:0.75rem 0.875rem;border:1px solid var(--border);border-left:none;border-top:none;font-family:'Space Grotesk',sans-serif;font-size:1rem;white-space:nowrap;text-align:center;}
+.coaster-table td:first-child{font-weight:600;border-left:1px solid var(--border);}
+.coaster-table .ranking-cell{font-weight:800;font-size:21px;color:var(--primary);text-align:center;}
+.coaster-table .rating-cell{font-weight:700;font-size:21px;}
+.coaster-table td.comments-cell{font-size:1rem;min-width:300px;width:400px;line-height:1.5;white-space:normal;text-align:left;cursor:pointer;}
+.coaster-table td.comments-cell:hover{background:var(--hover-bg);}
+.coaster-table td.comments-cell .comments-inner{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.comments-modal-body{font-size:1.05rem;line-height:1.7;color:var(--text);white-space:pre-wrap;}
+.coaster-table th[data-column="Ride"],.coaster-table td[data-column="Ride"]{min-width:90px;position:sticky;left:0;z-index:2;white-space:normal;}
+@media (max-width:768px){.coaster-table th[data-column="Ride"],.coaster-table td[data-column="Ride"]{min-width:72px;max-width:96px;}}
+.coaster-table th[data-column="Ride"]{background:#0e7490;}
+.coaster-table td[data-column="Ride"]{background:var(--bg-secondary);}
+.coaster-table tr.new-credit-row td[data-column="Ride"]{background:var(--new-credit-bg);}
+.coaster-table tr.defunct-row td[data-column="Ride"]{background:var(--defunct-bg);}
+@media (prefers-color-scheme:dark){.coaster-table tr.new-credit-row td[data-column="Ride"]{background:#2c534d;}
+.coaster-table tr.defunct-row td[data-column="Ride"]{background:#4e3d4a;}
+}
+.coaster-table th[data-column="Park"],.coaster-table td[data-column="Park"]{min-width:78px;white-space:normal;}
+.coaster-table th[data-column="Manufacturer"],.coaster-table td[data-column="Manufacturer"]{min-width:70px;white-space:normal;}
+.coaster-table th[data-column="Category"],.coaster-table td[data-column="Category"]{min-width:63px;white-space:normal;}
+.coaster-table th[data-column="Type"],.coaster-table td[data-column="Type"]{min-width:73px;white-space:normal;}
+.coaster-table th[data-column="Opening Year"],.coaster-table td[data-column="Opening Year"]{min-width:90px;}
+.coaster-table th[data-column="Last Ride"],.coaster-table td[data-column="Last Ride"]{min-width:75px;}
+.coaster-table th[data-column="Status"],.coaster-table td[data-column="Status"]{min-width:75px;}
+.coaster-table th[data-column="New Credit"],.coaster-table td[data-column="New Credit"]{min-width:80px;}
+.coaster-table th[data-column="Rating"],.coaster-table td[data-column="Rating"]{min-width:55px;}
+.coaster-table td[data-column="Rating"]{font-weight:700;font-size:21px;}
+.coaster-table th[data-column="Ranking"],.coaster-table td[data-column="Ranking"]{min-width:60px;}
+.coaster-table td[data-column="Ranking"]{font-weight:800;font-size:21px;}
+.coaster-table th[data-column="Weighted Ranking"],.coaster-table td[data-column="Weighted Ranking"]{min-width:80px;}
+.coaster-table td[data-column="Weighted Ranking"]{font-weight:800;font-size:21px;}
+.chart-type-toggle{display:flex;gap:0;margin-bottom:1.25rem;background:var(--bg-secondary);border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
+#statisticsTab .chart-type-toggle{width:19rem;}
+#statisticsTab .chart-type-toggle .chart-type-btn{flex:1;text-align:center;}
+.chart-type-btn{padding:0.55rem 1.25rem;border:none;background:transparent;color:var(--text-secondary);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.9125rem;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.4px;position:relative;white-space:nowrap;}
+.chart-type-btn:not(:last-child){border-right:1px solid var(--border);}
+.chart-type-btn:hover{background:var(--bg);color:var(--text);}
+.chart-type-btn.active{background:#0e7490;color:white;box-shadow:inset 0 2px 4px rgba(0,0,0,0.15);}
+.chart-type-btn.active:hover{background:#06b6d4;}
+.ot-mode-toggle{margin-bottom:0.75rem;}
+.stats-mode-toggle{margin-bottom:0.75rem;}
+.ot-source-toggle{margin-bottom:1.25rem;}
+.ot-ride-search{position:relative;margin-bottom:1.25rem;max-width:420px;}
+.ot-search-input-wrap{position:relative;display:flex;align-items:center;}
+.ot-search-input{width:100%;padding:0.6rem 2.2rem 0.6rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;box-sizing:border-box;}
+.ot-search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.2);}
+.ot-search-input::placeholder{color:var(--text-secondary);}
+.ot-search-clear{position:absolute;right:0.55rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;line-height:1;padding:0.2rem 0.25rem;border-radius:4px;transition:color 0.15s,background 0.15s;}
+.ot-search-clear:hover{color:var(--text);background:var(--border);}
+.ot-search-dropdown{position:absolute;top:calc(100% + 5px);left:0;right:0;max-height:230px;overflow-y:auto;background:var(--card-bg,var(--bg));border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.18);z-index:100;display:none;}
+.ot-dropdown-item{padding:0.48rem 0.85rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:0.84rem;color:var(--text);transition:background 0.13s;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ot-dropdown-item:last-child{border-bottom:none;}
+.ot-dropdown-item:hover{background:rgba(99,102,241,0.08);}
+.ot-dropdown-item .ride-park{color:var(--text-secondary);font-weight:400;margin-left:0.3rem;font-size:0.78rem;}
+.ot-dropdown-none{padding:0.55rem 0.85rem;font-family:'Space Grotesk',sans-serif;font-size:0.84rem;color:var(--text-secondary);font-style:italic;}
+.type-autocomplete{position:relative;}
+.type-autocomplete-dropdown{position:absolute;top:calc(100% + 3px);left:0;right:0;max-height:200px;overflow-y:auto;background:var(--card-bg,var(--bg));border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.18);z-index:100;display:none;}
+.type-autocomplete-dropdown.visible{display:block;}
+.type-autocomplete-item{padding:0.48rem 0.85rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:0.88rem;color:var(--text);transition:background 0.13s;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.type-autocomplete-item:last-child{border-bottom:none;}
+.type-autocomplete-item:hover,.type-autocomplete-item.active{background:rgba(99,102,241,0.12);}
+@media (max-width:768px){.header-content{flex-direction:column;align-items:center;text-align:center;}
+.header-right{display:grid;grid-template-columns:1fr auto 1fr;grid-template-rows:auto auto;width:100%;align-items:center;gap:1.5rem 0.5rem;}
+.year-selector{grid-column:2;grid-row:1;justify-self:center;}
+.year-selector label{font-size:0.9rem;}
+.year-selector select{font-size:0.9rem;padding:0.4rem 0.5rem;}
+.data-transfer{display:contents;}
+#exportDataBtn{grid-column:1;grid-row:1;flex:none;font-size:0.9rem;padding:0.4rem 0.5rem;justify-self:start;}
+#importDataBtn{grid-column:3;grid-row:1;flex:none;font-size:0.9rem;padding:0.4rem 0.5rem;justify-self:end;}
+.stats-box{grid-column:1/-1;grid-row:2;}
+.tab-nav{justify-content:center;}
+.coaster-grid{grid-template-columns:1fr;}
+.controls{flex-direction:column;}
+.form-grid{grid-template-columns:1fr;}
+.detail-modal-two-col .detail-modal-row{grid-template-columns:1fr;}
+.detail-modal-row{grid-template-columns:1fr;gap:0.25rem;}
+.form-actions{flex-direction:column;}
+.form-actions .btn{width:100%;}
+.coaster-table{font-size:0.875rem;}
+.coaster-table td{font-size:0.875rem;}
+.coaster-table td.comments-cell{font-size:0.9375rem;min-width:200px;width:300px;}
+.chart-aspect-wrapper{padding-bottom:133.33%;}
+.ot-legend-label{font-size:11px;}
+.card-title{font-size:1.4375rem;}
+.card-park{font-size:1.25rem;}
+.ranking-badge{font-size:1.25rem;}
+.detail-row{font-size:1.0625rem;}
+.rating-number{font-size:1.375rem;}
+.status-badge{font-size:0.8125rem;}
+.modal-title{font-size:1.5625rem;}
+.detail-modal-label{font-size:0.875rem;}
+.detail-modal-value{font-size:0.9375rem;}
+.comments-label{font-size:1rem;}
+.comments-text{font-size:1rem;}
+.controls .btn{font-size:1rem;}
+.filter-group label{font-size:0.9375rem;}
+.filter-group select{font-size:0.9375rem;}
+.chart-type-btn{font-size:0.9125rem;}
+.chart-controls .btn{font-size:0.9375rem;}
+}
+.ot-legend{display:flex;flex-wrap:wrap;gap:10px 24px;padding:12px 16px;justify-content:center;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);margin-top:8px;}
+.ot-legend-item{display:flex;align-items:center;gap:8px;}
+.ot-legend-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:transform 0.15s;border:2px solid transparent;}
+.ot-legend-swatch:hover{transform:scale(1.35);border-color:var(--text);}
+.ot-legend-label{font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1;color:var(--text);white-space:nowrap;}
+.ot-color-picker{position:absolute;z-index:1000;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,0.25);display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:auto;}
+.ot-color-picker-cell{width:22px;height:22px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:transform 0.12s,border-color 0.12s;}
+.ot-color-picker-cell:hover{transform:scale(1.25);border-color:var(--text);}
+</style>
+</head>
+<body>
+    <!-- Main App Content -->
+    <div class="app-content" id="appContent">
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Thomas XL-200's Coaster Credit Tracker</h1>
+                <div class="header-right">
+                    <div class="year-selector">
+                        <label for="yearSelect">Year:</label>
+                        <select id="yearSelect">
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                        </select>
+                    </div>
+                    <div class="data-transfer">
+                        <button class="data-transfer-btn" id="exportDataBtn" title="Export your changes as a JSON file">📤 Export</button>
+                        <button class="data-transfer-btn" id="importDataBtn" title="Import changes from a JSON file">📥 Import</button>
+                        <input type="file" id="importDataFile" accept=".json" style="display:none;">
+                    </div>
+                    <div class="stats-box">
+                        <div class="credit-count" id="creditCount">0 Credits</div>
+                        <div class="average-rating" id="averageRating">Avg: —</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="credits">🎢 Credits</button>
+                <button class="tab-btn" data-tab="statistics">📊 Stats</button>
+                <button class="tab-btn" data-tab="spreadsheet">📋 Table</button>
+            </div>
+        </header>
+
+        <div class="tab-content" id="creditsTab">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by ride name, park, or manufacturer...">
+                </div>
+                <button class="btn btn-primary" id="addCoasterBtn">+ Add Credit</button>
+                <button class="btn btn-secondary" id="filterToggle">Filters</button>
+            </div>
+
+            <div class="filters" id="filterPanel">
+                <div class="filter-group">
+                    <label>Park</label>
+                    <select id="filterPark">
+                        <option value="">All Parks</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Manufacturer</label>
+                    <select id="filterManufacturer">
+                        <option value="">All Manufacturers</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="filterCategory">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Type</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="Operating">Operating</option>
+                        <option value="SBNO">SBNO</option>
+                        <option value="Defunct">Defunct</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Minimum Rating</label>
+                    <select id="filterRating">
+                        <option value="">Any Rating</option>
+                        <option value="9">9.0+</option>
+                        <option value="8">8.0+</option>
+                        <option value="7">7.0+</option>
+                        <option value="6">6.0+</option>
+                        <option value="5">5.0+</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="coaster-grid" id="coasterGrid"></div>
+            <div class="no-results" id="noResults" style="display: none;">
+                No coasters found matching your criteria.
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="statisticsTab">
+            <!-- Chart-type toggle -->
+            <div class="chart-type-toggle">
+                <button class="chart-type-btn active" data-chart-type="comparison">Comparison</button>
+                <button class="chart-type-btn" data-chart-type="overTime">Over Time</button>
+            </div>
+
+            <!-- Comparison view (existing chart) -->
+            <div id="comparisonView">
+                <div class="stats-mode-toggle">
+                    <div class="chart-type-toggle">
+                        <button class="chart-type-btn active" data-stats-mode="rating">Rating</button>
+                        <button class="chart-type-btn" data-stats-mode="ranking">Ranking</button>
+                    </div>
+                </div>
+                <div id="statsWeightedWrap" style="display:none; margin: 6px 0 2px 0;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-family:'Space Grotesk',sans-serif; color:var(--text);">
+                        <input type="checkbox" id="statsWeightedCheck">
+                        Weighted Ranking
+                    </label>
+                </div>
+                <div class="stats-filters">
+                    <div class="filter-group">
+                        <label for="statsPark">Park</label>
+                        <select id="statsPark">
+                            <option value="">All Parks</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statsManufacturer">Manufacturer</label>
+                        <select id="statsManufacturer">
+                            <option value="">All Manufacturers</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statsCategory">Category</label>
+                        <select id="statsCategory">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statsType">Type</label>
+                        <select id="statsType">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statsStatus">Status</label>
+                        <select id="statsStatus">
+                            <option value="">All Statuses</option>
+                            <option value="Operating">Operating</option>
+                            <option value="SBNO">SBNO</option>
+                            <option value="Defunct">Defunct</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-controls">
+                    <button class="btn btn-primary chart-limit-btn active" data-limit="5">Top 5</button>
+                    <button class="btn btn-secondary chart-limit-btn" data-limit="10">Top 10</button>
+                    <button class="btn btn-secondary chart-limit-btn" data-limit="15">Top 15</button>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="ratingsChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-download-btn-container">
+                    <button class="btn btn-secondary" id="downloadComparisonChart">📥 Download Chart</button>
+                </div>
+            </div>
+
+            <!-- Over Time view -->
+            <div id="overTimeView" style="display: none;">
+                <div class="ot-source-toggle">
+                    <div class="chart-type-toggle">
+                        <button class="chart-type-btn" data-ot-source="ride">Ride</button>
+                        <button class="chart-type-btn active" data-ot-source="filters">Filters</button>
+                    </div>
+                </div>
+                <div class="ot-mode-toggle">
+                    <div class="chart-type-toggle">
+                        <button class="chart-type-btn active" data-ot-mode="rating">Rating</button>
+                        <button class="chart-type-btn" data-ot-mode="ranking">Ranking</button>
+                    </div>
+                </div>
+                <div id="otWeightedWrap" style="display:none; margin: 6px 0 2px 0;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-family:'Space Grotesk',sans-serif; color:var(--text);">
+                        <input type="checkbox" id="otWeightedCheck">
+                        Weighted Ranking
+                    </label>
+                </div>
+
+                <!-- Ride-search panel (visible by default) -->
+                <div id="otRidePanel" style="display: none;">
+                    <div class="ot-ride-search">
+                        <div class="ot-search-input-wrap">
+                            <input type="text" id="otRideSearch" class="ot-search-input" placeholder="Search for a ride…" autocomplete="off">
+                            <button class="ot-search-clear" id="otRideClear" style="display:none;" title="Clear">✕</button>
+                        </div>
+                        <div class="ot-search-dropdown" id="otRideDropdown"></div>
+                    </div>
+                </div>
+
+                <!-- Filters panel (shown by default) -->
+                <div id="otFiltersPanel">
+                    <div class="stats-filters">
+                        <div class="filter-group">
+                            <label for="otPark">Park</label>
+                            <select id="otPark">
+                                <option value="">All Parks</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="otManufacturer">Manufacturer</label>
+                            <select id="otManufacturer">
+                                <option value="">All Manufacturers</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="otCategory">Category</label>
+                            <select id="otCategory">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="otType">Type</label>
+                            <select id="otType">
+                                <option value="">All Types</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="otStatus">Status</label>
+                            <select id="otStatus">
+                                <option value="">All Statuses</option>
+                                <option value="Operating">Operating</option>
+                                <option value="SBNO">SBNO</option>
+                                <option value="Defunct">Defunct</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn btn-primary ot-chart-limit-btn active" data-limit="5">Top 5</button>
+                        <button class="btn btn-secondary ot-chart-limit-btn" data-limit="10">Top 10</button>
+                        <button class="btn btn-secondary ot-chart-limit-btn" data-limit="15">Top 15</button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="overTimeChart"></canvas>
+                    </div>
+                </div>
+                <div id="otLegend" class="ot-legend"></div>
+                <div class="chart-download-btn-container">
+                    <button class="btn btn-secondary" id="downloadOverTimeChart">📥 Download Chart</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="spreadsheetTab">
+            <div class="table-controls">
+                <div class="column-toggles" id="columnToggles"></div>
+            </div>
+            <div class="table-refresh-row">
+                <button class="column-toggle" id="tableRefreshBtn" title="Reset table sort order" style="background:var(--accent);color:#fff;">↻ Refresh</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="coaster-table">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    <div class="modal" id="addCoasterModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addModalTitle">Add New Credit</h2>
+                <button class="close-btn" id="closeAddModal">&times;</button>
+            </div>
+            <form id="coasterForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="rideName">Ride Name *</label>
+                        <input type="text" id="rideName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="parkName">Park *</label>
+                        <div class="type-autocomplete">
+                            <input type="text" id="parkName" required autocomplete="off">
+                            <div class="type-autocomplete-dropdown" id="parkDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="manufacturer">Manufacturer</label>
+                        <select id="manufacturer"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <div class="type-autocomplete">
+                            <input type="text" id="type" placeholder="Enter coaster type" autocomplete="off">
+                            <div class="type-autocomplete-dropdown" id="typeDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="openingYear">Opening Year</label>
+                        <select id="openingYear"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastRide">Last Ride</label>
+                        <select id="lastRide"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="">Select Status</option>
+                            <option value="Operating">Operating</option>
+                            <option value="SBNO">SBNO</option>
+                            <option value="Defunct">Defunct</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rating">Rating (1-10)</label>
+                        <select id="rating"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ranking">Ranking (1-100)</label>
+                        <select id="ranking">
+                            <option value="">Not Ranked</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="newCredit">
+                            <label for="newCredit">New Credit</label>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="comments">Comments (350 characters max)</label>
+                        <textarea id="comments" maxlength="350"></textarea>
+                        <div class="char-count" id="charCount">0 / 350</div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Credit</button>
+                    <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailTitle"></h2>
+                <button class="close-btn" id="closeDetailModal">&times;</button>
+            </div>
+            <div id="detailContent"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="editCoasterBtn">✏️ Edit Details</button>
+                <button class="btn btn-danger" id="deleteCoasterBtn">🗑️ Delete Credit</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="commentsModal">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="commentsModalTitle"></h2>
+                <button class="close-btn" id="closeCommentsModal">&times;</button>
+            </div>
+            <div class="comments-modal-body" id="commentsModalBody"></div>
+        </div>
+    </div>
+    </div> <!-- End app-content -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+// --- HYBRID SERVERLESS ARCHITECTURE ---
+
+let masterCoasters = {};
+let userProfile = {};
+let currentYearStr = "2026";
+
+const AppState = {
+    coasters: [],
+    filtered: [],
+    editing: null,
+    chartLimit: 5,
+    sort: [],
+    columns: {
+        'Ride': true,
+        'Park': true,
+        'Manufacturer': true,
+        'Category': true,
+        'Type': true,
+        'Opening Year': true,
+        'Last Ride': true,
+        'Status': true,
+        'New Credit': true,
+        'Rating': true,
+        'Ranking': true,
+        'Weighted Ranking': false,
+        'Comments': false
+    }
+};
+
+// --- DATA TRANSFORMATION ENGINE ---
+
+function refreshDataForYear(year) {
+    currentYearStr = year.toString();
+    const yearKey = `logs_${currentYearStr}`;
+    const logs = userProfile[yearKey] || {};
+    
+    AppState.coasters = [];
+    
+    // Transform dictionaries back into flat arrays for UI rendering
+    Object.keys(logs).forEach(id => {
+        const master = masterCoasters[id];
+        if (!master) return; // Skip if orphaned
+        const log = logs[id];
+        
+        AppState.coasters.push({
+            id: id,
+            Ride: master.name,
+            Park: master.park,
+            Manufacturer: master.manufacturer,
+            Category: master.category,
+            Type: master.type,
+            'Opening Year': master.openingYear,
+            'Last Ride': master.lastRide,
+            Status: master.status,
+            Rating: log.rating ? String(log.rating) : "",
+            Ranking: log.ranking ? String(log.ranking) : "",
+            'New Credit': log.newCredit ? "Yes" : "No",
+            Comments: log.comments || ""
+        });
+    });
+
+    recalculateWeightedRankings();
+    AppState.filtered = [...AppState.coasters];
+    
+    refreshDropdowns();
+    Filters.apply();
+    Stats.updateCreditCount();
+    Stats.updateAverageRating();
+    
+    if (typeof Chart !== 'undefined' && Chart.instance) Chart.update();
+    if (typeof OverTimeChart !== 'undefined' && OverTimeChart.instance) OverTimeChart.update();
+    if (typeof Render !== 'undefined' && Render.spreadsheet) Render.spreadsheet();
+}
+
+function recalculateWeightedRankings() {
+    const currentYearLogs = userProfile['logs_2026'] || {};
+    const currentTotal = Object.keys(currentYearLogs).length;
+
+    AppState.coasters.forEach(c => {
+        if (c.Ranking && parseInt(c.Ranking) > 0) {
+            const yearLogs = userProfile[`logs_${currentYearStr}`] || {};
+            const yearTotal = Object.keys(yearLogs).length;
+            if (yearTotal > 0 && currentTotal > 0) {
+                const multiplier = currentTotal / yearTotal;
+                const wr = parseInt(c.Ranking) * multiplier;
+                c['Weighted Ranking'] = String(Math.round(wr * 100) / 100);
+            }
+        } else {
+            delete c['Weighted Ranking'];
+        }
+    });
+}
+
+function normalizeRankings(yearKey) {
+    const logs = userProfile[yearKey];
+    if(!logs) return;
+    
+    const ranked = Object.keys(logs)
+        .map(id => ({ id, ranking: logs[id].ranking }))
+        .filter(x => x.ranking > 0)
+        .sort((a, b) => a.ranking - b.ranking);
+        
+    ranked.forEach((x, i) => {
+        logs[x.id].ranking = i + 1;
+    });
+}
+
+function adjustRankings(yearKey, targetId, newRank) {
+    const logs = userProfile[yearKey];
+    if(!logs || newRank <= 0) return;
+    
+    Object.keys(logs).forEach(id => {
+        if(id !== targetId && logs[id].ranking >= newRank) {
+            logs[id].ranking += 1;
+        }
+    });
+    normalizeRankings(yearKey);
+}
+
+function refreshDropdowns() {
+    DOM.populateSelectByFrequency('filterPark', 'Park', 'All Parks');
+    DOM.populateSelectByFrequency('filterManufacturer', 'Manufacturer', 'All Manufacturers');
+    DOM.populateSelectByFrequency('filterCategory', 'Category', 'All Categories');
+    DOM.populateSelectByFrequency('filterType', 'Type', 'All Types');
+    DOM.populateSelectByFrequency('statsPark', 'Park', 'All Parks');
+    DOM.populateSelectByFrequency('statsManufacturer', 'Manufacturer', 'All Manufacturers');
+    DOM.populateSelectByFrequency('statsCategory', 'Category', 'All Categories');
+    DOM.populateSelectByFrequency('statsType', 'Type', 'All Types');
+    DOM.populateSelectByFrequency('otPark', 'Park', 'All Parks');
+    DOM.populateSelectByFrequency('otManufacturer', 'Manufacturer', 'All Manufacturers');
+    DOM.populateSelectByFrequency('otCategory', 'Category', 'All Categories');
+    DOM.populateSelectByFrequency('otType', 'Type', 'All Types');
+    
+    const manufacturers = [...new Set(Object.values(masterCoasters).map(c => c.manufacturer).filter(Boolean))].sort();
+    const categories   = [...new Set(Object.values(masterCoasters).map(c => c.category).filter(Boolean))].sort();
+    DOM.populateSelect('manufacturer', manufacturers, 'Select Manufacturer');
+    DOM.populateSelect('category', categories, 'Select Category');
+}
+
+
+// --- UTILITIES & DOM ---
+
+const Utils = {
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+    getElement(id) { return document.getElementById(id); },
+    getElements(selector) { return document.querySelectorAll(selector); },
+    getCSSVariable(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); },
+    getRatingColor(rating) {
+        const normalized = Math.max(0, Math.min(10, rating));
+        if (normalized >= 9) return '#10b981';
+        if (normalized >= 8) return '#22c55e';
+        if (normalized >= 7) return '#84cc16';
+        if (normalized >= 6) return '#eab308';
+        if (normalized >= 5) return '#f97316';
+        if (normalized >= 4) return '#ef4444';
+        return '#dc2626';
+    },
+    truncateLabel(label, maxLength = 15) {
+        if (!label || label.length <= maxLength) return label;
+        return label.substring(0, maxLength) + '...';
+    },
+    wrapLabel(label, maxLength = 15) {
+        if (!label || label.length <= maxLength) return label;
+        const words = label.split(' ');
+        const lines = [];
+        let current = '';
+        for (const word of words) {
+            if (current && (current.length + 1 + word.length) > maxLength) {
+                lines.push(current);
+                current = word;
+            } else {
+                current = current ? current + ' ' + word : word;
+            }
+        }
+        if (current) lines.push(current);
+        return lines;
+    },
+    buildFilterTitle(limit, statusId, parkId, mfrId, catId, typeId, actualCount = null) {
+        const parts = [];
+        const status = this.getElement(statusId).value;
+        const park   = this.getElement(parkId).value;
+        const mfr    = this.getElement(mfrId).value;
+        const cat    = this.getElement(catId).value;
+        const type   = this.getElement(typeId).value;
+        if (status) parts.push(status);
+        if (park)   parts.push(park);
+        if (mfr)    parts.push(mfr);
+        if (cat)    parts.push(cleanCoasterLabel(cat, 'Category'));
+        if (type)   parts.push(cleanCoasterLabel(type, 'Type'));
+        
+        const displayCount = (actualCount !== null && actualCount < limit) ? actualCount : limit;
+        if (parts.length === 0) return `Top ${displayCount} Coasters`;
+        return `Top ${displayCount} ${parts.join(' ')} Coasters`;
+    },
+    parseRating(value) { return parseFloat(value) || 0; }
+};
+
+const DOM = {
+    populateSelect(selectId, options, placeholder = 'Select...') {
+        const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
+        if (!select) return;
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+        });
+    },
+    populateSelectByFrequency(selectId, field, placeholder = 'All') {
+        const select = Utils.getElement(selectId);
+        if (!select) return;
+        const frequency = {};
+        AppState.coasters.forEach(coaster => {
+            const value = coaster[field];
+            if (value) frequency[value] = (frequency[value] || 0) + 1;
+        });
+        const sorted = Object.keys(frequency).sort((a, b) => frequency[b] - frequency[a]);
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        sorted.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            const displayLabel = cleanCoasterLabel(opt, field);
+            option.textContent = `${displayLabel} (${frequency[opt]})`;
+            select.appendChild(option);
+        });
+    },
+    populateYearSelect(selectId, start, end, descending = true) {
+        const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
+        if (!select) return;
+        select.innerHTML = '<option value="">Select Year</option>';
+        const years = descending ? Array.from({ length: end - start + 1 }, (_, i) => end - i) : Array.from({ length: end - start + 1 }, (_, i) => start + i);
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year.toString();
+            option.textContent = year.toString();
+            select.appendChild(option);
+        });
+    },
+    populateRatingSelect(selectId) {
+        const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
+        if (!select) return;
+        select.innerHTML = '<option value="">Select Rating</option>';
+        for (let rating = 1; rating <= 10; rating += 0.25) {
+            const option = document.createElement('option');
+            option.value = rating.toFixed(2);
+            option.textContent = rating.toFixed(2);
+            select.appendChild(option);
+        }
+    },
+    populateRankingSelect(selectId) {
+        const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
+        if (!select) return;
+        select.innerHTML = '<option value="">Not Ranked</option>';
+        for (let rank = 1; rank <= 100; rank++) {
+            const option = document.createElement('option');
+            option.value = rank.toString();
+            option.textContent = rank.toString();
+            select.appendChild(option);
+        }
+    }
+};
+
+// --- CORE UI RENDERING ---
+
+const Render = {
+    coasterCard(coaster) {
+        const card = document.createElement('div');
+        card.className = 'coaster-card';
+        if (coaster['New Credit'] === 'Yes') card.classList.add('new-credit');
+        if (coaster.Status === 'Defunct') card.classList.add('defunct');
+        
+        const rating = Utils.parseRating(coaster.Rating);
+        const ratingPercent = (rating / 10) * 100;
+        const ratingColor = Utils.getRatingColor(rating);
+        const statusClass = coaster.Status === 'Operating' ? 'status-operating' : coaster.Status === 'SBNO' ? 'status-sbno' : 'status-defunct';
+        
+        card.innerHTML = `
+            <div class="card-header">
+                <div class="card-title">${Utils.escapeHtml(coaster.Ride)}</div>
+                ${coaster.Ranking ? `<div class="ranking-badge" style="--rating-color: ${ratingColor};">#${coaster.Ranking}</div>` : ''}
+            </div>
+            <div class="card-park">${Utils.escapeHtml(coaster.Park)}</div>
+            <div class="card-details">
+                <div class="detail-row">
+                    <span class="detail-label">Manufacturer</span>
+                    <span class="detail-value">${Utils.escapeHtml(coaster.Manufacturer || '—')}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value">${Utils.escapeHtml(coaster.Type || '—')}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="status-badge ${statusClass}">${Utils.escapeHtml(coaster.Status || 'Unknown')}</span>
+                </div>
+            </div>
+            ${rating > 0 ? `
+            <div class="rating-display">
+                <div class="rating-stars">
+                    <div class="rating-fill" style="width: ${ratingPercent}%; background: ${ratingColor};"></div>
+                </div>
+                <div class="rating-number" style="color: ${ratingColor};">${rating.toFixed(2)}</div>
+            </div>
+            ` : ''}
+        `;
+        card.addEventListener('click', () => Modals.showDetail(coaster));
+        return card;
+    },
+    coasters() {
+        const grid = Utils.getElement('coasterGrid');
+        const noResults = Utils.getElement('noResults');
+        grid.innerHTML = '';
+        if (AppState.filtered.length === 0) {
+            grid.style.display = 'none';
+            noResults.style.display = 'block';
+            return;
+        }
+        grid.style.display = 'grid';
+        noResults.style.display = 'none';
+        const fragment = document.createDocumentFragment();
+        AppState.filtered.forEach(coaster => {
+            fragment.appendChild(Render.coasterCard(coaster));
+        });
+        grid.appendChild(fragment);
+    },
+    spreadsheet() {
+        const thead = Utils.getElement('tableHead');
+        const tbody = Utils.getElement('tableBody');
+        const headerRow = document.createElement('tr');
+        
+        Object.entries(AppState.columns).forEach(([column, visible]) => {
+            if (!visible) return;
+            const th = document.createElement('th');
+            th.textContent = column;
+            th.dataset.column = column;
+            const sortIdx = AppState.sort.findIndex(s => s.column === column);
+            if (sortIdx !== -1) {
+                const entry = AppState.sort[sortIdx];
+                th.classList.add(entry.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                if (AppState.sort.length > 1) th.dataset.sortPriority = AppState.sort.length - sortIdx;
+            }
+            th.addEventListener('click', () => Spreadsheet.sortByColumn(column));
+            headerRow.appendChild(th);
+        });
+        thead.innerHTML = '';
+        thead.appendChild(headerRow);
+        
+        const fragment = document.createDocumentFragment();
+        const sortedData = Spreadsheet.getSortedData();
+        
+        sortedData.forEach(coaster => {
+            const row = document.createElement('tr');
+            if (coaster['New Credit'] === 'Yes') row.classList.add('new-credit-row');
+            if (coaster.Status === 'Defunct') row.classList.add('defunct-row');
+            
+            Object.entries(AppState.columns).forEach(([column, visible]) => {
+                if (!visible) return;
+                const td = document.createElement('td');
+                if (column === 'Rating' && coaster[column]) {
+                    td.textContent = parseFloat(coaster[column]).toFixed(2);
+                } else if (column === 'Weighted Ranking' && coaster[column]) {
+                    td.textContent = parseFloat(coaster[column]).toFixed(2);
+                } else {
+                    td.textContent = coaster[column] || '—';
+                }
+                td.dataset.column = column;
+                
+                if (column === 'Comments') {
+                    td.textContent = '';
+                    td.classList.add('comments-cell');
+                    const fullText = coaster[column] || '—';
+                    const span = document.createElement('span');
+                    span.className = 'comments-inner';
+                    if (fullText.length > 75 && fullText !== '—') {
+                        span.textContent = fullText.slice(0, 75) + '...';
+                        td.dataset.fullText = fullText;
+                        td.dataset.rideName = coaster['Ride'] || '';
+                        td.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const modal = Utils.getElement('commentsModal');
+                            Utils.getElement('commentsModalTitle').textContent = this.dataset.rideName;
+                            Utils.getElement('commentsModalBody').textContent = this.dataset.fullText;
+                            modal.classList.add('active');
+                            Modals._lockScroll();
+                        });
+                    } else {
+                        span.textContent = fullText;
+                    }
+                    td.appendChild(span);
+                }
+                row.appendChild(td);
+            });
+            fragment.appendChild(row);
+        });
+        tbody.innerHTML = '';
+        tbody.appendChild(fragment);
+    }
+};
+
+const Spreadsheet = {
+    initialize() {
+        const togglesContainer = Utils.getElement('columnToggles');
+        Object.keys(AppState.columns).forEach(column => {
+            if (column === 'Ride') return;
+            const btn = document.createElement('button');
+            btn.className = 'column-toggle' + (AppState.columns[column] ? '' : ' inactive');
+            btn.textContent = column;
+            btn.dataset.column = column;
+            btn.addEventListener('click', () => this.toggleColumn(column));
+            togglesContainer.appendChild(btn);
+        });
+    },
+    toggleColumn(column) {
+        AppState.columns[column] = !AppState.columns[column];
+        const btn = document.querySelector(`[data-column="${column}"]`);
+        btn.classList.toggle('inactive');
+        Render.spreadsheet();
+    },
+    sortByColumn(column) {
+        const existing = AppState.sort.findIndex(s => s.column === column);
+        if (existing !== -1) {
+            const entry = AppState.sort[existing];
+            entry.direction = entry.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            if (AppState.sort.length >= 3) AppState.sort.shift();
+            AppState.sort.push({ column, direction: 'asc' });
+        }
+        Render.spreadsheet();
+    },
+    getSortedData() {
+        const data = AppState.filtered || AppState.coasters;
+        if (!AppState.sort.length) return data;
+        const numericCols = new Set(['Rating', 'Ranking', 'Weighted Ranking', 'Opening Year']);
+        const emptyLastCols = new Set(['Ranking', 'Weighted Ranking']);
+        const reversed = [...AppState.sort].reverse();
+        
+        return [...data].sort((a, b) => {
+            for (const { column, direction } of reversed) {
+                let aVal = a[column] || '';
+                let bVal = b[column] || '';
+                
+                if (numericCols.has(column)) {
+                    const aNum = parseFloat(aVal);
+                    const bNum = parseFloat(bVal);
+                    const aEmpty = !aVal || isNaN(aNum) || aNum <= 0;
+                    const bEmpty = !bVal || isNaN(bNum) || bNum <= 0;
+                    
+                    if (emptyLastCols.has(column) && (aEmpty || bEmpty)) {
+                        if (aEmpty && !bEmpty) return 1;
+                        if (!aEmpty && bEmpty) return -1;
+                        continue;
+                    }
+                    aVal = aEmpty ? 0 : aNum;
+                    bVal = bEmpty ? 0 : bNum;
+                }
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+};
+
+// --- CHARTS ---
+
+const Chart = {
+    instance: null,
+    mode: 'rating',
+    useWeightedRanking: false,
+
+    setMode(mode) {
+        this.mode = mode;
+        const wrap = Utils.getElement('statsWeightedWrap');
+        if (mode === 'ranking' && currentYearStr !== '2026') {
+            wrap.style.display = '';
+        } else {
+            wrap.style.display = 'none';
+            this.useWeightedRanking = false;
+            Utils.getElement('statsWeightedCheck').checked = false;
+        }
+        this.update();
+    },
+
+    initialize() {
+        const ctx = Utils.getElement('ratingsChart').getContext('2d');
+        const textColor = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+        
+        this.instance = new window.Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Rating', data: [], borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8 }] },
+            options: {
+                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Top Rated Coasters', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                    tooltip: {
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 },
+                        callbacks: {
+                            title: (tooltipItems) => {
+                                const index = tooltipItems[0].dataIndex;
+                                const chartData = this.getFilteredData();
+                                return chartData[index]?.Ride || tooltipItems[0].label;
+                            },
+                            label: (context) => {
+                                const val = context.parsed.y;
+                                if (this.mode === 'rating') return `Rating: ${val.toFixed(2)}`;
+                                return this.useWeightedRanking ? `Weighted Ranking: #${val.toFixed(2)}` : `Ranking: #${val}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false, min: 1, max: 10, grid: { color: borderColor },
+                        afterBuildTicks: function(axis) {
+                            if (axis.options.reverse && axis.ticks.length && !axis.ticks.some(t => t.value === 1)) {
+                                axis.ticks.push({ value: 1 });
+                                axis.ticks.sort((a, b) => a.value - b.value);
+                            }
+                        },
+                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor },
+                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor, callback: function(value) { return Number(value.toFixed(2)); } }
+                    },
+                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, maxRotation: 45, minRotation: 45, autoSkip: false, color: textColor } }
+                }
+            }
+        });
+        this.update();
+    },
+
+    getFilteredData() {
+        const park = Utils.getElement('statsPark').value;
+        const manufacturer = Utils.getElement('statsManufacturer').value;
+        const category = Utils.getElement('statsCategory').value;
+        const type = Utils.getElement('statsType').value;
+        const status = Utils.getElement('statsStatus').value;
+        const isRanking = this.mode === 'ranking';
+        const isWeighted = isRanking && this.useWeightedRanking;
+        
+        return AppState.coasters.filter(c => {
+            if (isWeighted) {
+                const wr = parseFloat(c['Weighted Ranking']);
+                if (!c['Weighted Ranking'] || isNaN(wr) || wr <= 0) return false;
+            } else if (isRanking) {
+                const rank = parseInt(c.Ranking);
+                if (!c.Ranking || isNaN(rank) || rank <= 0) return false;
+            } else {
+                if (!c.Rating || Utils.parseRating(c.Rating) === 0) return false;
+            }
+            if (park && c.Park !== park) return false;
+            if (manufacturer && c.Manufacturer !== manufacturer) return false;
+            if (category && c.Category !== category) return false;
+            if (type && c.Type !== type) return false;
+            if (status && c.Status !== status) return false;
+            return true;
+        }).sort((a, b) => {
+            if (isWeighted) return parseFloat(a['Weighted Ranking']) - parseFloat(b['Weighted Ranking']);
+            if (isRanking) return parseInt(a.Ranking) - parseInt(b.Ranking);
+            return Utils.parseRating(b.Rating) - Utils.parseRating(a.Rating);
+        }).slice(0, AppState.chartLimit);
+    },
+
+    update() {
+        if (!this.instance) return;
+        const chartData = this.getFilteredData();
+        const isRanking = this.mode === 'ranking';
+        const isWeighted = isRanking && this.useWeightedRanking;
+        const labels = chartData.map(c => Utils.wrapLabel(c.Ride, 20));
+        
+        let dataValues, colors;
+        if (isWeighted) {
+            dataValues = chartData.map(c => parseFloat(c['Weighted Ranking']));
+            colors = dataValues.map(() => '#6366f1');
+        } else if (isRanking) {
+            dataValues = chartData.map(c => parseInt(c.Ranking));
+            colors = dataValues.map(() => '#6366f1');
+        } else {
+            dataValues = chartData.map(c => Utils.parseRating(c.Rating));
+            colors = dataValues.map(r => Utils.getRatingColor(r));
+        }
+        
+        const textColor = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+        
+        this.instance.options.plugins.title.color = textColor;
+        this.instance.options.plugins.title.text  = Utils.buildFilterTitle(AppState.chartLimit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', chartData.length);
+        this.instance.options.scales.y.title.text = isWeighted ? 'Weighted Ranking' : (isRanking ? 'Ranking' : 'Rating');
+        this.instance.options.scales.y.title.color = textColor;
+        this.instance.options.scales.y.ticks.color = textColor;
+        this.instance.options.scales.y.grid.color = borderColor;
+        
+        if (isRanking) {
+            this.instance.options.scales.y.reverse = true;
+            this.instance.options.scales.y.beginAtZero = false;
+            delete this.instance.options.scales.y.max;
+            this.instance.options.scales.y.min = 0.5;
+            delete this.instance.options.scales.y.ticks.stepSize;
+            if (isWeighted) {
+                this.instance.options.scales.y.ticks.callback = function(value) { return value >= 1 ? '#' + Number(value.toFixed(1)) : ''; };
+            } else {
+                this.instance.options.scales.y.ticks.callback = function(value) { return (Number.isInteger(value) && value >= 1) ? '#' + value : ''; };
+            }
+        } else {
+            this.instance.options.scales.y.reverse = false;
+            this.instance.options.scales.y.beginAtZero = false;
+            this.instance.options.scales.y.max = 10;
+            this.instance.options.scales.y.min = 1;
+            delete this.instance.options.scales.y.ticks.stepSize;
+            this.instance.options.scales.y.ticks.callback = function(value) { return Number(value.toFixed(2)); };
+        }
+        
+        this.instance.options.scales.x.ticks.color = textColor;
+        this.instance.options.scales.x.grid.color = borderColor;
+        
+        this.instance.data.labels = labels;
+        this.instance.data.datasets[0].label = isWeighted ? 'Weighted Ranking' : (isRanking ? 'Ranking' : 'Rating');
+        this.instance.data.datasets[0].data = dataValues;
+        this.instance.data.datasets[0].borderColor = colors[0] || '#3b82f6';
+        this.instance.data.datasets[0].pointBackgroundColor = colors;
+        this.instance.data.datasets[0].pointBorderColor = colors;
+        this.instance.update();
+    }
+};
+
+const OverTimeChart = {
+    instance: null,
+    mode: 'rating',             
+    sourceMode: 'filters',      
+    selectedRideId: null,    
+    useWeightedRanking: false,  
+    otLimit: 5,                 
+    _colorOverrides: {},        
+
+    colors: ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#3b82f6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16','#e11d48','#7c3aed','#0ea5e9','#d946ef'],
+
+    initialize() {
+        const ctx = Utils.getElement('overTimeChart').getContext('2d');
+        const textColor   = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+
+        this.instance = new window.Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                plugins: {
+                    legend: {
+                        display: false, position: 'right', align: 'center',
+                        labels: { font: { family: "'Space Grotesk', sans-serif", size: 11 }, color: textColor, boxWidth: 12, boxHeight: 12, padding: 10, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 10, maxWidth: 140 }
+                    },
+                    title: { display: true, text: 'Average Rating Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                    tooltip: {
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 },
+                        callbacks: {
+                            label: (context) => {
+                                const ds    = context.dataset;
+                                const val   = ds._originalData ? ds._originalData[context.dataIndex] : context.parsed.y;
+                                const label = ds.label;
+                                if (val === null || val === undefined) return '';
+                                if (this.sourceMode === 'filters') {
+                                    return this.mode === 'rating' ? `${label}: ${val.toFixed(2)}` : `${label}: #${this.useWeightedRanking ? val.toFixed(2) : val}`;
+                                } else if (this.selectedRideId !== null) {
+                                    return this.mode === 'rating' ? `Rating: ${val.toFixed(2)}` : `${this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking'}: #${this.useWeightedRanking ? val.toFixed(2) : val}`;
+                                } else {
+                                    return this.mode === 'rating' ? `Avg Rating: ${val.toFixed(2)}` : `${this.useWeightedRanking ? 'Avg Weighted Ranking' : 'Avg Ranking'}: #${val.toFixed(1)}`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false, min: 1, max: 10, reverse: false, grid:  { color: borderColor },
+                        afterBuildTicks: function(axis) {
+                            if (axis.options.reverse && axis.ticks.length && !axis.ticks.some(t => t.value === 1)) {
+                                axis.ticks.push({ value: 1 });
+                                axis.ticks.sort((a, b) => a.value - b.value);
+                            }
+                        },
+                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor },
+                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor }
+                    },
+                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } }
+                }
+            }
+        });
+        this.update();
+    },
+
+    getYearlyAverages() {
+        const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
+        const currentLogs = userProfile[`logs_2026`] || {};
+        const currentTotal = Object.keys(currentLogs).length;
+
+        return years.map(year => {
+            const logs = userProfile[`logs_${year}`] || {};
+            const yearTotal = Object.keys(logs).length;
+            let sumRating = 0, countRating = 0;
+            let sumRanking = 0, countRanking = 0;
+            let sumWR = 0, countWR = 0;
+
+            Object.values(logs).forEach(log => {
+                const r = log.rating;
+                const k = log.ranking;
+                if (r > 0) { sumRating += r; countRating++; }
+                if (k > 0) { 
+                    sumRanking += k; countRanking++; 
+                    const multiplier = yearTotal > 0 ? (currentTotal / yearTotal) : 1;
+                    sumWR += (k * multiplier); countWR++;
+                }
+            });
+
+            return {
+                year,
+                avgRating  : countRating ? sumRating / countRating : null,
+                avgRanking : countRanking ? sumRanking / countRanking : null,
+                avgWeightedRanking : countWR ? sumWR / countWR : null
+            };
+        });
+    },
+
+    getRideDataById(id) {
+        const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
+        const currentLogs = userProfile[`logs_2026`] || {};
+        const currentTotal = Object.keys(currentLogs).length;
+
+        return years.map(year => {
+            const logs = userProfile[`logs_${year}`] || {};
+            const log = logs[id];
+            if (!log) return { year, rating: null, ranking: null, weightedRanking: null };
+
+            const r = log.rating;
+            const k = log.ranking;
+            const yearTotal = Object.keys(logs).length;
+            const multiplier = yearTotal > 0 ? (currentTotal / yearTotal) : 1;
+
+            return { 
+                year, 
+                rating: r > 0 ? r : null, 
+                ranking: k > 0 ? k : null, 
+                weightedRanking: k > 0 ? (k * multiplier) : null 
+            };
+        });
+    },
+
+    getFilteredTopRides() {
+        const park   = Utils.getElement('otPark').value;
+        const mfr    = Utils.getElement('otManufacturer').value;
+        const cat    = Utils.getElement('otCategory').value;
+        const type   = Utils.getElement('otType').value;
+        const status = Utils.getElement('otStatus').value;
+
+        const logs = userProfile[`logs_${currentYearStr}`] || {};
+        let candidates = [];
+
+        Object.keys(logs).forEach(id => {
+            const master = masterCoasters[id];
+            const log = logs[id];
+            if (!master) return;
+            
+            if (park   && master.park !== park) return;
+            if (mfr    && master.manufacturer !== mfr) return;
+            if (cat    && master.category !== cat) return;
+            if (type   && master.type !== type) return;
+            if (status && master.status !== status) return;
+
+            if (this.mode === 'rating'  && log.rating > 0) candidates.push({ id, rating: log.rating, ranking: log.ranking });
+            if (this.mode === 'ranking' && log.ranking > 0) candidates.push({ id, rating: log.rating, ranking: log.ranking });
+        });
+
+        candidates.sort((a, b) => this.mode === 'rating' ? b.rating - a.rating : a.ranking - b.ranking);
+        return candidates.slice(0, this.otLimit).map(c => c.id);
+    },
+
+    selectRide(id) {
+        this.selectedRideId = id;
+        Utils.getElement('otRideSearch').value = masterCoasters[id].name;
+        Utils.getElement('otRideClear').style.display = 'inline-flex';
+        Utils.getElement('otRideDropdown').style.display = 'none';
+        this.update();
+    },
+
+    clearRide() {
+        this.selectedRideId = null;
+        Utils.getElement('otRideSearch').value = '';
+        Utils.getElement('otRideClear').style.display = 'none';
+        this.update();
+    },
+
+    setMode(mode) {
+        this.mode = mode;
+        const wrap = Utils.getElement('otWeightedWrap');
+        if (mode === 'ranking') {
+            wrap.style.display = '';
+        } else {
+            wrap.style.display = 'none';
+            this.useWeightedRanking = false;
+            Utils.getElement('otWeightedCheck').checked = false;
+        }
+        this.update();
+    },
+
+    setSource(src) {
+        this.sourceMode = src;
+        if (src === 'filters') {
+            this.selectedRideId = null;
+            Utils.getElement('otRideSearch').value = '';
+            Utils.getElement('otRideClear').style.display = 'none';
+        }
+        Utils.getElement('otRidePanel').style.display     = (src === 'ride')    ? 'block' : 'none';
+        Utils.getElement('otFiltersPanel').style.display   = (src === 'filters') ? 'block' : 'none';
+        this.update();
+    },
+
+    update() {
+        if (!this.instance) return;
+
+        const textColor   = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+        const years       = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort().filter(y => parseInt(y) <= parseInt(currentYearStr));
+        const opts        = this.instance.options;
+        const yOpts       = opts.scales.y;
+
+        const applyYAxis = (label, min, max, reverse, beginAtZero) => {
+            yOpts.title.text  = label;
+            if (min !== null) { yOpts.min = min; } else { delete yOpts.min; }
+            if (max !== null) { yOpts.max = max; } else { delete yOpts.max; }
+            yOpts.reverse     = reverse;
+            yOpts.beginAtZero = beginAtZero;
+            yOpts.title.color = textColor;
+            yOpts.ticks.color = textColor;
+            yOpts.grid.color  = borderColor;
+            opts.scales.x.ticks.color = textColor;
+            opts.scales.x.grid.color  = borderColor;
+            opts.plugins.title.color  = textColor;
+        };
+
+        if (this.sourceMode === 'filters') {
+            const topIndices = this.getFilteredTopRides();
+
+            this.instance.data.labels = years;
+            this.instance.data.datasets = topIndices.map((id, i) => {
+                const rideData = this.getRideDataById(id);
+                const color = this._colorOverrides[id] || this.colors[i % this.colors.length];
+                const master = masterCoasters[id] || {name: 'Unknown'};
+                return {
+                    label: master.name,
+                    _baseIdx: id,
+                    data: this.mode === 'rating' ? rideData.map(d => d.rating) : (this.useWeightedRanking ? rideData.map(d => d.weightedRanking) : rideData.map(d => d.ranking)),
+                    _originalData: this.mode === 'rating' ? rideData.map(d => d.rating) : (this.useWeightedRanking ? rideData.map(d => d.weightedRanking) : rideData.map(d => d.ranking)),
+                    borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 2.5, tension: 0.3, fill: false, pointRadius: 4, pointHoverRadius: 6, spanGaps: true
+                };
+            });
+
+            const datasets = this.instance.data.datasets;
+            const STAGGER_NORMAL = 0.02;
+            const STAGGER_TIGHT = 0.01;
+            for (let yi = 0; yi < years.length; yi++) {
+                const groups = {};
+                datasets.forEach((ds, di) => {
+                    const v = ds.data[yi];
+                    if (v === null || v === undefined) return;
+                    const key = String(v);
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(di);
+                });
+                Object.values(groups).forEach(indices => {
+                    if (indices.length < 2) return;
+                    const stagger = indices.length > 3 ? STAGGER_TIGHT : STAGGER_NORMAL;
+                    const mid = (indices.length - 1) / 2;
+                    indices.forEach((di, pos) => {
+                        datasets[di].data[yi] = datasets[di]._originalData[yi] + (pos - mid) * stagger;
+                    });
+                });
+            }
+
+            opts.plugins.legend.display = false;
+            opts.plugins.legend.labels.color = textColor;
+            opts.plugins.title.text = Utils.buildFilterTitle(this.otLimit, 'otStatus', 'otPark', 'otManufacturer', 'otCategory', 'otType', topIndices.length);
+
+            if (this.mode === 'rating') {
+                const allRatings  = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
+                const minRating   = allRatings.length ? Math.min(...allRatings) : 0;
+                const maxRating   = allRatings.length ? Math.max(...allRatings) : 10;
+                applyYAxis('Rating', Math.max(minRating - 0.2, 1), maxRating + 0.2, false, false);
+            } else {
+                const axisLabel = this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking';
+                const allRankings = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
+                const maxRank     = allRankings.length ? Math.max(...allRankings) : 20;
+                applyYAxis(axisLabel, 0.5, Math.max(Math.ceil(maxRank * 1.25), 10), true, false);
+            }
+
+            const isWeightedF = this.useWeightedRanking;
+            yOpts.ticks.callback = function(value, index, ticks) {
+                if (index === 0 || index === ticks.length - 1) return null;
+                if (yOpts.reverse) {
+                    if (isWeightedF) return value >= 1 ? '#' + Number(value.toFixed(1)) : '';
+                    return (Number.isInteger(value) && value >= 1) ? '#' + value : '';
+                }
+                return Number(value.toFixed(2));
+            };
+
+        } else {
+            const isRide = this.selectedRideId !== null;
+            const data   = isRide ? this.getRideDataById(this.selectedRideId) : this.getYearlyAverages();
+
+            let values, color, title;
+            if (this.mode === 'rating') {
+                values = isRide ? data.map(d => d.rating !== null ? Math.round(d.rating * 10) / 10 : null) : data.map(d => d.avgRating !== null ? Math.round(d.avgRating * 10) / 10 : null);
+                color = Utils.getCSSVariable('--primary');
+                title = isRide ? `${masterCoasters[this.selectedRideId].name} — Rating` : 'Average Rating Over Time';
+            } else if (this.useWeightedRanking) {
+                values = isRide ? data.map(d => d.weightedRanking !== null ? Math.round(d.weightedRanking * 100) / 100 : null) : data.map(d => d.avgWeightedRanking !== null ? Math.round(d.avgWeightedRanking * 100) / 100 : null);
+                color = Utils.getCSSVariable('--accent');
+                title = isRide ? `${masterCoasters[this.selectedRideId].name} — Weighted Ranking` : 'Average Weighted Ranking Over Time';
+            } else {
+                values = isRide ? data.map(d => d.ranking !== null ? d.ranking : null) : data.map(d => d.avgRanking !== null ? Math.round(d.avgRanking * 10) / 10 : null);
+                color = Utils.getCSSVariable('--accent');
+                title = isRide ? `${masterCoasters[this.selectedRideId].name} — Ranking` : 'Average Ranking Over Time';
+            }
+
+            this.instance.data.labels = data.map(d => d.year);
+            this.instance.data.datasets = [{
+                label: this.mode === 'rating' ? (isRide ? 'Rating' : 'Average Rating') : (isRide ? (this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking') : (this.useWeightedRanking ? 'Average Weighted Ranking' : 'Average Ranking')),
+                data: values, borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8, spanGaps: isRide
+            }];
+
+            opts.plugins.legend.display = false;
+            opts.plugins.title.text = title;
+
+            if (this.mode === 'rating') {
+                const allRatings  = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
+                const minRating   = allRatings.length ? Math.min(...allRatings) : 0;
+                const maxRating   = allRatings.length ? Math.max(...allRatings) : 10;
+                applyYAxis('Rating', Math.max(minRating - 0.2, 1), maxRating + 0.2, false, false);
+            } else {
+                const axisLabel = this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking';
+                const allRankings = this.instance.data.datasets.flatMap(ds => ds.data).filter(v => v !== null);
+                const maxRank     = allRankings.length ? Math.max(...allRankings) : 20;
+                applyYAxis(axisLabel, 0.5, Math.max(Math.ceil(maxRank * 1.25), 10), true, false);
+            }
+
+            const isWeighted = this.useWeightedRanking;
+            yOpts.ticks.callback = function(value) {
+                if (yOpts.reverse) {
+                    if (isWeighted) return value >= 1 ? '#' + Number(value.toFixed(1)) : '';
+                    return (Number.isInteger(value) && value >= 1) ? '#' + value : '';
+                }
+                return Number(value.toFixed(2));
+            };
+        }
+        this.renderLegend();
+        this.instance.update();
+    },
+
+    _palette: ['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#dc2626','#ea580c','#d97706','#ca8a04','#65a30d','#16a34a','#059669','#0d9488','#0891b2','#0284c7','#2563eb','#4f46e5','#7c3aed','#9333ea','#c026d3','#db2777','#991b1b','#9a3412','#92400e','#854d0e','#3f6212','#166534','#065f46','#115e59','#155e75','#075985','#1e40af','#3730a3','#5b21b6','#6b21a8','#86198f','#9d174d','#fca5a5','#fdba74','#fcd34d','#fde047','#bef264','#86efac','#6ee7b7','#5eead4','#67e8f9','#7dd3fc','#93c5fd','#a5b4fc','#c4b5fd','#d8b4fe','#f0abfc','#f9a8d4'],
+
+    renderLegend() {
+        const container = document.getElementById('otLegend');
+        if (!container || !this.instance) return;
+        if (this.sourceMode !== 'filters' || this.instance.data.datasets.length === 0) {
+            container.innerHTML = ''; return;
+        }
+        container.innerHTML = this.instance.data.datasets.map((ds, i) => {
+            const color = ds.borderColor; const full = ds.label; const short = full.length > 15 ? full.slice(0, 15) + '...' : full;
+            return '<div class="ot-legend-item" title="' + full + '">' + '<span class="ot-legend-swatch" data-ds-index="' + i + '" style="background-color:' + color + ';"></span>' + '<span class="ot-legend-label">' + short + '</span></div>';
+        }).join('');
+        container.querySelectorAll('.ot-legend-swatch').forEach(swatch => {
+            swatch.addEventListener('click', (e) => { e.stopPropagation(); this._openColorPicker(swatch, parseInt(swatch.dataset.dsIndex)); });
+        });
+    },
+
+    _openColorPicker(swatch, dsIndex) {
+        const existing = document.querySelector('.ot-color-picker');
+        if (existing) existing.remove();
+        const picker = document.createElement('div');
+        picker.className = 'ot-color-picker';
+        picker.innerHTML = this._palette.map(c => '<div class="ot-color-picker-cell" data-color="' + c + '" style="background-color:' + c + ';"></div>').join('');
+        document.body.appendChild(picker);
+        const swatchRect = swatch.getBoundingClientRect();
+        const pickerW = picker.offsetWidth; const pickerH = picker.offsetHeight;
+        let left = swatchRect.left + swatchRect.width / 2 - pickerW / 2; let top = swatchRect.bottom + 6;
+        if (left < 4) left = 4;
+        if (left + pickerW > window.innerWidth - 4) left = window.innerWidth - pickerW - 4;
+        if (top + pickerH > window.innerHeight - 4) top = swatchRect.top - pickerH - 6;
+        picker.style.left = left + 'px'; picker.style.top = top + 'px'; picker.style.position = 'fixed';
+        picker.querySelectorAll('.ot-color-picker-cell').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const color = cell.dataset.color;
+                this._applyColor(dsIndex, color);
+                swatch.style.backgroundColor = color;
+                picker.remove();
+            });
+        });
+        const dismiss = (e) => { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', dismiss, true); } };
+        setTimeout(() => document.addEventListener('click', dismiss, true), 0);
+    },
+
+    _applyColor(dsIndex, color) {
+        const ds = this.instance.data.datasets[dsIndex];
+        if (!ds) return;
+        if (ds._baseIdx !== undefined) this._colorOverrides[ds._baseIdx] = color;
+        ds.borderColor = color;
+        ds.pointBackgroundColor = Array.isArray(ds.pointBackgroundColor) ? ds.pointBackgroundColor.map(() => color) : color;
+        ds.pointBorderColor = Array.isArray(ds.pointBorderColor) ? ds.pointBorderColor.map(() => color) : color;
+        this.instance.update();
+    }
+};
+
+const Modals = {
+    _savedScroll: 0,
+    _lockScroll() {
+        this._savedScroll = window.scrollY;
+        document.body.classList.add('modal-open');
+        document.body.style.top = `-${this._savedScroll}px`;
+    },
+    _unlockScroll() {
+        document.body.classList.remove('modal-open');
+        document.body.style.top = '';
+        window.scrollTo(0, this._savedScroll);
+    },
+    showDetail(coaster) {
+        AppState.editing = coaster;
+        const modal = Utils.getElement('detailModal');
+        const title = Utils.getElement('detailTitle');
+        const content = Utils.getElement('detailContent');
+        title.textContent = coaster.Ride;
+        const rating = Utils.parseRating(coaster.Rating);
+        const ratingPercent = (rating / 10) * 100;
+        const ratingColor = Utils.getRatingColor(rating);
+        const statusClass = coaster.Status === 'Operating' ? 'status-operating' : coaster.Status === 'SBNO' ? 'status-sbno' : 'status-defunct';
+        
+        content.innerHTML = `
+            <div class="detail-modal-grid">
+                <div class="detail-modal-two-col">
+                    <div class="detail-modal-row"><span class="detail-modal-label">Park</span><span class="detail-modal-value">${Utils.escapeHtml(coaster.Park)}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Manufacturer</span><span class="detail-modal-value">${Utils.escapeHtml(coaster.Manufacturer || '—')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Category</span><span class="detail-modal-value">${Utils.escapeHtml(coaster.Category || '—')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Type</span><span class="detail-modal-value">${Utils.escapeHtml(coaster.Type || '—')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Opening Year</span><span class="detail-modal-value">${Utils.escapeHtml(coaster['Opening Year'] || '—')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Last Ride</span><span class="detail-modal-value">${Utils.escapeHtml(coaster['Last Ride'] || '—')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Status</span><span class="status-badge ${statusClass}">${Utils.escapeHtml(coaster.Status || 'Unknown')}</span></div>
+                    <div class="detail-modal-row"><span class="detail-modal-label">Ranking</span><span class="detail-modal-value">${coaster.Ranking ? '#' + coaster.Ranking : 'Not Ranked'}</span></div>
+                </div>
+                ${rating > 0 ? `<div class="detail-modal-row"><span class="detail-modal-label">Rating</span><div class="rating-display" style="margin: 0;"><div class="rating-stars"><div class="rating-fill" style="width: ${ratingPercent}%; background: ${ratingColor};"></div></div><div class="rating-number" style="color: ${ratingColor};">${rating.toFixed(2)}</div></div></div>` : ''}
+            </div>
+            ${coaster.Comments ? `<div class="comments-section"><div class="comments-label">Comments</div><div class="comments-text">${Utils.escapeHtml(coaster.Comments)}</div></div>` : ''}
+        `;
+        Utils.getElement('editCoasterBtn').style.display = currentYearStr === '2026' ? '' : 'none';
+        Utils.getElement('deleteCoasterBtn').style.display = currentYearStr === '2026' ? '' : 'none';
+        modal.classList.add('active');
+        this._lockScroll();
+    },
+    closeDetail() {
+        Utils.getElement('detailModal').classList.remove('active');
+        AppState.editing = null;
+        this._unlockScroll();
+    },
+    showAddCoaster() {
+        Utils.getElement('addModalTitle').textContent = 'Add New Credit';
+        Utils.getElement('coasterForm').reset();
+        Utils.getElement('charCount').textContent = '0 / 350';
+        ['rideName', 'parkName', 'manufacturer', 'category', 'type', 'openingYear', 'lastRide'].forEach(id => {
+            Utils.getElement(id).disabled = false;
+        });
+        Utils.getElement('newCredit').closest('.form-group').style.display = '';
+        Utils.getElement('addCoasterModal').classList.add('active');
+        this._lockScroll();
+    },
+    closeAddCoaster() {
+        Utils.getElement('addCoasterModal').classList.remove('active');
+        this._unlockScroll();
+    },
+    editCoasterDetails() {
+        if (!AppState.editing) return;
+        const coaster = AppState.editing;
+        this.closeDetail();
+        AppState.editing = coaster;
+        Utils.getElement('addModalTitle').textContent = 'Edit Credit';
+        Utils.getElement('rideName').value = coaster.Ride || '';
+        Utils.getElement('parkName').value = coaster.Park || '';
+        Utils.getElement('manufacturer').value = coaster.Manufacturer || '';
+        Utils.getElement('category').value = coaster.Category || '';
+        Utils.getElement('type').value = coaster.Type || '';
+        Utils.getElement('openingYear').value = coaster['Opening Year'] || '';
+        Utils.getElement('lastRide').value = coaster['Last Ride'] || '';
+        Utils.getElement('status').value = coaster.Status || '';
+        Utils.getElement('rating').value = coaster.Rating ? parseFloat(coaster.Rating).toFixed(2) : '';
+        Utils.getElement('ranking').value = coaster.Ranking || '';
+        Utils.getElement('newCredit').checked = coaster['New Credit'] === 'Yes';
+        Utils.getElement('comments').value = coaster.Comments || '';
+        Utils.getElement('charCount').textContent = `${(coaster.Comments || '').length} / 350`;
+        
+        ['rideName', 'parkName', 'manufacturer', 'category'].forEach(id => {
+            Utils.getElement(id).disabled = true;
+        });
+        Utils.getElement('type').disabled = false;
+        Utils.getElement('openingYear').disabled = false;
+        Utils.getElement('lastRide').disabled = false;
+        Utils.getElement('newCredit').closest('.form-group').style.display = 'none';
+        Utils.getElement('addCoasterModal').classList.add('active');
+    }
+};
+
+const Filters = {
+    apply() {
+        const searchTerm = Utils.getElement('searchInput').value.toLowerCase();
+        const park = Utils.getElement('filterPark').value;
+        const manufacturer = Utils.getElement('filterManufacturer').value;
+        const category = Utils.getElement('filterCategory').value;
+        const type = Utils.getElement('filterType').value;
+        const status = Utils.getElement('filterStatus').value;
+        const minRating = Utils.parseRating(Utils.getElement('filterRating').value);
+        
+        AppState.filtered = AppState.coasters.filter(coaster => {
+            if (searchTerm && !`${coaster.Ride} ${coaster.Park} ${coaster.Manufacturer}`.toLowerCase().includes(searchTerm)) return false;
+            if (park && coaster.Park !== park) return false;
+            if (manufacturer && coaster.Manufacturer !== manufacturer) return false;
+            if (category && coaster.Category !== category) return false;
+            if (type && coaster.Type !== type) return false;
+            if (status && coaster.Status !== status) return false;
+            if (minRating > 0 && Utils.parseRating(coaster.Rating) < minRating) return false;
+            return true;
+        });
+        this.sortCards();
+        Render.coasters();
+    },
+    sortCards() {
+        const ranked = [], unranked = [];
+        AppState.filtered.forEach(c => {
+            if (c.Ranking && !isNaN(parseInt(c.Ranking))) ranked.push(c);
+            else unranked.push(c);
+        });
+        ranked.sort((a, b) => parseInt(a.Ranking) - parseInt(b.Ranking));
+        unranked.sort((a, b) => {
+            const ratingDiff = Utils.parseRating(b.Rating) - Utils.parseRating(a.Rating);
+            return ratingDiff !== 0 ? ratingDiff : (a.Ride || '').localeCompare(b.Ride || '');
+        });
+        AppState.filtered = [...ranked, ...unranked];
+    },
+    togglePanel() { Utils.getElement('filterPanel').classList.toggle('active'); }
+};
+
+const Tabs = {
+    switch(tabName) {
+        Utils.getElements('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+        Utils.getElement('creditsTab').classList.toggle('hidden', tabName !== 'credits');
+        Utils.getElement('statisticsTab').classList.toggle('hidden', tabName !== 'statistics');
+        Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
+        if (tabName === 'statistics') {
+            if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
+            if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+        } else if (tabName === 'spreadsheet') Render.spreadsheet();
+    }
+};
+
+const Forms = {
+    handleSubmit(e) {
+        e.preventDefault();
+        
+        let id = "";
+        if (AppState.editing) {
+            id = AppState.editing.id;
+        } else {
+            const ride = Utils.getElement('rideName').value;
+            const park = Utils.getElement('parkName').value;
+            id = `${park}_${ride}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            
+            let baseId = id;
+            let counter = 1;
+            while(masterCoasters[id] && !AppState.editing) {
+                id = `${baseId}_${counter}`;
+                counter++;
+            }
+        }
+        
+        // Update Static Master Dict (Memory Only)
+        masterCoasters[id] = {
+            name: Utils.getElement('rideName').value,
+            park: Utils.getElement('parkName').value,
+            manufacturer: Utils.getElement('manufacturer').value,
+            category: Utils.getElement('category').value,
+            type: Utils.getElement('type').value,
+            openingYear: Utils.getElement('openingYear').value,
+            lastRide: Utils.getElement('lastRide').value,
+            status: Utils.getElement('status').value
+        };
+        
+        // Update User Profile
+        const yearKey = `logs_${currentYearStr}`;
+        if(!userProfile[yearKey]) userProfile[yearKey] = {};
+        
+        const newRank = parseInt(Utils.getElement('ranking').value) || 0;
+        
+        if (!AppState.editing && newRank > 0) {
+            adjustRankings(yearKey, id, newRank);
+        }
+        
+        userProfile[yearKey][id] = {
+            rating: parseFloat(Utils.getElement('rating').value) || 0,
+            ranking: newRank,
+            newCredit: Utils.getElement('newCredit').checked,
+            comments: Utils.getElement('comments').value
+        };
+        
+        AppState.editing = null;
+        Modals.closeAddCoaster();
+        refreshDataForYear(currentYearStr);
+    },
+    updateCharCount() { Utils.getElement('charCount').textContent = `${Utils.getElement('comments').value.length} / 350`; }
+};
+
+const Stats = {
+    updateCreditCount() {
+        const count = AppState.coasters.length;
+        Utils.getElement('creditCount').textContent = `${count} Credit${count !== 1 ? 's' : ''}`;
+        this.autoFitStatBoxes();
+    },
+    updateAverageRating() {
+        const ratedCoasters = AppState.coasters.filter(c => c.Rating && Utils.parseRating(c.Rating) > 0);
+        if (ratedCoasters.length === 0) { Utils.getElement('averageRating').textContent = 'Avg: —'; this.autoFitStatBoxes(); return; }
+        const average = ratedCoasters.reduce((acc, c) => acc + Utils.parseRating(c.Rating), 0) / ratedCoasters.length;
+        Utils.getElement('averageRating').textContent = `Avg: ${average.toFixed(2)}`;
+        this.autoFitStatBoxes();
+    },
+    autoFitStatBoxes() {
+        const boxes = [Utils.getElement('creditCount'), Utils.getElement('averageRating')];
+        const maxFontSize = window.innerWidth <= 768 ? 16 : 20;
+        const minFontSize = 10;
+        const sizes = boxes.map(box => {
+            box.style.fontSize = maxFontSize + 'px';
+            let fontSize = maxFontSize;
+            while (fontSize > minFontSize && box.scrollWidth > box.clientWidth) {
+                fontSize -= 0.5; box.style.fontSize = fontSize + 'px';
+            }
+            return fontSize;
+        });
+        const syncedSize = Math.min(...sizes);
+        boxes.forEach(box => box.style.fontSize = syncedSize + 'px');
+    }
+};
+
+function cleanCoasterLabel(value, field) {
+    if (field !== 'Category' && field !== 'Type') return value;
+    let cleaned = value;
+    if (cleaned.endsWith(' Coaster')) cleaned = cleaned.slice(0, -8);
+    if (cleaned === 'Hypercoaster') cleaned = 'Hyper';
+    return cleaned;
+}
+
+// Chart Exporting Functions
+async function downloadChart(chartInstance, isOverTime = false) {
+    if (!chartInstance) return;
+    const chartTitle = chartInstance.options.plugins.title.text || 'chart';
+    const filename = chartTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + (isOverTime ? '-over-time' : '') + '.png';
+    const isMobile = window.innerWidth <= 768;
+    const originalAspectRatio = chartInstance.options.aspectRatio;
+    
+    if (isOverTime) {
+        try {
+            const legend = document.getElementById('otLegend');
+            const chartCanvas = chartInstance.canvas;
+            const chartContainer = chartCanvas.parentElement;
+            const originalContainerWidth = chartContainer.style.width;
+            const originalContainerMaxWidth = chartContainer.style.maxWidth;
+            const originalColors = {
+                titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color,
+                xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend.labels.color
+            };
+            const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title.font.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size };
+            const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
+            
+            chartInstance.options.plugins.title.color = '#000000'; chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080';
+            chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
+            if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = '#000000';
+            chartInstance.options.plugins.legend.labels.color = '#000000';
+            
+            const originalPixelRatio = chartInstance.options.devicePixelRatio;
+            chartInstance.options.devicePixelRatio = 4; chartInstance.options.aspectRatio = 16 / 9;
+            if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
+            
+            chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
+            chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
+            
+            chartInstance.resize();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            let legendCanvas = null; let legendScale = 4;
+            if (legend && legend.children.length > 0) {
+                const originalLegendWidth = legend.style.width; const originalLegendMaxWidth = legend.style.maxWidth;
+                if (isMobile) { legend.style.width = '1600px'; legend.style.maxWidth = '1600px'; }
+                const originalLegendStyle = { background: legend.style.background, border: legend.style.border, boxShadow: legend.style.boxShadow, justifyContent: legend.style.justifyContent, padding: legend.style.padding, display: legend.style.display, flexWrap: legend.style.flexWrap, gap: legend.style.gap };
+                
+                legend.style.background = 'transparent'; legend.style.border = 'none'; legend.style.boxShadow = 'none'; legend.style.padding = '12px 0';
+                const legendItems = Array.from(legend.querySelectorAll('.ot-legend-item'));
+                const originalItemStyles = []; const originalLabelStyles = [];
+                legendItems.forEach((item, i) => { originalItemStyles[i] = { color: item.style.color, flexBasis: item.style.flexBasis, maxWidth: item.style.maxWidth }; item.style.color = '#000000'; item.style.flexBasis = 'auto'; item.style.maxWidth = 'none'; });
+                
+                const legendLabels = legend.querySelectorAll('.ot-legend-label');
+                legendLabels.forEach((label, i) => { originalLabelStyles[i] = { color: label.style.color, fontSize: label.style.fontSize }; label.style.color = '#000000'; label.style.fontSize = '34px'; });
+                
+                const legendSwatches = legend.querySelectorAll('.ot-legend-swatch');
+                const originalSwatchStyles = [];
+                legendSwatches.forEach((swatch, i) => { originalSwatchStyles[i] = { width: swatch.style.width, height: swatch.style.height }; swatch.style.width = '24px'; swatch.style.height = '24px'; });
+                
+                legend.style.display = 'flex'; legend.style.flexWrap = 'wrap'; legend.style.justifyContent = 'center'; legend.style.gap = '10px 50px';
+                legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale });
+                if (legendCanvas.width > chartCanvas.width) { legendScale = (chartCanvas.width / legend.offsetWidth) * 0.95; legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale }); }
+                
+                legend.style.background = originalLegendStyle.background; legend.style.border = originalLegendStyle.border; legend.style.boxShadow = originalLegendStyle.boxShadow; legend.style.justifyContent = originalLegendStyle.justifyContent; legend.style.padding = originalLegendStyle.padding; legend.style.display = originalLegendStyle.display; legend.style.flexWrap = originalLegendStyle.flexWrap; legend.style.gap = originalLegendStyle.gap;
+                if (isMobile) { legend.style.width = originalLegendWidth; legend.style.maxWidth = originalLegendMaxWidth; }
+                legendItems.forEach((item, i) => { item.style.color = originalItemStyles[i].color; item.style.flexBasis = originalItemStyles[i].flexBasis; item.style.maxWidth = originalItemStyles[i].maxWidth; });
+                legendLabels.forEach((label, i) => { label.style.color = originalLabelStyles[i].color; label.style.fontSize = originalLabelStyles[i].fontSize; });
+                legendSwatches.forEach((swatch, i) => { swatch.style.width = originalSwatchStyles[i].width; swatch.style.height = originalSwatchStyles[i].height; });
+            }
+            
+            const exportCanvas = document.createElement('canvas'); const padding = 80; const legendHeight = legendCanvas ? legendCanvas.height + 60 : 0;
+            exportCanvas.width = chartCanvas.width + (padding * 2); exportCanvas.height = chartCanvas.height + (padding * 2) + legendHeight;
+            const ctx = exportCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            ctx.drawImage(chartCanvas, padding, padding);
+            if (legendCanvas) { const legendX = (exportCanvas.width - legendCanvas.width) / 2; ctx.drawImage(legendCanvas, legendX, chartCanvas.height + padding + 60); }
+            
+            const link = document.createElement('a'); link.download = filename; link.href = exportCanvas.toDataURL('image/png'); link.click();
+            
+            chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
+            if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = originalColors.xTitleColor;
+            chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
+            chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
+            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+            chartInstance.resize();
+        } catch (error) { simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); }
+    } else {
+        simpleDownload(chartInstance, filename, isMobile, originalAspectRatio);
+    }
+}
+
+function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) {
+    const originalPixelRatio = chartInstance.options.devicePixelRatio; const chartContainer = chartInstance.canvas.parentElement;
+    const originalContainerWidth = chartContainer.style.width; const originalContainerMaxWidth = chartContainer.style.maxWidth;
+    const originalColors = { titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color, xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend.labels.color };
+    const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title.font.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size };
+    const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
+    
+    chartInstance.options.plugins.title.color = '#000000'; chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080'; chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
+    if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = '#000000';
+    chartInstance.options.plugins.legend.labels.color = '#000000';
+    chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; chartInstance.options.scales.x.ticks.font.size = (desktopFontSizes.xTicks - 2) * 2;
+    chartInstance.options.devicePixelRatio = 4; chartInstance.options.aspectRatio = 16 / 9;
+    if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
+    chartInstance.resize();
+    
+    setTimeout(() => {
+        const originalCanvas = chartInstance.canvas; const exportCanvas = document.createElement('canvas'); exportCanvas.width = originalCanvas.width; exportCanvas.height = originalCanvas.height;
+        const ctx = exportCanvas.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); ctx.drawImage(originalCanvas, 0, 0);
+        const link = document.createElement('a'); link.download = filename; link.href = exportCanvas.toDataURL('image/png'); link.click();
+        
+        chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
+        if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = originalColors.xTitleColor;
+        chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
+        chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
+        if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+        chartInstance.resize();
+    }, 500);
+}
+
+function updateCascadingFilters(parkId, mfrId, catId, typeId, statusId) {
+    const park = Utils.getElement(parkId).value; const mfr = Utils.getElement(mfrId).value; const cat = Utils.getElement(catId).value; const type = Utils.getElement(typeId).value;
+    const repopulate = (selectId, field, placeholder, currentValue, filterFn) => {
+        const select = Utils.getElement(selectId); if (!select) return;
+        const subset = filterFn(AppState.coasters).filter(c => c.Rating && Utils.parseRating(c.Rating) > 0);
+        const frequency = {}; subset.forEach(coaster => { const value = coaster[field]; if (value) frequency[value] = (frequency[value] || 0) + 1; });
+        const sorted = Object.keys(frequency).sort((a, b) => frequency[b] - frequency[a]);
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        sorted.forEach(opt => { const option = document.createElement('option'); option.value = opt; option.textContent = `${cleanCoasterLabel(opt, field)} (${frequency[opt]})`; select.appendChild(option); });
+        if (currentValue && sorted.includes(currentValue)) select.value = currentValue;
+    };
+    repopulate(mfrId, 'Manufacturer', 'All Manufacturers', mfr, (coasters) => park ? coasters.filter(c => c.Park === park) : coasters);
+    repopulate(catId, 'Category', 'All Categories', cat, (coasters) => { let filtered = coasters; if (park) filtered = filtered.filter(c => c.Park === park); if (mfr) filtered = filtered.filter(c => c.Manufacturer === mfr); return filtered; });
+    repopulate(typeId, 'Type', 'All Types', type, (coasters) => { let filtered = coasters; if (park) filtered = filtered.filter(c => c.Park === park); if (mfr) filtered = filtered.filter(c => c.Manufacturer === mfr); if (cat) filtered = filtered.filter(c => c.Category === cat); return filtered; });
+    const statusSelect = Utils.getElement(statusId);
+    if (statusSelect) {
+        let filtered = AppState.coasters.filter(c => c.Rating && Utils.parseRating(c.Rating) > 0);
+        if (park) filtered = filtered.filter(c => c.Park === park); if (mfr) filtered = filtered.filter(c => c.Manufacturer === mfr); if (cat) filtered = filtered.filter(c => c.Category === cat); if (type) filtered = filtered.filter(c => c.Type === type);
+        const statusValues = [...new Set(filtered.map(c => c.Status).filter(Boolean))]; const currentStatus = statusSelect.value; statusSelect.innerHTML = '<option value="">All Statuses</option>';
+        ['Operating', 'SBNO', 'Defunct'].forEach(status => { if (statusValues.includes(status)) { const count = filtered.filter(c => c.Status === status).length; const option = document.createElement('option'); option.value = status; option.textContent = `${status} (${count})`; statusSelect.appendChild(option); } });
+        if (currentStatus && statusValues.includes(currentStatus)) statusSelect.value = currentStatus;
+    }
+}
+
+function setupEventListeners() {
+
+    // --- REFACTORED EXPORT & IMPORT HOOKS ---
+    Utils.getElement('exportDataBtn').addEventListener('click', () => {
+        const dataStr = JSON.stringify(userProfile, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "thomas_tracker_profile.json";
+        link.click();
+    });
+
+    Utils.getElement('importDataBtn').addEventListener('click', () => Utils.getElement('importDataFile').click());
+    
+    Utils.getElement('importDataFile').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                userProfile = JSON.parse(evt.target.result);
+                refreshDataForYear(currentYearStr);
+            } catch (err) {
+                alert("Invalid Profile JSON");
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    });
+
+
+    Utils.getElements('.tab-btn').forEach(btn => { btn.addEventListener('click', () => Tabs.switch(btn.dataset.tab)); });
+    Utils.getElements('.chart-limit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            AppState.chartLimit = parseInt(btn.dataset.limit);
+            Utils.getElements('.chart-limit-btn').forEach(b => { b.classList.remove('btn-primary', 'active'); b.classList.add('btn-secondary'); });
+            btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); Chart.update();
+        });
+    });
+    Utils.getElements('[data-chart-type]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            Utils.getElements('[data-chart-type]').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            const type = btn.dataset.chartType; Utils.getElement('comparisonView').style.display = (type === 'comparison') ? 'block' : 'none'; Utils.getElement('overTimeView').style.display   = (type === 'overTime')    ? 'block' : 'none';
+            if (type === 'overTime' && !OverTimeChart.instance) { OverTimeChart.initialize(); window._syncChartAspect(); }
+            if (type === 'comparison') Chart.update(); else if (type === 'overTime' && OverTimeChart.instance) OverTimeChart.update();
+        });
+    });
+    Utils.getElements('[data-ot-mode]').forEach(btn => { btn.addEventListener('click', () => { Utils.getElements('[data-ot-mode]').forEach(b => b.classList.remove('active')); btn.classList.add('active'); OverTimeChart.setMode(btn.dataset.otMode); }); });
+    Utils.getElement('otWeightedCheck').addEventListener('change', function() { OverTimeChart.useWeightedRanking = this.checked; OverTimeChart.update(); });
+    Utils.getElements('[data-stats-mode]').forEach(btn => { btn.addEventListener('click', () => { Utils.getElements('[data-stats-mode]').forEach(b => b.classList.remove('active')); btn.classList.add('active'); Chart.setMode(btn.dataset.statsMode); }); });
+    Utils.getElement('statsWeightedCheck').addEventListener('change', function() { Chart.useWeightedRanking = this.checked; Chart.update(); });
+    Utils.getElements('[data-ot-source]').forEach(btn => { btn.addEventListener('click', () => { Utils.getElements('[data-ot-source]').forEach(b => b.classList.remove('active')); btn.classList.add('active'); OverTimeChart.setSource(btn.dataset.otSource); }); });
+
+    (function initRideSearch() {
+        const input    = Utils.getElement('otRideSearch'); const dropdown = Utils.getElement('otRideDropdown'); const clearBtn = Utils.getElement('otRideClear');
+        function showMatches(query) {
+            const q = query.trim().toLowerCase();
+            if (!q) { dropdown.style.display = 'none'; return; }
+            const hits = [];
+            Object.keys(masterCoasters).forEach(id => {
+                const ride = masterCoasters[id];
+                if (ride.name.toLowerCase().includes(q) || ride.park.toLowerCase().includes(q)) {
+                    hits.push({ ride, id });
+                    if (hits.length >= 14) return;
+                }
+            });
+            if (hits.length === 0) dropdown.innerHTML = '<div class="ot-dropdown-none">No rides found</div>';
+            else {
+                dropdown.innerHTML = hits.map(({ ride, id }) => `<div class="ot-dropdown-item" data-idx="${id}">${ride.name}<span class="ride-park">${ride.park}</span></div>`).join('');
+                dropdown.querySelectorAll('.ot-dropdown-item').forEach(item => { item.addEventListener('click', () => OverTimeChart.selectRide(item.dataset.idx)); });
+            }
+            dropdown.style.display = 'block';
+        }
+        input.addEventListener('input', () => { if (OverTimeChart.selectedRideId !== null) { OverTimeChart.selectedRideId = null; clearBtn.style.display = 'none'; OverTimeChart.update(); } showMatches(input.value); });
+        input.addEventListener('focus', () => { if (OverTimeChart.selectedRideId === null && input.value.trim()) showMatches(input.value); });
+        clearBtn.addEventListener('click', () => OverTimeChart.clearRide());
+        document.addEventListener('click', (e) => { if (!e.target.closest('.ot-ride-search')) dropdown.style.display = 'none'; });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdown.style.display = 'none'; });
+    })();
+
+    ['otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
+    Utils.getElements('.ot-chart-limit-btn').forEach(btn => { btn.addEventListener('click', () => { OverTimeChart.otLimit = parseInt(btn.dataset.limit); Utils.getElements('.ot-chart-limit-btn').forEach(b => { b.classList.remove('btn-primary', 'active'); b.classList.add('btn-secondary'); }); btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
+    ['statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'); Chart.update(); }); });
+    Utils.getElement('downloadComparisonChart')?.addEventListener('click', () => { downloadChart(Chart.instance, false); });
+    Utils.getElement('downloadOverTimeChart')?.addEventListener('click', () => { downloadChart(OverTimeChart.instance, true); });
+    Utils.getElement('editCoasterBtn').addEventListener('click', () => Modals.editCoasterDetails());
+    
+    // Updated Delete Handler
+    Utils.getElement('deleteCoasterBtn').addEventListener('click', () => {
+        const coaster = AppState.editing;
+        if (!coaster) return;
+        if (!confirm(`Are you sure you want to delete "${coaster.Ride}"?`)) return;
+        
+        const yearKey = `logs_${currentYearStr}`;
+        if(userProfile[yearKey]) {
+            delete userProfile[yearKey][coaster.id];
+            normalizeRankings(yearKey);
+        }
+        Modals.closeDetail();
+        refreshDataForYear(currentYearStr);
+    });
+    
+    Utils.getElement('searchInput').addEventListener('input', () => Filters.apply());
+    Utils.getElement('filterToggle').addEventListener('click', () => Filters.togglePanel());
+    ['filterPark', 'filterManufacturer', 'filterCategory', 'filterType', 'filterStatus', 'filterRating'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => Filters.apply()); });
+    Utils.getElement('addCoasterBtn').addEventListener('click', () => Modals.showAddCoaster());
+    Utils.getElement('closeDetailModal').addEventListener('click', () => Modals.closeDetail());
+    Utils.getElement('closeAddModal').addEventListener('click', () => Modals.closeAddCoaster());
+    Utils.getElement('cancelAddBtn').addEventListener('click', () => Modals.closeAddCoaster());
+    Utils.getElement('coasterForm').addEventListener('submit', (e) => Forms.handleSubmit(e));
+    Utils.getElement('tableRefreshBtn').addEventListener('click', () => {
+        AppState.sort = []; const defaults = { 'Ride': true, 'Park': true, 'Manufacturer': true, 'Category': true, 'Type': true, 'Opening Year': true, 'Last Ride': true, 'Status': true, 'New Credit': true, 'Rating': true, 'Ranking': true, 'Weighted Ranking': false, 'Comments': false };
+        Object.keys(defaults).forEach(col => { AppState.columns[col] = defaults[col]; }); document.querySelectorAll('#columnToggles .column-toggle').forEach(btn => { const col = btn.dataset.column; if (col) btn.classList.toggle('inactive', !AppState.columns[col]); }); Render.spreadsheet();
+    });
+    Utils.getElement('comments').addEventListener('input', () => Forms.updateCharCount());
+
+    (() => {
+        const input = Utils.getElement('type'); const dropdown = Utils.getElement('typeDropdown'); let activeIdx = -1;
+        function showMatches() {
+            const val = input.value.trim().toLowerCase(); dropdown.innerHTML = ''; activeIdx = -1;
+            if (!val) { dropdown.classList.remove('visible'); return; }
+            const allTypes = [...new Set([...Object.values(masterCoasters).map(c => c.type).filter(Boolean)])];
+            const matches = allTypes.filter(t => t.toLowerCase().includes(val));
+            if (!matches.length) { dropdown.classList.remove('visible'); return; }
+            matches.forEach(t => { const div = document.createElement('div'); div.className = 'type-autocomplete-item'; div.textContent = t; div.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = t; dropdown.classList.remove('visible'); }); dropdown.appendChild(div); });
+            dropdown.classList.add('visible');
+        }
+        input.addEventListener('input', showMatches); input.addEventListener('focus', showMatches); input.addEventListener('blur', () => dropdown.classList.remove('visible'));
+        input.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.type-autocomplete-item'); if (!items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent; dropdown.classList.remove('visible'); }
+        });
+    })();
+
+    (() => {
+        const input = Utils.getElement('parkName'); const dropdown = Utils.getElement('parkDropdown'); let activeIdx = -1;
+        function showMatches() {
+            const val = input.value.trim().toLowerCase(); dropdown.innerHTML = ''; activeIdx = -1;
+            if (!val) { dropdown.classList.remove('visible'); return; }
+            const allParks = [...new Set([...Object.values(masterCoasters).map(c => c.park).filter(Boolean)])];
+            const matches = allParks.filter(p => p.toLowerCase().includes(val));
+            if (!matches.length) { dropdown.classList.remove('visible'); return; }
+            matches.forEach(p => { const div = document.createElement('div'); div.className = 'type-autocomplete-item'; div.textContent = p; div.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = p; dropdown.classList.remove('visible'); }); dropdown.appendChild(div); });
+            dropdown.classList.add('visible');
+        }
+        input.addEventListener('input', showMatches); input.addEventListener('focus', showMatches); input.addEventListener('blur', () => dropdown.classList.remove('visible'));
+        input.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.type-autocomplete-item'); if (!items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent; dropdown.classList.remove('visible'); }
+        });
+    })();
+    
+    Utils.getElement('detailModal').addEventListener('click', (e) => { if (e.target.id === 'detailModal') Modals.closeDetail(); });
+    Utils.getElement('addCoasterModal').addEventListener('click', (e) => { if (e.target.id === 'addCoasterModal') Modals.closeAddCoaster(); });
+    Utils.getElement('closeCommentsModal').addEventListener('click', () => { Utils.getElement('commentsModal').classList.remove('active'); Modals._unlockScroll(); });
+    Utils.getElement('commentsModal').addEventListener('click', (e) => { if (e.target.id === 'commentsModal') { Utils.getElement('commentsModal').classList.remove('active'); Modals._unlockScroll(); } });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { Modals.closeDetail(); Modals.closeAddCoaster(); Utils.getElement('commentsModal').classList.remove('active'); Modals._unlockScroll(); } });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Chart.update(); OverTimeChart.update(); });
+}
+
+(function setupChartResize() {
+    const BP = 768; function ratio() { return window.innerWidth <= BP ? 3 / 4 : 16 / 9; }
+    function apply() { const r = ratio(); if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } }
+    let prev = window.innerWidth <= BP; window.addEventListener('resize', () => { const cur = window.innerWidth <= BP; if (cur !== prev) { prev = cur; apply(); } Stats.autoFitStatBoxes(); });
+    window._syncChartAspect = apply;
+})();
+
+async function init() {
+    document.getElementById('importDataBtn').disabled = true;
+    try {
+        const res = await fetch('./master_coasters.json');
+        masterCoasters = await res.json();
+        document.getElementById('importDataBtn').disabled = false;
+    } catch(e) {
+        console.error("Failed to load master_coasters.json", e);
+    }
+
+    const currentYear = new Date().getFullYear();
+    DOM.populateYearSelect('openingYear', 1900, currentYear, true);
+    
+    const lastRideSelect = Utils.getElement('lastRide');
+    lastRideSelect.innerHTML = '<option value="">Select Year</option>';
+    for (let year = currentYear; year >= 2010; year--) {
+        const option = document.createElement('option'); option.value = year.toString(); option.textContent = year.toString(); lastRideSelect.appendChild(option);
+    }
+    const beforeOption = document.createElement('option'); beforeOption.value = 'Pre 2010'; beforeOption.textContent = 'Before 2010'; lastRideSelect.appendChild(beforeOption);
+    
+    DOM.populateRatingSelect('rating');
+    DOM.populateRankingSelect('ranking');
+    
+    Utils.getElement('yearSelect').addEventListener('change', (e) => {
+        refreshDataForYear(e.target.value);
+    });
+
+    setupEventListeners();
+    Chart.initialize();
+    window._syncChartAspect();
+    Spreadsheet.initialize();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+    </script>
+</body>
+</html>
