@@ -1,5 +1,525 @@
 {
   "logs_2026": {
+  "wiener_prater_volare": {
+    "name": "Volare",
+    "park": "Wiener Prater",
+    "manufacturer": "Zamperla",
+    "category": "Flying Coaster",
+    "type": "Volaire",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "wiener_prater_boomerang": {
+    "name": "Boomerang",
+    "park": "Wiener Prater",
+    "manufacturer": "Vekoma",
+    "category": "Shuttle Coaster",
+    "type": "Boomerang",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "wiener_prater_megablitz": {
+    "name": "Megablitz",
+    "park": "Wiener Prater",
+    "manufacturer": "Vekoma",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Steel Coaster",
+    "openingYear": "1994",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "plopsaland_deutschland_expedition_geforce": {
+    "name": "Expedition GeForce",
+    "park": "Plopsaland Deutschland",
+    "manufacturer": "Intamin",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Megacoaster",
+    "openingYear": "2001",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_wodan_timbur_coaster": {
+    "name": "Wodan Timbur Coaster",
+    "park": "Europa-Park",
+    "manufacturer": "Great Coasters International",
+    "category": "Wooden Coaster",
+    "type": "Woodie",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_alpenexpress_enzian": {
+    "name": "Alpenexpress Enzian",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Powered Coaster",
+    "type": "Powered Coaster",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_euro_mir": {
+    "name": "Euro-Mir",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Spinning Coaster",
+    "type": "Spinning Coaster",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_arthur": {
+    "name": "Arthur",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Powered Coaster",
+    "type": "Spinning Inverted Dark Ride Coaster",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_eurosat_cancan_coaster": {
+    "name": "Eurosat CanCan Coaster",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Indoor Coaster",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_voltron_nevera": {
+    "name": "Voltron Nevera",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Launch Coaster",
+    "type": "Stryker Coaster",
+    "openingYear": "2024",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_blue_fire": {
+    "name": "Blue Fire",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Launch Coaster",
+    "type": "Launched Looper",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_silver_star": {
+    "name": "Silver Star",
+    "park": "Europa-Park",
+    "manufacturer": "Bolliger and Mabillard",
+    "category": "Hypercoaster",
+    "type": "Hypercoaster",
+    "openingYear": "2002",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_matterhorn_blitz": {
+    "name": "Matterhorn Blitz",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Wild Mouse",
+    "type": "Vertical Lift Mouse",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "europa_park_schweizer_bobbahn": {
+    "name": "Schweizer Bobbahn",
+    "park": "Europa-Park",
+    "manufacturer": "Mack Rides",
+    "category": "Bobsled",
+    "type": "Bobsled",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_taiga": {
+    "name": "Taiga",
+    "park": "Linnanmäki",
+    "manufacturer": "Intamin",
+    "category": "Launch Coaster",
+    "type": "Blitz Coaster",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_vuoristorata": {
+    "name": "Vuoristorata",
+    "park": "Linnanmäki",
+    "manufacturer": "",
+    "category": "Wooden Coaster",
+    "type": "Brakeman Coaster",
+    "openingYear": "1951",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_kirnu": {
+    "name": "Kirnu",
+    "park": "Linnanmäki",
+    "manufacturer": "Intamin",
+    "category": "Free Spin",
+    "type": "Zakspin",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_salama": {
+    "name": "Salama",
+    "park": "Linnanmäki",
+    "manufacturer": "Maurer",
+    "category": "Spinning Coaster",
+    "type": "Extended SC 3000",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_tulireki": {
+    "name": "Tulireki",
+    "park": "Linnanmäki",
+    "manufacturer": "Mack Rides",
+    "category": "Wild Mouse",
+    "type": "e-Motion Coaster",
+    "openingYear": "2004",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_linnunrata": {
+    "name": "Linnunrata",
+    "park": "Linnanmäki",
+    "manufacturer": "Zierer",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Indoor Coaster",
+    "openingYear": "2000",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_pikajuna": {
+    "name": "Pikajuna",
+    "park": "Linnanmäki",
+    "manufacturer": "Mack Rides",
+    "category": "Powered Coaster",
+    "type": "Powered Coaster",
+    "openingYear": "1990",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "linnanm_ki_ukko": {
+    "name": "Ukko",
+    "park": "Linnanmäki",
+    "manufacturer": "Maurer",
+    "category": "Shuttle Coaster",
+    "type": "Sky Loop",
+    "openingYear": "2011",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "s_rk_nniemi_konect": {
+    "name": "Konect",
+    "park": "Särkänniemi",
+    "manufacturer": "Vekoma",
+    "category": "Family Coaster",
+    "type": "Family Coaster",
+    "openingYear": "2026",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "s_rk_nniemi_tornado": {
+    "name": "Tornado",
+    "park": "Särkänniemi",
+    "manufacturer": "Intamin",
+    "category": "Inverted Coaster",
+    "type": "Invert",
+    "openingYear": "2001",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "s_rk_nniemi_hype": {
+    "name": "Hype",
+    "park": "Särkänniemi",
+    "manufacturer": "Premier Rides",
+    "category": "Shuttle Coaster",
+    "type": "Sky Rocket II",
+    "openingYear": "",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "s_rk_nniemi_vauhtimato": {
+    "name": "Vauhtimato",
+    "park": "Särkänniemi",
+    "manufacturer": "Zierer",
+    "category": "Kiddie Coaster",
+    "type": "Tivoli",
+    "openingYear": "1984",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "s_rk_nniemi_motogee": {
+    "name": "MotoGee",
+    "park": "Särkänniemi",
+    "manufacturer": "Zamperla",
+    "category": "Launch Coaster",
+    "type": "Moto Coaster",
+    "openingYear": "2010",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_pitts_special": {
+    "name": "Pitts Special",
+    "park": "PowerPark",
+    "manufacturer": "Gerstlauer",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Infinity Coaster",
+    "openingYear": "2020",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_junker": {
+    "name": "Junker",
+    "park": "PowerPark",
+    "manufacturer": "Gerstlauer",
+    "category": "Launch Coaster",
+    "type": "Infinity Coaster",
+    "openingYear": "2015",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_cobra": {
+    "name": "Cobra",
+    "park": "PowerPark",
+    "manufacturer": "Vekoma",
+    "category": "Shuttle Coaster",
+    "type": "Boomerang",
+    "openingYear": "2005",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_mine_train": {
+    "name": "Mine Train",
+    "park": "PowerPark",
+    "manufacturer": "Zamperla",
+    "category": "Kiddie Coaster",
+    "type": "Kiddie Coaster",
+    "openingYear": "2007",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_neo_s_twister": {
+    "name": "Neo's Twister",
+    "park": "PowerPark",
+    "manufacturer": "",
+    "category": "Wild Mouse",
+    "type": "Spinning Wild Mouse",
+    "openingYear": "2011",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_joyride": {
+    "name": "Joyride",
+    "park": "PowerPark",
+    "manufacturer": "",
+    "category": "Non-Inverting Steel Coaster",
+    "type": "Steel Coaster",
+    "openingYear": "2003",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "powerpark_thunderbird": {
+    "name": "Thunderbird",
+    "park": "PowerPark",
+    "manufacturer": "Great Coasters International",
+    "category": "Wooden Coaster",
+    "type": "Woodie",
+    "openingYear": "2006",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_circus_coaster": {
+    "name": "Circus Coaster",
+    "park": "Energylandia",
+    "manufacturer": "SBF Visa",
+    "category": "Powered Coaster",
+    "type": "Powered Dragon Wagon",
+    "openingYear": "2017",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_dragon_roller_coaster": {
+    "name": "Dragon Roller Coaster",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Inverted Coaster",
+    "type": "Suspended Family Coaster",
+    "openingYear": "2015",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_mayan": {
+    "name": "Mayan",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Inverted Coaster",
+    "type": "Suspended Looping Coaster",
+    "openingYear": "2015",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_frutti_loop_coaster": {
+    "name": "Frutti Loop Coaster",
+    "park": "Energylandia",
+    "manufacturer": "SBF Visa",
+    "category": "Kiddie Coaster",
+    "type": "Wacky Worm",
+    "openingYear": "2014",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_happy_loops": {
+    "name": "Happy Loops",
+    "park": "Energylandia",
+    "manufacturer": "SBF Visa",
+    "category": "Family Coaster",
+    "type": "Family Spinner",
+    "openingYear": "2017",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_zadra": {
+    "name": "Zadra",
+    "park": "Energylandia",
+    "manufacturer": "Rocky Mountain Construction",
+    "category": "Hybrid Coaster",
+    "type": "Hyper Hybrid",
+    "openingYear": "2019",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_hyperion": {
+    "name": "Hyperion",
+    "park": "Energylandia",
+    "manufacturer": "Intamin",
+    "category": "Hypercoaster",
+    "type": "Hypercoaster",
+    "openingYear": "2018",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_abyssus": {
+    "name": "Abyssus",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Launch Coaster",
+    "type": "Multi-Launch",
+    "openingYear": "2021",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_formula": {
+    "name": "Formula",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Launch Coaster",
+    "type": "Launched Looper",
+    "openingYear": "2016",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_choco_chip_creek": {
+    "name": "Choco Chip Creek",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Mine Train",
+    "type": "Mine Train",
+    "openingYear": "2024",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_boomerang": {
+    "name": "Boomerang",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Shuttle Coaster",
+    "type": "Family Boomerang",
+    "openingYear": "2017",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_draken": {
+    "name": "Draken",
+    "park": "Energylandia",
+    "manufacturer": "",
+    "category": "Family Coaster",
+    "type": "Family Coaster",
+    "openingYear": "2019",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_formu_a": {
+    "name": "Formuła",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Launch Coaster",
+    "type": "Space Warp",
+    "openingYear": "2016",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_light_explorers": {
+    "name": "Light Explorers",
+    "park": "Energylandia",
+    "manufacturer": "Vekoma",
+    "category": "Shuttle Coaster",
+    "type": "Family Boomerang",
+    "openingYear": "2017",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_mars": {
+    "name": "Mars",
+    "park": "Energylandia",
+    "manufacturer": "SBF Visa",
+    "category": "Family Coaster",
+    "type": "Family Coaster",
+    "openingYear": "2014",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_speed": {
+    "name": "Speed",
+    "park": "Energylandia",
+    "manufacturer": "Intamin",
+    "category": "Water Coaster",
+    "type": "Water Coaster",
+    "openingYear": "2018",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "energylandia_viking": {
+    "name": "Viking",
+    "park": "Energylandia",
+    "manufacturer": "",
+    "category": "Wild Mouse",
+    "type": "Spinning Wild Mouse",
+    "openingYear": "2014",
+    "lastRide": "2026",
+    "status": "Operating"
+  },
+  "legendia_lech_coaster": {
+    "name": "Lech Coaster",
+    "park": "Legendia",
+    "manufacturer": "Vekoma",
+    "category": "Looper",
+    "type": "Custom Looper",
+    "openingYear": "2017",
+    "lastRide": "2026",
+    "status": "Operating"
+  }
     "kings_dominion_pantherian__project___intimidator_305_": {
       "rating": 9.5,
       "ranking": 1,
