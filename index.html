@@ -69,7 +69,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .btn-primary:hover{background:var(--primary-hover);}
 .btn-danger{background:var(--danger);color:black !important;}
 .btn-danger:hover{filter:brightness(0.88);}
-background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);}
+.btn-secondary{background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);}
 .btn-secondary:hover{background:var(--border);}
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:0;padding:0;background:var(--bg-secondary);border-radius:8px;border:2px solid transparent;max-height:0;overflow:hidden;opacity:0;transition:all 0.3s ease;}
 .filters.active{max-height:800px;opacity:1;margin-bottom:1.5rem;padding:1.5rem;border-color:var(--border);}
@@ -2216,7 +2216,6 @@ function setupEventListeners() {
     window._syncChartAspect = apply;
 })();
 
-async function init() {
 async function init() {
     document.getElementById('importDataBtn').disabled = true;
     
