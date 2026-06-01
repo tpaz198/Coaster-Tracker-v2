@@ -151,15 +151,11 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .ranking-item .ride-name { font-size: 1.25rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
 .ranking-item .park-name { font-size: 1rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
 .ranking-item .ranking-rating { 
-    font-size: 1.25rem; 
+font-size: 1.5rem; 
     font-weight: 800; 
-    color: white; 
-    padding: 0.35rem 0.75rem; 
-    border-radius: 8px; 
     margin-left: auto; 
     flex-shrink: 0; 
-    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); 
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); 
+    padding-right: 0.25rem;
 }
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
@@ -1121,7 +1117,7 @@ const Render = {
                     <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
                     <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
                 </div>
-                ${rating > 0 ? `<div class="ranking-rating" style="background-color: ${ratingColor};">${rating.toFixed(2)}</div>` : ''}
+                ${rating > 0 ? `<div class="ranking-rating" style="color: ${ratingColor};">${rating.toFixed(2)}</div>` : ''}
             `;
             // Clicking the row opens the detail modal!
             item.addEventListener('click', () => Modals.showDetail(coaster));
