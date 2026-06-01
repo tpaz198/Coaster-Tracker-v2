@@ -657,6 +657,11 @@ let masterCoasters = {};
 let userProfile = {};
 let currentYearStr = "2026";
 
+// --- LOCAL STORAGE HELPER ---
+function saveProfileToLocal() {
+    localStorage.setItem('thomasTrackerProfile', JSON.stringify(userProfile));
+}
+
 const AppState = {
     coasters: [],
     filtered: [],
@@ -1866,6 +1871,7 @@ const Forms = {
         
         AppState.editing = null;
         Modals.closeAddCoaster();
+        saveProfileToLocal(); // Save to browser storage
         refreshDataForYear(currentYearStr);
     },
     updateCharCount() { Utils.getElement('charCount').textContent = `${Utils.getElement('comments').value.length} / 350`; }
@@ -2070,6 +2076,7 @@ function setupEventListeners() {
         reader.onload = function(evt) {
             try {
                 userProfile = JSON.parse(evt.target.result);
+                saveProfileToLocal(); // Save imported data to browser storage
                 refreshDataForYear(currentYearStr);
             } catch (err) {
                 alert("Invalid Profile JSON");
@@ -2146,6 +2153,7 @@ function setupEventListeners() {
         if(userProfile[yearKey]) {
             delete userProfile[yearKey][coaster.id];
             normalizeRankings(yearKey);
+            saveProfileToLocal(); // Save deletion to browser storage
         }
         Modals.closeDetail();
         refreshDataForYear(currentYearStr);
@@ -2228,15 +2236,27 @@ async function init() {
         console.error("Failed to load master_coasters.json", e);
     }
 
-    // 2. Auto-fetch your personal profile data
-    try {
-        const profileRes = await fetch('./thomas_tracker_profile.json?v=' + Date.now());
-        if (profileRes.ok) {
-            userProfile = await profileRes.json();
-            console.log("Profile automatically loaded from GitHub!");
+    // 2. Load personal profile data (localStorage first, then fetch fallback)
+    const localProfile = localStorage.getItem('thomasTrackerProfile');
+    if (localProfile) {
+        try {
+            userProfile = JSON.parse(localProfile);
+            console.log("Profile loaded from localStorage!");
+        } catch(e) {
+            console.error("Failed to parse localStorage profile, starting fresh.");
+            userProfile = {};
         }
-    } catch(e) {
-        console.log("No profile found on GitHub yet, starting fresh.");
+    } else {
+        try {
+            const profileRes = await fetch('./thomas_tracker_profile.json?v=' + Date.now());
+            if (profileRes.ok) {
+                userProfile = await profileRes.json();
+                console.log("Profile automatically loaded from GitHub!");
+                saveProfileToLocal(); // Seed local storage with fetched data
+            }
+        } catch(e) {
+            console.log("No profile found locally or on GitHub, starting fresh.");
+        }
     }
 
     // 3. Setup Dropdowns
