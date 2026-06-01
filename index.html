@@ -614,7 +614,10 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                     </div>
                     <div class="form-group">
                         <label for="manufacturer">Manufacturer</label>
-                        <select id="manufacturer"></select>
+                        <div class="type-autocomplete">
+                            <input type="text" id="manufacturer" placeholder="Enter manufacturer" autocomplete="off">
+                            <div class="type-autocomplete-dropdown" id="manufacturerDropdown"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="category">Category</label>
@@ -852,7 +855,7 @@ function refreshDropdowns() {
     
     const manufacturers = [...new Set(Object.values(masterCoasters).map(c => c.manufacturer).filter(Boolean))].sort();
     const categories   = [...new Set(Object.values(masterCoasters).map(c => c.category).filter(Boolean))].sort();
-    DOM.populateSelect('manufacturer', manufacturers, 'Select Manufacturer');
+    // Removed the DOM.populateSelect for 'manufacturer' here
     DOM.populateSelect('category', categories, 'Select Category');
 }
 
@@ -2007,9 +2010,13 @@ const Modals = {
         Utils.getElement('comments').value = coaster.Comments || '';
         Utils.getElement('charCount').textContent = `${(coaster.Comments || '').length} / 350`;
         
-        ['rideName', 'parkName', 'manufacturer', 'category'].forEach(id => {
+        // REMOVED 'manufacturer' from this disabled list
+        ['rideName', 'parkName', 'category'].forEach(id => {
             Utils.getElement(id).disabled = true;
         });
+        
+        // EXPLICITLY ENABLE manufacturer for editing
+        Utils.getElement('manufacturer').disabled = false; 
         Utils.getElement('type').disabled = false;
         Utils.getElement('openingYear').disabled = false;
         Utils.getElement('lastRide').disabled = false;
@@ -2096,7 +2103,7 @@ const Forms = {
             }
         }
         
-        // Update Static Master Dict (Memory Only)
+        // Update Static Master Dict (Memory)
         masterCoasters[id] = {
             name: Utils.getElement('rideName').value,
             park: Utils.getElement('parkName').value,
@@ -2108,13 +2115,19 @@ const Forms = {
             status: Utils.getElement('status').value
         };
         
+        // BUG FIX: Unconditionally store the edited coaster in the userProfile
+        // This ensures edits to default master coasters act as custom overrides and persist!
+        if (!userProfile.customCoasters) userProfile.customCoasters = {};
+        userProfile.customCoasters[id] = masterCoasters[id];
+        
         // Update User Profile
         const yearKey = `logs_${currentYearStr}`;
         if(!userProfile[yearKey]) userProfile[yearKey] = {};
         
         const newRank = parseInt(Utils.getElement('ranking').value) || 0;
+        const oldRank = AppState.editing && userProfile[yearKey][id] ? (userProfile[yearKey][id].ranking || 0) : 0;
         
-        // 1. Save the new coaster to the profile FIRST
+        // Save the new log data
         userProfile[yearKey][id] = {
             rating: parseFloat(Utils.getElement('rating').value) || 0,
             ranking: newRank,
@@ -2122,17 +2135,33 @@ const Forms = {
             comments: Utils.getElement('comments').value
         };
         
-        // 2. THEN adjust the rankings to make room for it
-        if (!AppState.editing && newRank > 0) {
-            adjustRankings(yearKey, id, newRank);
+        // BUG 2 FIX: Robust ranking adjustments for both adding AND editing
+        if (newRank !== oldRank) {
+            if (newRank > 0) {
+                Object.keys(userProfile[yearKey]).forEach(key => {
+                    if (key !== id && userProfile[yearKey][key].ranking > 0) {
+                        if (oldRank === 0 || newRank < oldRank) {
+                            // Moving up the list, push others down
+                            if (userProfile[yearKey][key].ranking >= newRank && (oldRank === 0 || userProfile[yearKey][key].ranking < oldRank)) {
+                                userProfile[yearKey][key].ranking += 1;
+                            }
+                        } else if (newRank > oldRank) {
+                            // Moving down the list, pull others up
+                            if (userProfile[yearKey][key].ranking <= newRank && userProfile[yearKey][key].ranking > oldRank) {
+                                userProfile[yearKey][key].ranking -= 1;
+                            }
+                        }
+                    }
+                });
+            }
+            normalizeRankings(yearKey);
         }
         
         AppState.editing = null;
         Modals.closeAddCoaster();
-        saveProfileToLocal(); // Save to browser storage
+        saveProfileToLocal(); 
         refreshDataForYear(currentYearStr);
     },
-    updateCharCount() { Utils.getElement('charCount').textContent = `${Utils.getElement('comments').value.length} / 350`; }
 };
 
 const Stats = {
@@ -2334,7 +2363,13 @@ function setupEventListeners() {
         reader.onload = function(evt) {
             try {
                 userProfile = JSON.parse(evt.target.result);
-                saveProfileToLocal(); // Save imported data to browser storage
+                
+                // MERGE IMPORTED CUSTOM COASTERS
+                if (userProfile.customCoasters) {
+                    Object.assign(masterCoasters, userProfile.customCoasters);
+                }
+                
+                saveProfileToLocal(); 
                 refreshDataForYear(currentYearStr);
             } catch (err) {
                 alert("Invalid Profile JSON");
@@ -2343,7 +2378,6 @@ function setupEventListeners() {
         reader.readAsText(file);
         e.target.value = '';
     });
-
 
     Utils.getElements('.tab-btn').forEach(btn => { btn.addEventListener('click', () => Tabs.switch(btn.dataset.tab)); });
     Utils.getElements('.chart-limit-btn').forEach(btn => {
@@ -2466,6 +2500,32 @@ function setupEventListeners() {
             if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent; dropdown.classList.remove('visible'); }
         });
     })();
+
+    (() => {
+        const input = Utils.getElement('manufacturer'); 
+        const dropdown = Utils.getElement('manufacturerDropdown'); 
+        let activeIdx = -1;
+        function showMatches() {
+            const val = input.value.trim().toLowerCase(); dropdown.innerHTML = ''; activeIdx = -1;
+            if (!val) { dropdown.classList.remove('visible'); return; }
+            const allMfrs = [...new Set([...Object.values(masterCoasters).map(c => c.manufacturer).filter(Boolean)])];
+            const matches = allMfrs.filter(m => m.toLowerCase().includes(val));
+            if (!matches.length) { dropdown.classList.remove('visible'); return; }
+            matches.forEach(m => { 
+                const div = document.createElement('div'); div.className = 'type-autocomplete-item'; div.textContent = m; 
+                div.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = m; dropdown.classList.remove('visible'); }); 
+                dropdown.appendChild(div); 
+            });
+            dropdown.classList.add('visible');
+        }
+        input.addEventListener('input', showMatches); input.addEventListener('focus', showMatches); input.addEventListener('blur', () => dropdown.classList.remove('visible'));
+        input.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.type-autocomplete-item'); if (!items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } 
+            else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((it, i) => it.classList.toggle('active', i === activeIdx)); items[activeIdx].scrollIntoView({ block: 'nearest' }); } 
+            else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent; dropdown.classList.remove('visible'); }
+        });
+    })();
     
     Utils.getElement('detailModal').addEventListener('click', (e) => { if (e.target.id === 'detailModal') Modals.closeDetail(); });
     Utils.getElement('addCoasterModal').addEventListener('click', (e) => { if (e.target.id === 'addCoasterModal') Modals.closeAddCoaster(); });
@@ -2510,11 +2570,16 @@ async function init() {
             if (profileRes.ok) {
                 userProfile = await profileRes.json();
                 console.log("Profile automatically loaded from GitHub!");
-                saveProfileToLocal(); // Seed local storage with fetched data
+                saveProfileToLocal(); 
             }
         } catch(e) {
             console.log("No profile found locally or on GitHub, starting fresh.");
         }
+    }
+
+    // MERGE SAVED CUSTOM COASTERS INTO MASTER DICTIONARY
+    if (userProfile.customCoasters) {
+        Object.assign(masterCoasters, userProfile.customCoasters);
     }
 
     // 3. Setup Dropdowns
