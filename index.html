@@ -988,7 +988,8 @@ const DOM = {
 // --- DRAG AND DROP RANKING ENGINE ---
 
 function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.ranking-row:not(.dragging)')];
+    // UPDATED: Now ignores both dragging items AND placeholders
+    const draggableElements = [...container.querySelectorAll('.ranking-row:not(.dragging):not(.placeholder)')];
     
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
@@ -1194,11 +1195,8 @@ const Render = {
             const row = document.createElement('div');
             row.className = 'ranking-row';
             row.dataset.id = coaster.id; 
-            
-            // 1. Permanently enable draggable for the active year so the polyfill registers it
             row.draggable = isCurrentYear; 
             
-            // 2. Attach New Credit / Defunct status classes
             let itemClasses = 'ranking-item';
             if (coaster['New Credit'] === 'Yes') itemClasses += ' new-credit';
             if (coaster.Status === 'Defunct') itemClasses += ' defunct';
@@ -1222,7 +1220,6 @@ const Render = {
                 const handle = row.querySelector('.drag-handle');
                 handle.addEventListener('click', (e) => e.stopPropagation());
                 
-                // 3. Track whether the handle is currently being pressed
                 let isHandlePressed = false;
                 const press = () => isHandlePressed = true;
                 const release = () => isHandlePressed = false;
@@ -1235,26 +1232,54 @@ const Render = {
                 handle.addEventListener('mouseleave', release);
                 
                 row.addEventListener('dragstart', (e) => {
-                    // Prevent drag if they tapped the body of the card instead of the handle
                     if (!isHandlePressed) {
                         e.preventDefault();
                         return;
                     }
                     
-                    // The polyfill strictly requires text data to be set to function properly
                     e.dataTransfer.setData('text/plain', coaster.id);
                     e.dataTransfer.effectAllowed = 'move';
                     
                     row.classList.add('dragging');
                     list.classList.add('is-reordering'); 
-                    setTimeout(() => row.classList.add('dragging'), 0); 
+                    
+                    // NEW: Create a Placeholder box
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'ranking-row placeholder';
+                    placeholder.style.height = row.offsetHeight + 'px';
+                    placeholder.style.border = '3px dashed var(--primary)';
+                    placeholder.style.borderRadius = '10px';
+                    placeholder.style.backgroundColor = 'var(--bg-secondary)';
+                    
+                    // Insert the placeholder exactly where the row was
+                    row.parentNode.insertBefore(placeholder, row.nextSibling);
+                    
+                    // NEW: Hide the original row from the layout, but DO NOT remove 
+                    // it from the DOM so the polyfill doesn't lose touch tracking!
+                    setTimeout(() => {
+                        row.style.position = 'absolute';
+                        row.style.left = '-9999px';
+                        row.style.opacity = '0';
+                    }, 0); 
                 });
                 
                 row.addEventListener('dragend', () => {
+                    // NEW: Swap the real row into the placeholder's final location
+                    const placeholder = list.querySelector('.placeholder');
+                    if (placeholder && placeholder.parentNode) {
+                        list.insertBefore(row, placeholder);
+                        placeholder.remove();
+                    }
+                    
+                    // Restore original styles
+                    row.style.position = '';
+                    row.style.left = '';
+                    row.style.opacity = '';
+                    
                     row.classList.remove('dragging');
                     list.classList.remove('is-reordering'); 
                     RankingsSync.updateFromVisualOrder(); 
-                    isHandlePressed = false; // Reset state
+                    isHandlePressed = false;
                 });
             }
             
@@ -1266,21 +1291,22 @@ const Render = {
         if (isCurrentYear) {
             list.addEventListener('dragover', (e) => {
                 e.preventDefault(); 
-                const draggingItem = list.querySelector('.dragging');
-                if (!draggingItem) return;
+                
+                // NEW: We only move the placeholder now, never the dragged item
+                const placeholder = list.querySelector('.placeholder');
+                if (!placeholder) return;
                 
                 const afterElement = getDragAfterElement(list, e.clientY);
                 if (afterElement == null) {
-                    list.appendChild(draggingItem);
+                    list.appendChild(placeholder);
                 } else {
-                    list.insertBefore(draggingItem, afterElement);
+                    list.insertBefore(placeholder, afterElement);
                 }
             });
             
-            // Failsafe empty drop listener signals to the polyfill that the drop completed
-            list.addEventListener('drop', (e) => {
-                e.preventDefault();
-            });
+            // Failsafe empty listeners signal to the polyfill that this is a valid drop zone
+            list.addEventListener('dragenter', (e) => e.preventDefault());
+            list.addEventListener('drop', (e) => e.preventDefault());
         }
     }
 };
