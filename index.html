@@ -151,6 +151,15 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .ranking-item .ride-name { font-size: 1.5rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
 .ranking-item .park-name { font-size: 1.15rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
 .ranking-item .ranking-rating { font-size: 1.75rem; font-weight: 800; margin-left: auto; flex-shrink: 0; padding-right: 0.25rem; color: var(--text); }
+/* Rankings Drag & Drop */
+.ranking-row { display: flex; align-items: center; gap: 0.75rem; width: 100%; transition: opacity 0.3s ease, transform 0.3s ease; }
+.ranking-row.dragging { opacity: 0.9; transform: scale(1.02); z-index: 10; }
+.rankings-container.is-reordering .ranking-row:not(.dragging) { opacity: 0.4; transform: scale(0.98); }
+
+/* Pure CSS Grip Icon (2x3 Dot Grid) */
+.drag-handle { width: 16px; height: 28px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; flex-shrink: 0; }
+.drag-handle:hover { opacity: 0.8; }
+.drag-handle:active { cursor: grabbing; }
 .ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
 .drag-handle { cursor: grab; font-size: 1.5rem; color: var(--text-secondary); padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; margin-left: 0.5rem; user-select: none; }
 .drag-handle:hover { color: var(--primary); }
@@ -950,11 +959,11 @@ const DOM = {
 // --- DRAG AND DROP RANKING ENGINE ---
 
 function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
+    const draggableElements = [...container.querySelectorAll('.ranking-row:not(.dragging)')];
     
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
-        // Calculate the center of the box to determine if we insert above or below
+        // Calculate the vertical center of the card
         const offset = y - box.top - box.height / 2; 
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
@@ -967,7 +976,7 @@ function getDragAfterElement(container, y) {
 const RankingsSync = {
     updateFromVisualOrder() {
         const list = Utils.getElement('rankingsList');
-        const items = list.querySelectorAll('.ranking-item');
+        const items = list.querySelectorAll('.ranking-row');
         const yearKey = `logs_${currentYearStr}`;
         
         if (!userProfile[yearKey]) return;
@@ -1151,56 +1160,56 @@ const Render = {
             const rating = Utils.parseRating(coaster.Rating);
             const ratingColor = Utils.getRatingColor(rating);
             
-            const item = document.createElement('div');
-            item.className = 'ranking-item';
-            item.dataset.id = coaster.id; // Added ID for sync algorithm
-            item.draggable = true; // Makes the HTML element draggable
+            // Create the wrapper row for drag/drop
+            const row = document.createElement('div');
+            row.className = 'ranking-row';
+            row.dataset.id = coaster.id; 
+            row.draggable = true; 
             
-            item.innerHTML = `
-                <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
-                <div class="ride-info">
-                    <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
-                    <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
+            row.innerHTML = `
+                <div class="drag-handle" title="Drag to reorder"></div>
+                <div class="ranking-item" style="flex: 1; min-width: 0;">
+                    <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
+                    <div class="ride-info">
+                        <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
+                        <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
+                    </div>
+                    ${rating > 0 ? `<div class="ranking-rating" style="color: var(--text);">${rating.toFixed(2)}</div>` : ''}
                 </div>
-                ${rating > 0 ? `<div class="ranking-rating" style="color: var(--text);">${rating.toFixed(2)}</div>` : ''}
-                <div class="drag-handle" title="Drag to reorder">↕️</div>
             `;
             
-            // Event Listeners for Interaction
-            const handle = item.querySelector('.drag-handle');
+            // Interaction Event Listeners
+            const handle = row.querySelector('.drag-handle');
+            const card = row.querySelector('.ranking-item');
             
             // Prevent clicking the drag handle from opening the modal
             handle.addEventListener('click', (e) => e.stopPropagation());
             
-            // Open detail modal only if clicking outside the drag handle
-            item.addEventListener('click', (e) => {
-                if (!e.target.closest('.drag-handle')) {
-                    Modals.showDetail(coaster);
-                }
-            });
+            // Only the card opens the detail modal
+            card.addEventListener('click', () => Modals.showDetail(coaster));
             
-            // HTML5 Drag Event Hooks
-            item.addEventListener('dragstart', (e) => {
-                item.classList.add('dragging');
+            // HTML5 Drag Hooks (with Dimming State Triggers)
+            row.addEventListener('dragstart', (e) => {
+                row.classList.add('dragging');
+                list.classList.add('is-reordering'); // Dims the other cards
                 e.dataTransfer.effectAllowed = 'move';
-                // Slight delay ensures the visual "ghost" being dragged looks normal
-                setTimeout(() => item.classList.add('dragging'), 0); 
+                setTimeout(() => row.classList.add('dragging'), 0); 
             });
             
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-                // When dropped, trigger the sync algorithm!
-                RankingsSync.updateFromVisualOrder();
+            row.addEventListener('dragend', () => {
+                row.classList.remove('dragging');
+                list.classList.remove('is-reordering'); // Restores brightness
+                RankingsSync.updateFromVisualOrder(); // Save the new order!
             });
             
-            fragment.appendChild(item);
+            fragment.appendChild(row);
         });
         
         list.appendChild(fragment);
 
         // Container-level Drag Events (Handles the parting of the items)
         list.addEventListener('dragover', (e) => {
-            e.preventDefault(); // Necessary to allow dropping
+            e.preventDefault(); 
             const draggingItem = list.querySelector('.dragging');
             if (!draggingItem) return;
             
@@ -1211,7 +1220,7 @@ const Render = {
                 list.insertBefore(draggingItem, afterElement);
             }
         });
-    }
+    },
 };
 
 const Spreadsheet = {
