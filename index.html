@@ -143,20 +143,18 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 @media (prefers-color-scheme:dark){.column-toggle{background:#0e7490 !important;border:2px solid #06b6d4 !important;color:white !important;}
 .column-toggle.inactive{background:var(--card-bg) !important;color:white !important;border-color:#0e7490 !important;}
 }
-.rankings-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; }
-.ranking-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--card-bg); border-radius: 10px; border: 3px solid var(--border); transition: all 0.2s; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
+.rankings-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; }
+.ranking-item { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem; background: var(--card-bg); border-radius: 10px; border: 3px solid var(--border); transition: all 0.2s; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
 .ranking-item:hover { transform: translateX(5px); border-color: var(--primary); box-shadow: 6px 6px 0px rgba(0,0,0,0.15); }
-.ranking-item .rank-number { font-size: 1.5rem; font-weight: 800; color: white; background: var(--primary); width: 3.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); text-shadow: 2px 2px 3px rgba(0,0,0,0.4), 1px 1px 1px rgba(0,0,0,0.5); }
+.ranking-item .rank-number { font-size: 1.75rem; font-weight: 800; color: white; background: var(--primary); width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); text-shadow: 2px 2px 3px rgba(0,0,0,0.4), 1px 1px 1px rgba(0,0,0,0.5); }
 .ranking-item .ride-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.ranking-item .ride-name { font-size: 1.25rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
-.ranking-item .park-name { font-size: 1rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
-.ranking-item .ranking-rating { 
-font-size: 1.5rem; 
-    font-weight: 800; 
-    margin-left: auto; 
-    flex-shrink: 0; 
-    padding-right: 0.25rem;
-}
+.ranking-item .ride-name { font-size: 1.5rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
+.ranking-item .park-name { font-size: 1.15rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
+.ranking-item .ranking-rating { font-size: 1.75rem; font-weight: 800; margin-left: auto; flex-shrink: 0; padding-right: 0.25rem; color: var(--text); }
+.ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
+.drag-handle { cursor: grab; font-size: 1.5rem; color: var(--text-secondary); padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; margin-left: 0.5rem; user-select: none; }
+.drag-handle:hover { color: var(--primary); }
+.drag-handle:active { cursor: grabbing; }
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
 .coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
@@ -949,6 +947,52 @@ const DOM = {
     }
 };
 
+// --- DRAG AND DROP RANKING ENGINE ---
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        // Calculate the center of the box to determine if we insert above or below
+        const offset = y - box.top - box.height / 2; 
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+const RankingsSync = {
+    updateFromVisualOrder() {
+        const list = Utils.getElement('rankingsList');
+        const items = list.querySelectorAll('.ranking-item');
+        const yearKey = `logs_${currentYearStr}`;
+        
+        if (!userProfile[yearKey]) return;
+        
+        let hasChanges = false;
+        
+        // Loop through the visual order and assign strict 1, 2, 3... rankings
+        items.forEach((item, index) => {
+            const id = item.dataset.id;
+            const newRank = index + 1; // Array is 0-indexed, Rankings are 1-indexed
+            
+            if (userProfile[yearKey][id] && userProfile[yearKey][id].ranking !== newRank) {
+                userProfile[yearKey][id].ranking = newRank;
+                hasChanges = true;
+            }
+        });
+        
+        // If anything moved, save to browser memory and refresh the UI
+        if (hasChanges) {
+            saveProfileToLocal();
+            refreshDataForYear(currentYearStr);
+        }
+    }
+};
+
 // --- CORE UI RENDERING ---
 
 const Render = {
@@ -1089,7 +1133,6 @@ const Render = {
         const noRankings = Utils.getElement('noRankings');
         list.innerHTML = '';
         
-        // Filter out unranked coasters and sort the rest numerically
         const rankedCoasters = AppState.coasters
             .filter(c => c.Ranking && parseInt(c.Ranking) > 0)
             .sort((a, b) => parseInt(a.Ranking) - parseInt(b.Ranking));
@@ -1105,26 +1148,70 @@ const Render = {
         
         const fragment = document.createDocumentFragment();
         rankedCoasters.forEach(coaster => {
-            // Calculate the color based on the rating
             const rating = Utils.parseRating(coaster.Rating);
             const ratingColor = Utils.getRatingColor(rating);
             
             const item = document.createElement('div');
             item.className = 'ranking-item';
+            item.dataset.id = coaster.id; // Added ID for sync algorithm
+            item.draggable = true; // Makes the HTML element draggable
+            
             item.innerHTML = `
                 <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
                 <div class="ride-info">
                     <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
                     <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
                 </div>
-                ${rating > 0 ? `<div class="ranking-rating" style="color: ${ratingColor};">${rating.toFixed(2)}</div>` : ''}
+                ${rating > 0 ? `<div class="ranking-rating" style="color: var(--text);">${rating.toFixed(2)}</div>` : ''}
+                <div class="drag-handle" title="Drag to reorder">↕️</div>
             `;
-            // Clicking the row opens the detail modal!
-            item.addEventListener('click', () => Modals.showDetail(coaster));
+            
+            // Event Listeners for Interaction
+            const handle = item.querySelector('.drag-handle');
+            
+            // Prevent clicking the drag handle from opening the modal
+            handle.addEventListener('click', (e) => e.stopPropagation());
+            
+            // Open detail modal only if clicking outside the drag handle
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.drag-handle')) {
+                    Modals.showDetail(coaster);
+                }
+            });
+            
+            // HTML5 Drag Event Hooks
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                // Slight delay ensures the visual "ghost" being dragged looks normal
+                setTimeout(() => item.classList.add('dragging'), 0); 
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                // When dropped, trigger the sync algorithm!
+                RankingsSync.updateFromVisualOrder();
+            });
+            
             fragment.appendChild(item);
         });
+        
         list.appendChild(fragment);
-    },
+
+        // Container-level Drag Events (Handles the parting of the items)
+        list.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Necessary to allow dropping
+            const draggingItem = list.querySelector('.dragging');
+            if (!draggingItem) return;
+            
+            const afterElement = getDragAfterElement(list, e.clientY);
+            if (afterElement == null) {
+                list.appendChild(draggingItem);
+            } else {
+                list.insertBefore(draggingItem, afterElement);
+            }
+        });
+    }
 };
 
 const Spreadsheet = {
