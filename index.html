@@ -2350,7 +2350,14 @@ function setupEventListeners() {
         const blob = new Blob([dataStr], { type: "application/json" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "thomas_tracker_profile.json";
+        
+        // NEW: Generate the current date in YYYY-MM-DD format
+        const date = new Date();
+        const dateString = date.toISOString().split('T')[0]; 
+        
+        // Append the date to the filename
+        link.download = `thomas_tracker_profile_${dateString}.json`;
+        
         link.click();
     });
 
