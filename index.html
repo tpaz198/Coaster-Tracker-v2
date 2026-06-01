@@ -163,8 +163,10 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .rankings-container.is-reordering .ranking-row:not(.dragging) { opacity: 0.4; transform: scale(0.98); }
 
 /* Pure CSS Grip Icon (2x3 Dot Grid) */
-.drag-handle { width: 24px; height: 30px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 100% 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; padding-right: 0.5rem; }
-.drag-handle:hover { opacity: 0.8; }
+.drag-handle { width: 24px; height: 30px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 100% 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; padding-right: 0.5rem; touch-action: none; }
+/* NEW: Apply the Red/Green logic to the ranking cards */
+.ranking-item.new-credit { background: var(--new-credit-bg); border-color: var(--new-credit-border); box-shadow: 0 0 0 3px rgba(74,222,128,0.2), 3px 3px 0px rgba(0,0,0,0.1); }
+.ranking-item.defunct { background: var(--defunct-bg); border-color: var(--defunct-border); box-shadow: 0 0 0 3px rgba(248,113,113,0.2), 3px 3px 0px rgba(0,0,0,0.1); }
 .drag-handle:active { cursor: grabbing; }
 .ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
 .drag-handle { cursor: grab; font-size: 1.5rem; color: var(--text-secondary); padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; margin-left: 0.5rem; user-select: none; }
@@ -1182,10 +1184,9 @@ const Render = {
         list.style.display = 'flex';
         noRankings.style.display = 'none';
         
-        // 1. Check if we are viewing the active year
         const isCurrentYear = currentYearStr === '2026';
-        
         const fragment = document.createDocumentFragment();
+        
         rankedCoasters.forEach(coaster => {
             const rating = Utils.parseRating(coaster.Rating);
             const ratingColor = Utils.getRatingColor(rating);
@@ -1193,11 +1194,17 @@ const Render = {
             const row = document.createElement('div');
             row.className = 'ranking-row';
             row.dataset.id = coaster.id; 
-            // We NO LONGER make the row draggable by default here!
             
-            // 3. Only render the drag handle if it's the current year
+            // 1. Permanently enable draggable for the active year so the polyfill registers it
+            row.draggable = isCurrentYear; 
+            
+            // 2. Attach New Credit / Defunct status classes
+            let itemClasses = 'ranking-item';
+            if (coaster['New Credit'] === 'Yes') itemClasses += ' new-credit';
+            if (coaster.Status === 'Defunct') itemClasses += ' defunct';
+            
             row.innerHTML = `
-                <div class="ranking-item" style="flex: 1; min-width: 0;">
+                <div class="${itemClasses}" style="flex: 1; min-width: 0;">
                     <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
                     <div class="ride-info">
                         <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
@@ -1211,39 +1218,43 @@ const Render = {
             const card = row.querySelector('.ranking-item');
             card.addEventListener('click', () => Modals.showDetail(coaster));
             
-            // 4. Only attach drag interaction listeners if it's the current year
             if (isCurrentYear) {
                 const handle = row.querySelector('.drag-handle');
                 handle.addEventListener('click', (e) => e.stopPropagation());
                 
-                // NEW: Enable dragging ONLY when the handle is interacted with
-                const enableDrag = () => { row.draggable = true; };
-                const disableDrag = () => { if (!row.classList.contains('dragging')) row.draggable = false; };
-
-                handle.addEventListener('mousedown', enableDrag);
-                handle.addEventListener('touchstart', enableDrag, {passive: true});
-
-                handle.addEventListener('mouseup', disableDrag);
-                handle.addEventListener('touchend', disableDrag);
-                handle.addEventListener('touchcancel', disableDrag);
-                handle.addEventListener('mouseleave', disableDrag);
+                // 3. Track whether the handle is currently being pressed
+                let isHandlePressed = false;
+                const press = () => isHandlePressed = true;
+                const release = () => isHandlePressed = false;
+                
+                handle.addEventListener('mousedown', press);
+                handle.addEventListener('touchstart', press, {passive: true});
+                handle.addEventListener('mouseup', release);
+                handle.addEventListener('touchend', release);
+                handle.addEventListener('touchcancel', release);
+                handle.addEventListener('mouseleave', release);
                 
                 row.addEventListener('dragstart', (e) => {
-                    if (!row.draggable) {
+                    // Prevent drag if they tapped the body of the card instead of the handle
+                    if (!isHandlePressed) {
                         e.preventDefault();
                         return;
                     }
+                    
+                    // The polyfill strictly requires text data to be set to function properly
+                    e.dataTransfer.setData('text/plain', coaster.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    
                     row.classList.add('dragging');
                     list.classList.add('is-reordering'); 
-                    e.dataTransfer.effectAllowed = 'move';
                     setTimeout(() => row.classList.add('dragging'), 0); 
                 });
                 
                 row.addEventListener('dragend', () => {
-                    row.draggable = false; // Reset draggable state
                     row.classList.remove('dragging');
                     list.classList.remove('is-reordering'); 
                     RankingsSync.updateFromVisualOrder(); 
+                    isHandlePressed = false; // Reset state
                 });
             }
             
@@ -1252,7 +1263,6 @@ const Render = {
         
         list.appendChild(fragment);
 
-        // 5. Only allow dropping if it's the current year
         if (isCurrentYear) {
             list.addEventListener('dragover', (e) => {
                 e.preventDefault(); 
@@ -1265,6 +1275,11 @@ const Render = {
                 } else {
                     list.insertBefore(draggingItem, afterElement);
                 }
+            });
+            
+            // Failsafe empty drop listener signals to the polyfill that the drop completed
+            list.addEventListener('drop', (e) => {
+                e.preventDefault();
             });
         }
     }
