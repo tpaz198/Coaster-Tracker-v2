@@ -157,7 +157,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .rankings-container.is-reordering .ranking-row:not(.dragging) { opacity: 0.4; transform: scale(0.98); }
 
 /* Pure CSS Grip Icon (2x3 Dot Grid) */
-.drag-handle { width: 16px; height: 28px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; flex-shrink: 0; }
+.drag-handle { width: 24px; height: 30px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 100% 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; padding-right: 0.5rem; }
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
 .ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
@@ -1155,19 +1155,22 @@ const Render = {
         list.style.display = 'flex';
         noRankings.style.display = 'none';
         
+        // 1. Check if we are viewing the active year
+        const isCurrentYear = currentYearStr === '2026';
+        
         const fragment = document.createDocumentFragment();
         rankedCoasters.forEach(coaster => {
             const rating = Utils.parseRating(coaster.Rating);
             const ratingColor = Utils.getRatingColor(rating);
             
-            // Create the wrapper row for drag/drop
             const row = document.createElement('div');
             row.className = 'ranking-row';
             row.dataset.id = coaster.id; 
-            row.draggable = true; 
+            // 2. Only make the row draggable if it's the current year
+            row.draggable = isCurrentYear; 
             
+            // 3. Only render the drag handle if it's the current year
             row.innerHTML = `
-                <div class="drag-handle" title="Drag to reorder"></div>
                 <div class="ranking-item" style="flex: 1; min-width: 0;">
                     <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
                     <div class="ride-info">
@@ -1176,51 +1179,52 @@ const Render = {
                     </div>
                     ${rating > 0 ? `<div class="ranking-rating" style="color: var(--text);">${rating.toFixed(2)}</div>` : ''}
                 </div>
+                ${isCurrentYear ? `<div class="drag-handle" title="Drag to reorder"></div>` : ''}
             `;
             
-            // Interaction Event Listeners
-            const handle = row.querySelector('.drag-handle');
             const card = row.querySelector('.ranking-item');
-            
-            // Prevent clicking the drag handle from opening the modal
-            handle.addEventListener('click', (e) => e.stopPropagation());
-            
-            // Only the card opens the detail modal
             card.addEventListener('click', () => Modals.showDetail(coaster));
             
-            // HTML5 Drag Hooks (with Dimming State Triggers)
-            row.addEventListener('dragstart', (e) => {
-                row.classList.add('dragging');
-                list.classList.add('is-reordering'); // Dims the other cards
-                e.dataTransfer.effectAllowed = 'move';
-                setTimeout(() => row.classList.add('dragging'), 0); 
-            });
-            
-            row.addEventListener('dragend', () => {
-                row.classList.remove('dragging');
-                list.classList.remove('is-reordering'); // Restores brightness
-                RankingsSync.updateFromVisualOrder(); // Save the new order!
-            });
+            // 4. Only attach drag interaction listeners if it's the current year
+            if (isCurrentYear) {
+                const handle = row.querySelector('.drag-handle');
+                handle.addEventListener('click', (e) => e.stopPropagation());
+                
+                row.addEventListener('dragstart', (e) => {
+                    row.classList.add('dragging');
+                    list.classList.add('is-reordering'); 
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => row.classList.add('dragging'), 0); 
+                });
+                
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('dragging');
+                    list.classList.remove('is-reordering'); 
+                    RankingsSync.updateFromVisualOrder(); 
+                });
+            }
             
             fragment.appendChild(row);
         });
         
         list.appendChild(fragment);
 
-        // Container-level Drag Events (Handles the parting of the items)
-        list.addEventListener('dragover', (e) => {
-            e.preventDefault(); 
-            const draggingItem = list.querySelector('.dragging');
-            if (!draggingItem) return;
-            
-            const afterElement = getDragAfterElement(list, e.clientY);
-            if (afterElement == null) {
-                list.appendChild(draggingItem);
-            } else {
-                list.insertBefore(draggingItem, afterElement);
-            }
-        });
-    },
+        // 5. Only allow dropping if it's the current year
+        if (isCurrentYear) {
+            list.addEventListener('dragover', (e) => {
+                e.preventDefault(); 
+                const draggingItem = list.querySelector('.dragging');
+                if (!draggingItem) return;
+                
+                const afterElement = getDragAfterElement(list, e.clientY);
+                if (afterElement == null) {
+                    list.appendChild(draggingItem);
+                } else {
+                    list.insertBefore(draggingItem, afterElement);
+                }
+            });
+        }
+    }
 };
 
 const Spreadsheet = {
