@@ -143,6 +143,14 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 @media (prefers-color-scheme:dark){.column-toggle{background:#0e7490 !important;border:2px solid #06b6d4 !important;color:white !important;}
 .column-toggle.inactive{background:var(--card-bg) !important;color:white !important;border-color:#0e7490 !important;}
 }
+.rankings-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+.ranking-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--card-bg); border-radius: 10px; border: 3px solid var(--border); transition: all 0.2s; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
+.ranking-item:hover { transform: translateX(5px); border-color: var(--primary); box-shadow: 6px 6px 0px rgba(0,0,0,0.15); }
+.ranking-item .rank-number { font-size: 1.5rem; font-weight: 800; color: white; background: var(--primary); width: 3.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+@media (prefers-color-scheme: dark) { .ranking-item .rank-number { background: var(--accent); } }
+.ranking-item .ride-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.ranking-item .ride-name { font-size: 1.25rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
+.ranking-item .park-name { font-size: 1rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
 .coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
@@ -302,6 +310,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
             </div>
             <div class="tab-nav">
                 <button class="tab-btn active" data-tab="credits">🎢 Credits</button>
+                <button class="tab-btn" data-tab="rankings">🏆 Rankings</button>
                 <button class="tab-btn" data-tab="statistics">📊 Stats</button>
                 <button class="tab-btn" data-tab="spreadsheet">📋 Table</button>
             </div>
@@ -366,6 +375,13 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
             <div class="coaster-grid" id="coasterGrid"></div>
             <div class="no-results" id="noResults" style="display: none;">
                 No coasters found matching your criteria.
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="rankingsTab">
+            <div class="rankings-container" id="rankingsList"></div>
+            <div class="no-results" id="noRankings" style="display: none;">
+                No ranked coasters found for this year.
             </div>
         </div>
 
@@ -727,7 +743,10 @@ function refreshDataForYear(year) {
     
     if (typeof Chart !== 'undefined' && Chart.instance) Chart.update();
     if (typeof OverTimeChart !== 'undefined' && OverTimeChart.instance) OverTimeChart.update();
-    if (typeof Render !== 'undefined' && Render.spreadsheet) Render.spreadsheet();
+    if (typeof Render !== 'undefined') {
+        if (Render.spreadsheet) Render.spreadsheet();
+        if (Render.rankings) Render.rankings();
+    }
 }
 
 function recalculateWeightedRankings() {
@@ -1058,7 +1077,44 @@ const Render = {
         });
         tbody.innerHTML = '';
         tbody.appendChild(fragment);
-    }
+    },
+    rankings() {
+        const list = Utils.getElement('rankingsList');
+        const noRankings = Utils.getElement('noRankings');
+        list.innerHTML = '';
+        
+        // Filter out unranked coasters and sort the rest numerically
+        const rankedCoasters = AppState.coasters
+            .filter(c => c.Ranking && parseInt(c.Ranking) > 0)
+            .sort((a, b) => parseInt(a.Ranking) - parseInt(b.Ranking));
+        
+        if (rankedCoasters.length === 0) {
+            list.style.display = 'none';
+            noRankings.style.display = 'block';
+            return;
+        }
+        
+        list.style.display = 'flex';
+        noRankings.style.display = 'none';
+        
+        const fragment = document.createDocumentFragment();
+        rankedCoasters.forEach(coaster => {
+            const item = document.createElement('div');
+            item.className = 'ranking-item';
+            item.innerHTML = `
+                <div class="rank-number">#${coaster.Ranking}</div>
+                <div class="ride-info">
+                    <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
+                    <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
+                </div>
+            `;
+            // Clicking the row opens the detail modal!
+            item.addEventListener('click', () => Modals.showDetail(coaster));
+            fragment.appendChild(item);
+        });
+        
+        list.appendChild(fragment);
+    },
 };
 
 const Spreadsheet = {
@@ -1811,12 +1867,18 @@ const Tabs = {
     switch(tabName) {
         Utils.getElements('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
         Utils.getElement('creditsTab').classList.toggle('hidden', tabName !== 'credits');
+        Utils.getElement('rankingsTab').classList.toggle('hidden', tabName !== 'rankings');
         Utils.getElement('statisticsTab').classList.toggle('hidden', tabName !== 'statistics');
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
+        
         if (tabName === 'statistics') {
             if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
             if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
-        } else if (tabName === 'spreadsheet') Render.spreadsheet();
+        } else if (tabName === 'spreadsheet') {
+            Render.spreadsheet();
+        } else if (tabName === 'rankings') {
+            Render.rankings();
+        }
     }
 };
 
@@ -1858,16 +1920,18 @@ const Forms = {
         
         const newRank = parseInt(Utils.getElement('ranking').value) || 0;
         
-        if (!AppState.editing && newRank > 0) {
-            adjustRankings(yearKey, id, newRank);
-        }
-        
+        // 1. Save the new coaster to the profile FIRST
         userProfile[yearKey][id] = {
             rating: parseFloat(Utils.getElement('rating').value) || 0,
             ranking: newRank,
             newCredit: Utils.getElement('newCredit').checked,
             comments: Utils.getElement('comments').value
         };
+        
+        // 2. THEN adjust the rankings to make room for it
+        if (!AppState.editing && newRank > 0) {
+            adjustRankings(yearKey, id, newRank);
+        }
         
         AppState.editing = null;
         Modals.closeAddCoaster();
