@@ -18,6 +18,9 @@
 :root{--primary:#a855f7;--primary-hover:#9333ea;--accent:#06b6d4;--accent-pink:#ec4899;--bg:#f3e8ff;--bg-secondary:#fae8ff;--card-bg:#ffffff;--text:#1e1b4b;--text-secondary:#6b21a8;--border:#d8b4fe;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--shadow:0 1px 3px 0 rgb(0 0 0 / 0.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0 / 0.1);--shadow-bold:4px 4px 0px rgba(168,85,247,0.2);--new-credit-bg:#f0fdf4;--new-credit-border:#4ade80;--defunct-bg:#fef2f2;--defunct-border:#f87171;--credit-bg:#dcfce7;--credit-border:#16a34a;--credit-text:#15803d;--toggle-bg:#06b6d4;--toggle-hover:#0e7490;}
 @media (prefers-color-scheme:dark){:root{--primary:#8b5cf6;--primary-hover:#a78bfa;--accent:#22d3ee;--accent-pink:#fb7185;--bg:#020617;--bg-secondary:#0f172a;--card-bg:#1e293b;--text:#faf5ff;--text-secondary:#e9d5ff;--border:#a78bfa;--success:#4ade80;--warning:#fcd34d;--danger:#fb7185;--shadow:0 2px 4px 0 rgb(0 0 0 / 0.4);--shadow-lg:0 10px 20px -3px rgb(0 0 0 / 0.5);--shadow-bold:4px 4px 0px rgba(139,92,246,0.25);--new-credit-bg:rgba(74,222,128,0.2);--new-credit-border:#4ade80;--defunct-bg:rgba(248,113,113,0.2);--defunct-border:#fb7185;--credit-bg:rgba(74,222,128,0.15);--credit-border:#4ade80;--credit-text:#4ade80;--toggle-bg:#22d3ee;--toggle-hover:#06b6d4;}
 }
+/* NEW ADDITION: Prevents white flash on mobile overscroll */
+html { background: var(--bg); }
+@media (prefers-color-scheme:dark){ html { background: #020617; } }
 body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
 @media (prefers-color-scheme:dark){body{background:linear-gradient(135deg,#020617 0%,#0f172a 50%,#020617 100%);background-attachment:fixed;}
 }
@@ -1190,8 +1193,7 @@ const Render = {
             const row = document.createElement('div');
             row.className = 'ranking-row';
             row.dataset.id = coaster.id; 
-            // 2. Only make the row draggable if it's the current year
-            row.draggable = isCurrentYear; 
+            // We NO LONGER make the row draggable by default here!
             
             // 3. Only render the drag handle if it's the current year
             row.innerHTML = `
@@ -1201,7 +1203,7 @@ const Render = {
                         <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
                         <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
                     </div>
-                    ${rating > 0 ? `<div class="ranking-rating" style="color: var(--text);">${rating.toFixed(2)}</div>` : ''}
+                    ${rating > 0 ? `<div class="ranking-rating" style="color: white;">${rating.toFixed(2)}</div>` : ''}
                 </div>
                 ${isCurrentYear ? `<div class="drag-handle" title="Drag to reorder"></div>` : ''}
             `;
@@ -1214,7 +1216,23 @@ const Render = {
                 const handle = row.querySelector('.drag-handle');
                 handle.addEventListener('click', (e) => e.stopPropagation());
                 
+                // NEW: Enable dragging ONLY when the handle is interacted with
+                const enableDrag = () => { row.draggable = true; };
+                const disableDrag = () => { if (!row.classList.contains('dragging')) row.draggable = false; };
+
+                handle.addEventListener('mousedown', enableDrag);
+                handle.addEventListener('touchstart', enableDrag, {passive: true});
+
+                handle.addEventListener('mouseup', disableDrag);
+                handle.addEventListener('touchend', disableDrag);
+                handle.addEventListener('touchcancel', disableDrag);
+                handle.addEventListener('mouseleave', disableDrag);
+                
                 row.addEventListener('dragstart', (e) => {
+                    if (!row.draggable) {
+                        e.preventDefault();
+                        return;
+                    }
                     row.classList.add('dragging');
                     list.classList.add('is-reordering'); 
                     e.dataTransfer.effectAllowed = 'move';
@@ -1222,6 +1240,7 @@ const Render = {
                 });
                 
                 row.addEventListener('dragend', () => {
+                    row.draggable = false; // Reset draggable state
                     row.classList.remove('dragging');
                     list.classList.remove('is-reordering'); 
                     RankingsSync.updateFromVisualOrder(); 
