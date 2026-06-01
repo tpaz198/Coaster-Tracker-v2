@@ -146,11 +146,21 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .rankings-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; }
 .ranking-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--card-bg); border-radius: 10px; border: 3px solid var(--border); transition: all 0.2s; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); }
 .ranking-item:hover { transform: translateX(5px); border-color: var(--primary); box-shadow: 6px 6px 0px rgba(0,0,0,0.15); }
-.ranking-item .rank-number { font-size: 1.5rem; font-weight: 800; color: white; background: var(--primary); width: 3.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-@media (prefers-color-scheme: dark) { .ranking-item .rank-number { background: var(--accent); } }
+.ranking-item .rank-number { font-size: 1.5rem; font-weight: 800; color: white; background: var(--primary); width: 3.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); text-shadow: 2px 2px 3px rgba(0,0,0,0.4), 1px 1px 1px rgba(0,0,0,0.5); }
 .ranking-item .ride-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
 .ranking-item .ride-name { font-size: 1.25rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
 .ranking-item .park-name { font-size: 1rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.2rem;}
+.ranking-item .ranking-rating { 
+    font-size: 1.25rem; 
+    font-weight: 800; 
+    color: white; 
+    padding: 0.35rem 0.75rem; 
+    border-radius: 8px; 
+    margin-left: auto; 
+    flex-shrink: 0; 
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); 
+}
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
 .coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
@@ -1099,20 +1109,24 @@ const Render = {
         
         const fragment = document.createDocumentFragment();
         rankedCoasters.forEach(coaster => {
+            // Calculate the color based on the rating
+            const rating = Utils.parseRating(coaster.Rating);
+            const ratingColor = Utils.getRatingColor(rating);
+            
             const item = document.createElement('div');
             item.className = 'ranking-item';
             item.innerHTML = `
-                <div class="rank-number">#${coaster.Ranking}</div>
+                <div class="rank-number" style="background-color: ${ratingColor};">#${coaster.Ranking}</div>
                 <div class="ride-info">
                     <div class="ride-name">${Utils.escapeHtml(coaster.Ride)}</div>
                     <div class="park-name">${Utils.escapeHtml(coaster.Park)}</div>
                 </div>
+                ${rating > 0 ? `<div class="ranking-rating" style="background-color: ${ratingColor};">${rating.toFixed(2)}</div>` : ''}
             `;
             // Clicking the row opens the detail modal!
             item.addEventListener('click', () => Modals.showDetail(coaster));
             fragment.appendChild(item);
         });
-        
         list.appendChild(fragment);
     },
 };
