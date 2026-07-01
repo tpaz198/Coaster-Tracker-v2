@@ -9,7 +9,8 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@3.0.0-rc.0/default.css">
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@3.0.0-rc.0/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@3.0.0-rc.0/scroll-behaviour.min.js"></script>   
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@3.0.0-rc.0/scroll-behaviour.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <title>Thomas XL-200's Coaster Credit Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Racing+Sans+One&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -310,6 +311,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .ot-color-picker{position:absolute;z-index:1000;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,0.25);display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:auto;}
 .ot-color-picker-cell{width:22px;height:22px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:transform 0.12s,border-color 0.12s;}
 .ot-color-picker-cell:hover{transform:scale(1.25);border-color:var(--text);}
+.unsaved-badge { display: none; width: 10px; height: 10px; background-color: var(--danger); border-radius: 50%; position: absolute; top: -4px; right: -4px; border: 2px solid var(--card-bg); }
 </style>
 </head>
 <body>
@@ -332,7 +334,10 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                         </select>
                     </div>
                     <div class="data-transfer">
-                        <button class="data-transfer-btn" id="exportDataBtn" title="Export your changes as a JSON file">📤 Export</button>
+                        <button class="data-transfer-btn" id="exportDataBtn" title="Export your changes as a JSON file" style="position: relative;">
+                            📤 Export
+                            <span class="unsaved-badge" id="unsavedBadge"></span>
+                        </button>
                         <button class="data-transfer-btn" id="importDataBtn" title="Import changes from a JSON file">📥 Import</button>
                         <input type="file" id="importDataFile" accept=".json" style="display:none;">
                     </div>
@@ -715,12 +720,38 @@ MobileDragDrop.polyfill({
 window.addEventListener('touchmove', function() {}, {passive: false});
 
 let masterCoasters = {};
+let originalMasterCoasters = {}; // Baseline reference for differential saves
 let userProfile = {};
-let currentYearStr = "2026";
+const ACTUAL_CURRENT_YEAR = new Date().getFullYear().toString();
+let currentYearStr = ACTUAL_CURRENT_YEAR;
+let hasUnsavedChanges = false;
+
+function getLatestActiveYearStr() {
+    const years = Object.keys(userProfile)
+        .filter(k => k.startsWith('logs_'))
+        .map(k => parseInt(k.replace('logs_', '')));
+    return years.length > 0 ? Math.max(...years).toString() : ACTUAL_CURRENT_YEAR;
+}
+
+function getBaselineTotal() {
+    const latestYearKey = `logs_${getLatestActiveYearStr()}`;
+    return userProfile[latestYearKey] ? Object.keys(userProfile[latestYearKey]).length : 0;
+}
+
+function setUnsavedChanges(state) {
+    hasUnsavedChanges = state;
+    const badge = document.getElementById('unsavedBadge');
+    if (badge) badge.style.display = state ? 'block' : 'none';
+}
 
 // --- LOCAL STORAGE HELPER ---
-function saveProfileToLocal() {
-    localStorage.setItem('thomasTrackerProfile', JSON.stringify(userProfile));
+async function saveProfileToLocal() {
+    setUnsavedChanges(true); // Flag in-memory changes immediately
+    try {
+        await localforage.setItem('thomasTrackerProfile', userProfile);
+    } catch (err) {
+        console.error("Failed to save to IndexedDB", err);
+    }
 }
 
 const AppState = {
@@ -795,8 +826,7 @@ function refreshDataForYear(year) {
 }
 
 function recalculateWeightedRankings() {
-    const currentYearLogs = userProfile['logs_2026'] || {};
-    const currentTotal = Object.keys(currentYearLogs).length;
+    const currentTotal = getBaselineTotal();
 
     AppState.coasters.forEach(c => {
         if (c.Ranking && parseInt(c.Ranking) > 0) {
@@ -1007,7 +1037,7 @@ function getDragAfterElement(container, y) {
 }
 
 const RankingsSync = {
-    updateFromVisualOrder() {
+    async updateFromVisualOrder() {
         const list = Utils.getElement('rankingsList');
         const items = list.querySelectorAll('.ranking-row');
         const yearKey = `logs_${currentYearStr}`;
@@ -1029,7 +1059,7 @@ const RankingsSync = {
         
         // If anything moved, save to browser memory and refresh the UI
         if (hasChanges) {
-            saveProfileToLocal();
+            await saveProfileToLocal();
             refreshDataForYear(currentYearStr);
         }
     }
@@ -1188,7 +1218,7 @@ const Render = {
         list.style.display = 'flex';
         noRankings.style.display = 'none';
         
-        const isCurrentYear = currentYearStr === '2026';
+        const isCurrentYear = true; // Enable drag-and-drop reordering for all selected years
         const fragment = document.createDocumentFragment();
         
         rankedCoasters.forEach(coaster => {
@@ -1388,7 +1418,7 @@ const Chart = {
     setMode(mode) {
         this.mode = mode;
         const wrap = Utils.getElement('statsWeightedWrap');
-        if (mode === 'ranking' && currentYearStr !== '2026') {
+        if (mode === 'ranking' && currentYearStr !== getLatestActiveYearStr()) {
             wrap.style.display = '';
         } else {
             wrap.style.display = 'none';
@@ -1607,8 +1637,7 @@ const OverTimeChart = {
 
     getYearlyAverages() {
         const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
-        const currentLogs = userProfile[`logs_2026`] || {};
-        const currentTotal = Object.keys(currentLogs).length;
+        const currentTotal = getBaselineTotal();
 
         return years.map(year => {
             const logs = userProfile[`logs_${year}`] || {};
@@ -1639,8 +1668,7 @@ const OverTimeChart = {
 
     getRideDataById(id) {
         const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
-        const currentLogs = userProfile[`logs_2026`] || {};
-        const currentTotal = Object.keys(currentLogs).length;
+        const currentTotal = getBaselineTotal();
 
         return years.map(year => {
             const logs = userProfile[`logs_${year}`] || {};
@@ -1965,8 +1993,8 @@ const Modals = {
             </div>
             ${coaster.Comments ? `<div class="comments-section"><div class="comments-label">Comments</div><div class="comments-text">${Utils.escapeHtml(coaster.Comments)}</div></div>` : ''}
         `;
-        Utils.getElement('editCoasterBtn').style.display = currentYearStr === '2026' ? '' : 'none';
-        Utils.getElement('deleteCoasterBtn').style.display = currentYearStr === '2026' ? '' : 'none';
+        Utils.getElement('editCoasterBtn').style.display = ''; // Enable editing for all years
+        Utils.getElement('deleteCoasterBtn').style.display = ''; // Enable deleting for all years
         modal.classList.add('active');
         this._lockScroll();
     },
@@ -2010,12 +2038,13 @@ const Modals = {
         Utils.getElement('comments').value = coaster.Comments || '';
         Utils.getElement('charCount').textContent = `${(coaster.Comments || '').length} / 350`;
         
-        // REMOVED 'manufacturer' from this disabled list
-        ['rideName', 'parkName', 'category'].forEach(id => {
+        // REMOVED 'manufacturer' and 'category' from this disabled list
+        ['rideName', 'parkName'].forEach(id => {
             Utils.getElement(id).disabled = true;
         });
         
-        // EXPLICITLY ENABLE manufacturer for editing
+        // EXPLICITLY ENABLE fields for editing
+        Utils.getElement('category').disabled = false;
         Utils.getElement('manufacturer').disabled = false; 
         Utils.getElement('type').disabled = false;
         Utils.getElement('openingYear').disabled = false;
@@ -2084,7 +2113,7 @@ const Tabs = {
 };
 
 const Forms = {
-    handleSubmit(e) {
+    async handleSubmit(e) {
         e.preventDefault();
         
         let id = "";
@@ -2103,8 +2132,7 @@ const Forms = {
             }
         }
         
-        // Update Static Master Dict (Memory)
-        masterCoasters[id] = {
+const submittedMetadata = {
             name: Utils.getElement('rideName').value,
             park: Utils.getElement('parkName').value,
             manufacturer: Utils.getElement('manufacturer').value,
@@ -2114,11 +2142,36 @@ const Forms = {
             lastRide: Utils.getElement('lastRide').value,
             status: Utils.getElement('status').value
         };
-        
-        // BUG FIX: Unconditionally store the edited coaster in the userProfile
-        // This ensures edits to default master coasters act as custom overrides and persist!
+
+        // Update Static Master Dict (Memory)
+        masterCoasters[id] = submittedMetadata;
+
         if (!userProfile.customCoasters) userProfile.customCoasters = {};
-        userProfile.customCoasters[id] = masterCoasters[id];
+
+        // Differential Save: Compare against pure master data
+        let isCustom = false;
+        if (!originalMasterCoasters[id]) {
+            isCustom = true; // Brand new user-created coaster
+        } else {
+            const base = originalMasterCoasters[id];
+            if (base.name !== submittedMetadata.name ||
+                base.park !== submittedMetadata.park ||
+                base.manufacturer !== submittedMetadata.manufacturer ||
+                base.category !== submittedMetadata.category ||
+                base.type !== submittedMetadata.type ||
+                base.openingYear !== submittedMetadata.openingYear ||
+                base.lastRide !== submittedMetadata.lastRide ||
+                base.status !== submittedMetadata.status) {
+                isCustom = true; // Explicit metadata override of a master coaster
+            }
+        }
+
+        if (isCustom) {
+            userProfile.customCoasters[id] = submittedMetadata;
+        } else {
+            // Remove from customCoasters if unaltered or reverted to baseline
+            delete userProfile.customCoasters[id];
+        }
         
         // Update User Profile
         const yearKey = `logs_${currentYearStr}`;
@@ -2159,7 +2212,7 @@ const Forms = {
         
         AppState.editing = null;
         Modals.closeAddCoaster();
-        saveProfileToLocal(); 
+        await saveProfileToLocal(); 
         refreshDataForYear(currentYearStr);
     },
 };
@@ -2343,6 +2396,12 @@ function updateCascadingFilters(parkId, mfrId, catId, typeId, statusId) {
 }
 
 function setupEventListeners() {
+    window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 
     // --- REFACTORED EXPORT & IMPORT HOOKS ---
     Utils.getElement('exportDataBtn').addEventListener('click', () => {
@@ -2355,10 +2414,11 @@ function setupEventListeners() {
         const date = new Date();
         const dateString = date.toISOString().split('T')[0]; 
         
-        // Append the date to the filename
+    // Append the date to the filename
         link.download = `thomas_tracker_profile_${dateString}.json`;
         
         link.click();
+        setUnsavedChanges(false);
     });
 
     Utils.getElement('importDataBtn').addEventListener('click', () => Utils.getElement('importDataFile').click());
@@ -2443,7 +2503,7 @@ function setupEventListeners() {
     Utils.getElement('editCoasterBtn').addEventListener('click', () => Modals.editCoasterDetails());
     
     // Updated Delete Handler
-    Utils.getElement('deleteCoasterBtn').addEventListener('click', () => {
+    Utils.getElement('deleteCoasterBtn').addEventListener('click', async () => {
         const coaster = AppState.editing;
         if (!coaster) return;
         if (!confirm(`Are you sure you want to delete "${coaster.Ride}"?`)) return;
@@ -2452,7 +2512,7 @@ function setupEventListeners() {
         if(userProfile[yearKey]) {
             delete userProfile[yearKey][coaster.id];
             normalizeRankings(yearKey);
-            saveProfileToLocal(); // Save deletion to browser storage
+            await saveProfileToLocal(); // Save deletion to browser storage
         }
         Modals.closeDetail();
         refreshDataForYear(currentYearStr);
@@ -2556,31 +2616,50 @@ async function init() {
     try {
         const res = await fetch('./master_coasters.json?v=' + Date.now());
         masterCoasters = await res.json();
+        originalMasterCoasters = JSON.parse(JSON.stringify(masterCoasters)); // Deep clone pure master data
         document.getElementById('importDataBtn').disabled = false;
     } catch(e) {
         console.error("Failed to load master_coasters.json", e);
     }
 
-    // 2. Load personal profile data (localStorage first, then fetch fallback)
-    const localProfile = localStorage.getItem('thomasTrackerProfile');
-    if (localProfile) {
-        try {
-            userProfile = JSON.parse(localProfile);
-            console.log("Profile loaded from localStorage!");
-        } catch(e) {
-            console.error("Failed to parse localStorage profile, starting fresh.");
-            userProfile = {};
+// 2. Load personal profile data (IndexedDB first, fallback to localStorage migration, then fetch)
+    localforage.config({
+        name: 'CoasterTracker',
+        storeName: 'profiles'
+    });
+
+    let localProfile = null;
+    try {
+        localProfile = await localforage.getItem('thomasTrackerProfile');
+        
+    // Migration path from localStorage to IndexedDB
+        if (!localProfile) {
+            const legacyProfile = localStorage.getItem('thomasTrackerProfile');
+            if (legacyProfile) {
+                localProfile = JSON.parse(legacyProfile);
+                await localforage.setItem('thomasTrackerProfile', localProfile);
+                localStorage.removeItem('thomasTrackerProfile'); // Remove legacy data
+                console.log("Profile migrated from localStorage to IndexedDB!");
+            }
         }
+    } catch (err) {
+        console.error("IndexedDB error", err);
+    }
+
+    if (localProfile) {
+        userProfile = localProfile;
+        console.log("Profile loaded from IndexedDB!");
     } else {
         try {
             const profileRes = await fetch('./thomas_tracker_profile.json?v=' + Date.now());
             if (profileRes.ok) {
                 userProfile = await profileRes.json();
                 console.log("Profile automatically loaded from GitHub!");
-                saveProfileToLocal(); 
+                await localforage.setItem('thomasTrackerProfile', userProfile);
             }
         } catch(e) {
             console.log("No profile found locally or on GitHub, starting fresh.");
+            userProfile = {};
         }
     }
 
@@ -2591,6 +2670,18 @@ async function init() {
 
     // 3. Setup Dropdowns
     const currentYear = new Date().getFullYear();
+    
+    // Dynamically build the Year selector based on current calendar year
+    const yearSelect = Utils.getElement('yearSelect');
+    yearSelect.innerHTML = '';
+    for (let y = currentYear; y >= 2021; y--) {
+        const option = document.createElement('option');
+        option.value = y.toString();
+        option.textContent = y.toString();
+        if (y.toString() === ACTUAL_CURRENT_YEAR) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+    
     DOM.populateYearSelect('openingYear', 1900, currentYear, true);
     
     const lastRideSelect = Utils.getElement('lastRide');
