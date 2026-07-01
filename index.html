@@ -430,8 +430,41 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                 <button class="chart-type-btn active" data-stats-level="specific">Specific</button>
             </div>
 
-            <div id="generalStatsView" style="display: none;">
+        <div id="generalStatsView" style="display: none;">
+                <div class="chart-container" style="margin-top: 1rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="generalStatsChart"></canvas>
+                    </div>
                 </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="generalNewCreditsChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="manufacturerBreakdownChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="newCreditManufacturerBreakdownChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="parkBreakdownChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="newCreditParkBreakdownChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-download-btn-container">
+                    <button class="btn btn-secondary" id="downloadGeneralChart">📥 Download Chart</button>
+                </div>
+            </div>
 
             <div id="specificStatsView">
                 <div class="chart-type-toggle">
@@ -824,6 +857,7 @@ function refreshDataForYear(year) {
     Stats.updateCreditCount();
     Stats.updateAverageRating();
     
+    if (typeof GeneralStats !== 'undefined' && GeneralStats.instance) GeneralStats.update();
     if (typeof Chart !== 'undefined' && Chart.instance) Chart.update();
     if (typeof OverTimeChart !== 'undefined' && OverTimeChart.instance) OverTimeChart.update();
     if (typeof Render !== 'undefined') {
@@ -1417,163 +1451,126 @@ const Spreadsheet = {
 
 // --- CHARTS ---
 
-const Chart = {
+const GeneralStats = {
     instance: null,
-    mode: 'rating',
-    useWeightedRanking: false,
-
-    setMode(mode) {
-        this.mode = mode;
-        const wrap = Utils.getElement('statsWeightedWrap');
-        if (mode === 'ranking' && currentYearStr !== getLatestActiveYearStr()) {
-            wrap.style.display = '';
-        } else {
-            wrap.style.display = 'none';
-            this.useWeightedRanking = false;
-            Utils.getElement('statsWeightedCheck').checked = false;
-        }
-        this.update();
-    },
-
+    newCreditsInstance: null,
+    mfrBreakdownInstance: null,
+    newMfrBreakdownInstance: null,
+    parkBreakdownInstance: null,
+    newParkBreakdownInstance: null,
+    pieColors: ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#3b82f6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16','#e11d48','#7c3aed','#0ea5e9','#d946ef'],
+    
     initialize() {
-        const ctx = Utils.getElement('ratingsChart').getContext('2d');
         const textColor = Utils.getCSSVariable('--text');
         const borderColor = Utils.getCSSVariable('--border');
+        const cardBg = Utils.getCSSVariable('--card-bg');
         
-        this.instance = new window.Chart(ctx, {
+        const ctxTotal = Utils.getElement('generalStatsChart').getContext('2d');
+        this.instance = new window.Chart(ctxTotal, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Rating', data: [], borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8 }] },
-            options: {
-                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Top Rated Coasters', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
-                    tooltip: {
-                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 },
-                        callbacks: {
-                            title: (tooltipItems) => {
-                                const index = tooltipItems[0].dataIndex;
-                                const chartData = this.getFilteredData();
-                                return chartData[index]?.Ride || tooltipItems[0].label;
-                            },
-                            label: (context) => {
-                                const val = context.parsed.y;
-                                if (this.mode === 'rating') return `Rating: ${val.toFixed(2)}`;
-                                return this.useWeightedRanking ? `Weighted Ranking: #${val.toFixed(2)}` : `Ranking: #${val}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false, min: 1, max: 10, grid: { color: borderColor },
-                        afterBuildTicks: function(axis) {
-                            if (axis.options.reverse && axis.ticks.length && !axis.ticks.some(t => t.value === 1)) {
-                                axis.ticks.push({ value: 1 });
-                                axis.ticks.sort((a, b) => a.value - b.value);
-                            }
-                        },
-                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor },
-                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor, callback: function(value) { return Number(value.toFixed(2)); } }
-                    },
-                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, maxRotation: 45, minRotation: 45, autoSkip: false, color: textColor } }
-                }
+            data: { labels: [], datasets: [{ label: 'Total Credits', data: [], borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'Total Credits Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: false, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+        });
+
+        const ctxNew = Utils.getElement('generalNewCreditsChart').getContext('2d');
+        this.newCreditsInstance = new window.Chart(ctxNew, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'New Credits', data: [], borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+        });
+
+        const getDonutOptions = (titleText) => ({ responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } }, title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 } } } });
+
+        this.mfrBreakdownInstance = new window.Chart(Utils.getElement('manufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Manufacturer Breakdown') });
+        this.newMfrBreakdownInstance = new window.Chart(Utils.getElement('newCreditManufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Manufacturer Breakdown') });
+        this.parkBreakdownInstance = new window.Chart(Utils.getElement('parkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Park Breakdown') });
+        this.newParkBreakdownInstance = new window.Chart(Utils.getElement('newCreditParkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Park Breakdown') });
+
+        this.update();
+    },
+    
+    update() {
+        if (!this.instance || !this.newCreditsInstance || !this.mfrBreakdownInstance || !this.newMfrBreakdownInstance || !this.parkBreakdownInstance || !this.newParkBreakdownInstance) return;
+        
+        const validYears = Object.keys(userProfile).filter(k => k.startsWith('logs_')).map(k => parseInt(k.replace('logs_', ''))).filter(y => y <= parseInt(currentYearStr)).sort((a, b) => a - b);
+        const labels = validYears.map(y => y.toString());
+        const totalData = validYears.map(y => Object.keys(userProfile[`logs_${y}`] || {}).length);
+        const newData = validYears.map(y => Object.values(userProfile[`logs_${y}`] || {}).filter(log => log.newCredit).length);
+
+        const color = Utils.getCSSVariable('--primary');
+        const accentColor = Utils.getCSSVariable('--accent');
+        const textColor = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+        const cardBg = Utils.getCSSVariable('--card-bg');
+
+        this.instance.data.labels = labels;
+        this.instance.data.datasets[0].data = totalData;
+        this.instance.data.datasets[0].borderColor = color;
+        this.instance.data.datasets[0].pointBackgroundColor = color;
+        this.instance.data.datasets[0].pointBorderColor = color;
+        
+        this.newCreditsInstance.data.labels = labels;
+        this.newCreditsInstance.data.datasets[0].data = newData;
+        this.newCreditsInstance.data.datasets[0].backgroundColor = accentColor;
+        
+        [this.instance, this.newCreditsInstance].forEach(chart => {
+            chart.options.plugins.title.color = textColor;
+            chart.options.scales.y.title.color = textColor;
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.scales.y.grid.color = borderColor;
+            chart.options.scales.x.ticks.color = textColor;
+            chart.options.scales.x.grid.color = borderColor;
+        });
+
+        const currentLogs = userProfile[`logs_${currentYearStr}`] || {};
+        const mfrCounts = {}; const newMfrCounts = {};
+        const parkCounts = {}; const newParkCounts = {};
+        
+        Object.entries(currentLogs).forEach(([id, log]) => {
+            const mfr = masterCoasters[id]?.manufacturer || 'Unknown';
+            const park = masterCoasters[id]?.park || 'Unknown';
+            
+            mfrCounts[mfr] = (mfrCounts[mfr] || 0) + 1;
+            parkCounts[park] = (parkCounts[park] || 0) + 1;
+            
+            if (log.newCredit) {
+                newMfrCounts[mfr] = (newMfrCounts[mfr] || 0) + 1;
+                newParkCounts[park] = (newParkCounts[park] || 0) + 1;
             }
         });
-        this.update();
-    },
 
-    getFilteredData() {
-        const park = Utils.getElement('statsPark').value;
-        const manufacturer = Utils.getElement('statsManufacturer').value;
-        const category = Utils.getElement('statsCategory').value;
-        const type = Utils.getElement('statsType').value;
-        const status = Utils.getElement('statsStatus').value;
-        const isRanking = this.mode === 'ranking';
-        const isWeighted = isRanking && this.useWeightedRanking;
-        
-        return AppState.coasters.filter(c => {
-            if (isWeighted) {
-                const wr = parseFloat(c['Weighted Ranking']);
-                if (!c['Weighted Ranking'] || isNaN(wr) || wr <= 0) return false;
-            } else if (isRanking) {
-                const rank = parseInt(c.Ranking);
-                if (!c.Ranking || isNaN(rank) || rank <= 0) return false;
-            } else {
-                if (!c.Rating || Utils.parseRating(c.Rating) === 0) return false;
-            }
-            if (park && c.Park !== park) return false;
-            if (manufacturer && c.Manufacturer !== manufacturer) return false;
-            if (category && c.Category !== category) return false;
-            if (type && c.Type !== type) return false;
-            if (status && c.Status !== status) return false;
-            return true;
-        }).sort((a, b) => {
-            if (isWeighted) return parseFloat(a['Weighted Ranking']) - parseFloat(b['Weighted Ranking']);
-            if (isRanking) return parseInt(a.Ranking) - parseInt(b.Ranking);
-            return Utils.parseRating(b.Rating) - Utils.parseRating(a.Rating);
-        }).slice(0, AppState.chartLimit);
-    },
+        const processDonutData = (counts) => {
+            let lbls = [], vals = [], other = 0;
+            Object.entries(counts).forEach(([key, count]) => { if (count < 5) other += count; else { lbls.push(key); vals.push(count); } });
+            const combined = lbls.map((lbl, i) => ({ lbl, val: vals[i] })).sort((a,b) => b.val - a.val);
+            if (other > 0) combined.push({ lbl: 'Other', val: other });
+            return { labels: combined.map(x => x.lbl), data: combined.map(x => x.val), colors: combined.map((x, i) => x.lbl === 'Other' ? '#64748b' : this.pieColors[i % this.pieColors.length]) };
+        };
 
-    update() {
-        if (!this.instance) return;
-        const chartData = this.getFilteredData();
-        const isRanking = this.mode === 'ranking';
-        const isWeighted = isRanking && this.useWeightedRanking;
-        const labels = chartData.map(c => Utils.wrapLabel(c.Ride, 20));
-        
-        let dataValues, colors;
-        if (isWeighted) {
-            dataValues = chartData.map(c => parseFloat(c['Weighted Ranking']));
-            colors = dataValues.map(() => '#6366f1');
-        } else if (isRanking) {
-            dataValues = chartData.map(c => parseInt(c.Ranking));
-            colors = dataValues.map(() => '#6366f1');
-        } else {
-            dataValues = chartData.map(c => Utils.parseRating(c.Rating));
-            colors = dataValues.map(r => Utils.getRatingColor(r));
-        }
-        
-        const textColor = Utils.getCSSVariable('--text');
-        const borderColor = Utils.getCSSVariable('--border');
-        
-        this.instance.options.plugins.title.color = textColor;
-        this.instance.options.plugins.title.text  = Utils.buildFilterTitle(AppState.chartLimit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', chartData.length);
-        this.instance.options.scales.y.title.text = isWeighted ? 'Weighted Ranking' : (isRanking ? 'Ranking' : 'Rating');
-        this.instance.options.scales.y.title.color = textColor;
-        this.instance.options.scales.y.ticks.color = textColor;
-        this.instance.options.scales.y.grid.color = borderColor;
-        
-        if (isRanking) {
-            this.instance.options.scales.y.reverse = true;
-            this.instance.options.scales.y.beginAtZero = false;
-            delete this.instance.options.scales.y.max;
-            this.instance.options.scales.y.min = 0.5;
-            delete this.instance.options.scales.y.ticks.stepSize;
-            if (isWeighted) {
-                this.instance.options.scales.y.ticks.callback = function(value) { return value >= 1 ? '#' + Number(value.toFixed(1)) : ''; };
-            } else {
-                this.instance.options.scales.y.ticks.callback = function(value) { return (Number.isInteger(value) && value >= 1) ? '#' + value : ''; };
-            }
-        } else {
-            this.instance.options.scales.y.reverse = false;
-            this.instance.options.scales.y.beginAtZero = false;
-            this.instance.options.scales.y.max = 10;
-            this.instance.options.scales.y.min = 1;
-            delete this.instance.options.scales.y.ticks.stepSize;
-            this.instance.options.scales.y.ticks.callback = function(value) { return Number(value.toFixed(2)); };
-        }
-        
-        this.instance.options.scales.x.ticks.color = textColor;
-        this.instance.options.scales.x.grid.color = borderColor;
-        
-        this.instance.data.labels = labels;
-        this.instance.data.datasets[0].label = isWeighted ? 'Weighted Ranking' : (isRanking ? 'Ranking' : 'Rating');
-        this.instance.data.datasets[0].data = dataValues;
-        this.instance.data.datasets[0].borderColor = colors[0] || '#3b82f6';
-        this.instance.data.datasets[0].pointBackgroundColor = colors;
-        this.instance.data.datasets[0].pointBorderColor = colors;
+        const isMobile = window.innerWidth <= 768;
+
+        const applyDonutData = (instance, dataObj, titleText) => {
+            instance.data.labels = dataObj.labels;
+            instance.data.datasets[0].data = dataObj.data;
+            instance.data.datasets[0].backgroundColor = dataObj.colors;
+            instance.data.datasets[0].borderColor = cardBg;
+            instance.options.plugins.title.text = titleText;
+            instance.options.plugins.title.color = textColor;
+            instance.options.plugins.legend.labels.color = textColor;
+            instance.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
+        };
+
+        applyDonutData(this.mfrBreakdownInstance, processDonutData(mfrCounts), 'Manufacturer Breakdown');
+        applyDonutData(this.newMfrBreakdownInstance, processDonutData(newMfrCounts), `New Credit Manufacturer Breakdown (${currentYearStr})`);
+        applyDonutData(this.parkBreakdownInstance, processDonutData(parkCounts), 'Park Breakdown');
+        applyDonutData(this.newParkBreakdownInstance, processDonutData(newParkCounts), `New Credit Park Breakdown (${currentYearStr})`);
+
         this.instance.update();
+        this.newCreditsInstance.update();
+        this.mfrBreakdownInstance.update();
+        this.newMfrBreakdownInstance.update();
+        this.parkBreakdownInstance.update();
+        this.newParkBreakdownInstance.update();
     }
 };
 
@@ -2108,11 +2105,19 @@ const Tabs = {
         Utils.getElement('statisticsTab').classList.toggle('hidden', tabName !== 'statistics');
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
         
-        if (tabName === 'statistics') {
+if (tabName === 'statistics') {
             const specificView = Utils.getElement('specificStatsView');
+            const generalView = Utils.getElement('generalStatsView');
             if (specificView && specificView.style.display !== 'none') {
                 if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
                 if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+            } else if (generalView && generalView.style.display !== 'none') {
+                if (GeneralStats.instance) { GeneralStats.instance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.mfrBreakdownInstance) { GeneralStats.mfrBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newMfrBreakdownInstance) { GeneralStats.newMfrBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.parkBreakdownInstance) { GeneralStats.parkBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newParkBreakdownInstance) { GeneralStats.newParkBreakdownInstance.resize(); GeneralStats.update(); }
             }
         } else if (tabName === 'spreadsheet') {
             Render.spreadsheet();
@@ -2476,6 +2481,12 @@ function setupEventListeners() {
             if (level === 'general') {
                 generalView.style.display = 'block';
                 specificView.style.display = 'none';
+                if (GeneralStats.instance) { GeneralStats.instance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.mfrBreakdownInstance) { GeneralStats.mfrBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newMfrBreakdownInstance) { GeneralStats.newMfrBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.parkBreakdownInstance) { GeneralStats.parkBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.newParkBreakdownInstance) { GeneralStats.newParkBreakdownInstance.resize(); GeneralStats.update(); }
             } else {
                 generalView.style.display = 'none';
                 specificView.style.display = 'block';
@@ -2520,6 +2531,7 @@ function setupEventListeners() {
     ['otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
     Utils.getElements('.ot-chart-limit-btn').forEach(btn => { btn.addEventListener('click', () => { OverTimeChart.otLimit = parseInt(btn.dataset.limit); Utils.getElements('.ot-chart-limit-btn').forEach(b => { b.classList.remove('btn-primary', 'active'); b.classList.add('btn-secondary'); }); btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
     ['statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'); Chart.update(); }); });
+    Utils.getElement('downloadGeneralChart')?.addEventListener('click', () => { downloadChart(GeneralStats.instance, false); });
     Utils.getElement('downloadComparisonChart')?.addEventListener('click', () => { downloadChart(Chart.instance, false); });
     Utils.getElement('downloadOverTimeChart')?.addEventListener('click', () => { downloadChart(OverTimeChart.instance, true); });
     Utils.getElement('editCoasterBtn').addEventListener('click', () => Modals.editCoasterDetails());
@@ -2628,11 +2640,27 @@ function setupEventListeners() {
     const BP = 768; function ratio() { return window.innerWidth <= BP ? 3 / 4 : 16 / 9; }
     function apply() { 
         const r = ratio(); 
-        const specificView = document.getElementById('specificStatsView');
-        if (specificView && specificView.style.display === 'none') return;
+        const isMobile = window.innerWidth <= BP;
         
-        if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
-        if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
+        const generalView = document.getElementById('generalStatsView');
+        if (generalView && generalView.style.display !== 'none') {
+            if (GeneralStats.instance) { GeneralStats.instance.options.aspectRatio = r; GeneralStats.instance.resize(); }
+            if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.options.aspectRatio = r; GeneralStats.newCreditsInstance.resize(); }
+            
+            [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
+                if (chart) {
+                    chart.options.aspectRatio = r;
+                    chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
+                    chart.resize();
+                }
+            });
+        }
+        
+        const specificView = document.getElementById('specificStatsView');
+        if (specificView && specificView.style.display !== 'none') {
+            if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
+            if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
+        }
     }
     let prev = window.innerWidth <= BP; window.addEventListener('resize', () => { const cur = window.innerWidth <= BP; if (cur !== prev) { prev = cur; apply(); } Stats.autoFitStatBoxes(); });
     window._syncChartAspect = apply;
@@ -2729,6 +2757,7 @@ async function init() {
 
     // 4. Initialize everything else
     setupEventListeners();
+    GeneralStats.initialize();
     Chart.initialize();
     window._syncChartAspect();
     Spreadsheet.initialize();
