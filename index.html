@@ -1686,6 +1686,127 @@ const GeneralStats = {
     }
 };
 
+const Chart = {
+    instance: null,
+    mode: 'rating',
+    useWeightedRanking: false,
+
+    initialize() {
+        const ctx = Utils.getElement('ratingsChart').getContext('2d');
+        const textColor = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+
+        this.instance = new window.Chart(ctx, {
+            type: 'bar',
+            data: { labels: [], datasets: [] },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                    tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 } }
+                },
+                scales: {
+                    x: { grid: { color: borderColor }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 14 } } },
+                    y: { grid: { display: false }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' } } }
+                }
+            }
+        });
+        this.update();
+    },
+
+    setMode(mode) {
+        this.mode = mode;
+        const wrap = Utils.getElement('statsWeightedWrap');
+        if (mode === 'ranking') {
+            wrap.style.display = '';
+        } else {
+            wrap.style.display = 'none';
+            this.useWeightedRanking = false;
+            Utils.getElement('statsWeightedCheck').checked = false;
+        }
+        this.update();
+    },
+
+    update() {
+        if (!this.instance) return;
+
+        const park = Utils.getElement('statsPark').value;
+        const mfr = Utils.getElement('statsManufacturer').value;
+        const cat = Utils.getElement('statsCategory').value;
+        const type = Utils.getElement('statsType').value;
+        const status = Utils.getElement('statsStatus').value;
+        const limit = AppState.chartLimit;
+
+        const currentLogs = userProfile[`logs_${currentYearStr}`] || {};
+        let candidates = [];
+
+        Object.keys(currentLogs).forEach(id => {
+            const master = masterCoasters[id];
+            const log = currentLogs[id];
+            if (!master) return;
+
+            if (park && master.park !== park) return;
+            if (mfr && master.manufacturer !== mfr) return;
+            if (cat && master.category !== cat) return;
+            if (type && master.type !== type) return;
+            if (status && master.status !== status) return;
+
+            if (this.mode === 'rating' && log.rating > 0) {
+                candidates.push({ name: master.name, val: log.rating });
+            } else if (this.mode === 'ranking' && log.ranking > 0) {
+                let val = log.ranking;
+                if (this.useWeightedRanking) {
+                    const yearTotal = Object.keys(currentLogs).length;
+                    const currentTotal = getBaselineTotal();
+                    const multiplier = yearTotal > 0 ? (currentTotal / yearTotal) : 1;
+                    val = val * multiplier;
+                }
+                candidates.push({ name: master.name, val: val });
+            }
+        });
+
+        candidates.sort((a, b) => this.mode === 'rating' ? b.val - a.val : a.val - b.val);
+        candidates = candidates.slice(0, limit);
+        candidates.reverse();
+
+        const color = this.mode === 'rating' ? Utils.getCSSVariable('--primary') : Utils.getCSSVariable('--accent');
+        const textColor = Utils.getCSSVariable('--text');
+        const borderColor = Utils.getCSSVariable('--border');
+
+        this.instance.data.labels = candidates.map(c => Utils.truncateLabel(c.name, 25));
+        this.instance.data.datasets = [{
+            data: candidates.map(c => this.mode === 'rating' ? c.val : Math.round(c.val * 100) / 100),
+            backgroundColor: color,
+            borderRadius: 4
+        }];
+
+        this.instance.options.plugins.title.text = Utils.buildFilterTitle(limit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', candidates.length);
+        this.instance.options.plugins.title.color = textColor;
+        this.instance.options.scales.x.ticks.color = textColor;
+        this.instance.options.scales.x.grid.color = borderColor;
+        this.instance.options.scales.y.ticks.color = textColor;
+
+        if (this.mode === 'rating') {
+            this.instance.options.scales.x.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            const allRatings = candidates.map(c => c.val);
+            const min = allRatings.length ? Math.min(...allRatings) : 0;
+            const max = allRatings.length ? Math.max(...allRatings) : 10;
+            this.instance.options.scales.x.min = Math.max(min - 0.5, 1);
+            this.instance.options.scales.x.max = max + 0.2;
+            this.instance.options.scales.x.reverse = false;
+        } else {
+            this.instance.options.scales.x.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            this.instance.options.scales.x.min = 0.5;
+            delete this.instance.options.scales.x.max;
+            this.instance.options.scales.x.reverse = true;
+        }
+
+        this.instance.update();
+    }
+};
+
 const OverTimeChart = {
     instance: null,
     mode: 'rating',             
