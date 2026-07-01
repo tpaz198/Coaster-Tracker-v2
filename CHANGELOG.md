@@ -1,6 +1,26 @@
 # Changelog
 
-## Version 2.0.0 (Current) - 2026-06-01
+## Version 2.1.0 (Current) - 2026-07-01
+
+### General Statistics Dashboard
+- Implemented a "General" versus "Specific" toggle within the Statistics tab.
+- Added six new aggregate charts to the General view: Total Credits Over Time (Line), New Credits Per Year (Bar), Manufacturer Breakdown (Donut), New Credit Manufacturer Breakdown (Donut), Park Breakdown (Donut), and New Credit Park Breakdown (Donut).
+- Integrated dynamic data binning for donut charts, restricting display to the top 5 or 10 entities and grouping remaining data into an "Other" slice. 
+- Added an interactive tooltip to the "Other" slice to display the hidden sub-item breakdown.
+
+### Batch Chart Export
+- Integrated `JSZip` library to enable batch file archiving.
+- Added a download button to the General tab that processes and exports all six charts simultaneously into a compressed `.zip` archive.
+- Standardized export resolution and aspect ratios across all devices to prevent mobile legend clipping and canvas compression.
+
+### Stability and Rendering Optimization
+- Implemented an asynchronous `fetchWithRetry` loop during application initialization to mitigate empty page loads caused by CDN propagation delays for database JSON files.
+- Fixed a Chart.js rendering glitch where canvases initialized with 0px dimensions when toggling between hidden tab views.
+- Resolved a post-export rendering glitch where chart titles and legends lost their custom font configurations.
+
+---
+
+## Version 2.0.0 - 2026-06-01
 
 ### Major Architectural Overhaul
 - **Hybrid Serverless Architecture:** Extracted the massive embedded coaster arrays from the main HTML file into separate `master_coasters.json` and `thomas_tracker_profile.json` files. This drastically reduces the size of `index.html` and eliminates blank-page load failures on mobile browsers.
