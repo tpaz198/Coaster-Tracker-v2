@@ -746,6 +746,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
     </div>
     </div> <!-- End app-content -->
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
@@ -1479,12 +1480,33 @@ const GeneralStats = {
             options: { responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
         });
 
-        const getDonutOptions = (titleText) => ({ responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } }, title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 } } } });
+        this._otherDetails = { mfr: [], newMfr: [], park: [], newPark: [] };
 
-        this.mfrBreakdownInstance = new window.Chart(Utils.getElement('manufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Manufacturer Breakdown') });
-        this.newMfrBreakdownInstance = new window.Chart(Utils.getElement('newCreditManufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Manufacturer Breakdown') });
-        this.parkBreakdownInstance = new window.Chart(Utils.getElement('parkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Park Breakdown') });
-        this.newParkBreakdownInstance = new window.Chart(Utils.getElement('newCreditParkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Park Breakdown') });
+        const getDonutOptions = (titleText, detailKey) => ({
+            responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+            plugins: {
+                legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } },
+                title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                tooltip: {
+                    titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 14 },
+                    callbacks: {
+                        label: (context) => {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            if (label === 'Other' && this._otherDetails[detailKey] && this._otherDetails[detailKey].length > 0) {
+                                return [`Other: ${value}`, ...this._otherDetails[detailKey].map(x => `  • ${x.name}: ${x.count}`)];
+                            }
+                            return `${label}: ${value}`;
+                        }
+                    }
+                }
+            }
+        });
+
+        this.mfrBreakdownInstance = new window.Chart(Utils.getElement('manufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Manufacturer Breakdown', 'mfr') });
+        this.newMfrBreakdownInstance = new window.Chart(Utils.getElement('newCreditManufacturerBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Manufacturer Breakdown', 'newMfr') });
+        this.parkBreakdownInstance = new window.Chart(Utils.getElement('parkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Park Breakdown', 'park') });
+        this.newParkBreakdownInstance = new window.Chart(Utils.getElement('newCreditParkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Park Breakdown', 'newPark') });
 
         this.update();
     },
@@ -1539,15 +1561,32 @@ const GeneralStats = {
             }
         });
 
-        const processDonutData = (counts) => {
+        const processDonutData = (counts, maxDisplay, detailKey) => {
+            const sortedEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             let lbls = [], vals = [], other = 0;
-            Object.entries(counts).forEach(([key, count]) => { if (count < 5) other += count; else { lbls.push(key); vals.push(count); } });
-            const combined = lbls.map((lbl, i) => ({ lbl, val: vals[i] })).sort((a,b) => b.val - a.val);
-            if (other > 0) combined.push({ lbl: 'Other', val: other });
-            return { labels: combined.map(x => x.lbl), data: combined.map(x => x.val), colors: combined.map((x, i) => x.lbl === 'Other' ? '#64748b' : this.pieColors[i % this.pieColors.length]) };
-        };
+            this._otherDetails[detailKey] = [];
 
-        const isMobile = window.innerWidth <= 768;
+            sortedEntries.forEach(([key, count], idx) => {
+                if (idx < maxDisplay) {
+                    lbls.push(key);
+                    vals.push(count);
+                } else {
+                    other += count;
+                    this._otherDetails[detailKey].push({ name: key, count });
+                }
+            });
+
+            if (other > 0) {
+                lbls.push('Other');
+                vals.push(other);
+            }
+
+            return {
+                labels: lbls,
+                data: vals,
+                colors: lbls.map((lbl, i) => lbl === 'Other' ? '#64748b' : this.pieColors[i % this.pieColors.length])
+            };
+        };
 
         const applyDonutData = (instance, dataObj, titleText) => {
             instance.data.labels = dataObj.labels;
@@ -1557,13 +1596,14 @@ const GeneralStats = {
             instance.options.plugins.title.text = titleText;
             instance.options.plugins.title.color = textColor;
             instance.options.plugins.legend.labels.color = textColor;
-            instance.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
         };
 
-        applyDonutData(this.mfrBreakdownInstance, processDonutData(mfrCounts), 'Manufacturer Breakdown');
-        applyDonutData(this.newMfrBreakdownInstance, processDonutData(newMfrCounts), `New Credit Manufacturer Breakdown (${currentYearStr})`);
-        applyDonutData(this.parkBreakdownInstance, processDonutData(parkCounts), 'Park Breakdown');
-        applyDonutData(this.newParkBreakdownInstance, processDonutData(newParkCounts), `New Credit Park Breakdown (${currentYearStr})`);
+        const isMobile = window.innerWidth <= 768;
+
+        applyDonutData(this.mfrBreakdownInstance, processDonutData(mfrCounts, 10, 'mfr'), `Manufacturer Breakdown As of ${currentYearStr}`);
+        applyDonutData(this.newMfrBreakdownInstance, processDonutData(newMfrCounts, 5, 'newMfr'), `New Credit Manufacturer Breakdown (${currentYearStr})`);
+        applyDonutData(this.parkBreakdownInstance, processDonutData(parkCounts, 10, 'park'), `Park Breakdown As of ${currentYearStr}`);
+        applyDonutData(this.newParkBreakdownInstance, processDonutData(newParkCounts, 10, 'newPark'), `New Credit Park Breakdown (${currentYearStr})`);
 
         this.instance.update();
         this.newCreditsInstance.update();
@@ -2105,19 +2145,15 @@ const Tabs = {
         Utils.getElement('statisticsTab').classList.toggle('hidden', tabName !== 'statistics');
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
         
-if (tabName === 'statistics') {
+    if (tabName === 'statistics') {
             const specificView = Utils.getElement('specificStatsView');
             const generalView = Utils.getElement('generalStatsView');
+            window._syncChartAspect();
             if (specificView && specificView.style.display !== 'none') {
-                if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
-                if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+                if (Chart.instance) Chart.update();
+                if (OverTimeChart.instance) OverTimeChart.update();
             } else if (generalView && generalView.style.display !== 'none') {
-                if (GeneralStats.instance) { GeneralStats.instance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.mfrBreakdownInstance) { GeneralStats.mfrBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newMfrBreakdownInstance) { GeneralStats.newMfrBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.parkBreakdownInstance) { GeneralStats.parkBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newParkBreakdownInstance) { GeneralStats.newParkBreakdownInstance.resize(); GeneralStats.update(); }
+                if (GeneralStats.instance) GeneralStats.update();
             }
         } else if (tabName === 'spreadsheet') {
             Render.spreadsheet();
@@ -2469,6 +2505,16 @@ function setupEventListeners() {
             btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); Chart.update();
         });
     });
+    Utils.getElements('[data-chart-type]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            Utils.getElements('[data-chart-type]').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            const type = btn.dataset.chartType; 
+            Utils.getElement('comparisonView').style.display = (type === 'comparison') ? 'block' : 'none'; 
+            Utils.getElement('overTimeView').style.display   = (type === 'overTime')    ? 'block' : 'none';
+            if (type === 'overTime' && !OverTimeChart.instance) { OverTimeChart.initialize(); window._syncChartAspect(); }
+            if (type === 'comparison') Chart.update(); else if (type === 'overTime' && OverTimeChart.instance) OverTimeChart.update();
+        });
+    });
     Utils.getElements('[data-stats-level]').forEach(btn => {
         btn.addEventListener('click', () => {
             Utils.getElements('[data-stats-level]').forEach(b => b.classList.remove('active'));
@@ -2481,17 +2527,14 @@ function setupEventListeners() {
             if (level === 'general') {
                 generalView.style.display = 'block';
                 specificView.style.display = 'none';
-                if (GeneralStats.instance) { GeneralStats.instance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.mfrBreakdownInstance) { GeneralStats.mfrBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newMfrBreakdownInstance) { GeneralStats.newMfrBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.parkBreakdownInstance) { GeneralStats.parkBreakdownInstance.resize(); GeneralStats.update(); }
-                if (GeneralStats.newParkBreakdownInstance) { GeneralStats.newParkBreakdownInstance.resize(); GeneralStats.update(); }
+                window._syncChartAspect();
+                if (GeneralStats.instance) GeneralStats.update();
             } else {
                 generalView.style.display = 'none';
                 specificView.style.display = 'block';
-                if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
-                if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+                window._syncChartAspect();
+                if (Chart.instance) Chart.update();
+                if (OverTimeChart.instance) OverTimeChart.update();
             }
         });
     });
@@ -2531,7 +2574,133 @@ function setupEventListeners() {
     ['otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('otPark', 'otManufacturer', 'otCategory', 'otType', 'otStatus'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
     Utils.getElements('.ot-chart-limit-btn').forEach(btn => { btn.addEventListener('click', () => { OverTimeChart.otLimit = parseInt(btn.dataset.limit); Utils.getElements('.ot-chart-limit-btn').forEach(b => { b.classList.remove('btn-primary', 'active'); b.classList.add('btn-secondary'); }); btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); if (OverTimeChart.sourceMode === 'filters') OverTimeChart.update(); }); });
     ['statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'].forEach(id => { Utils.getElement(id)?.addEventListener('change', () => { updateCascadingFilters('statsPark', 'statsManufacturer', 'statsCategory', 'statsType', 'statsStatus'); Chart.update(); }); });
-    Utils.getElement('downloadGeneralChart')?.addEventListener('click', () => { downloadChart(GeneralStats.instance, false); });
+    Utils.getElement('downloadGeneralChart')?.addEventListener('click', async () => {
+        const zip = new JSZip();
+        const chartsToExport = [
+            { instance: GeneralStats.instance, name: 'total-credits-over-time.png' },
+            { instance: GeneralStats.newCreditsInstance, name: 'new-credits-per-year.png' },
+            { instance: GeneralStats.mfrBreakdownInstance, name: 'manufacturer-breakdown.png' },
+            { instance: GeneralStats.newMfrBreakdownInstance, name: 'new-credit-manufacturer-breakdown.png' },
+            { instance: GeneralStats.parkBreakdownInstance, name: 'park-breakdown.png' },
+            { instance: GeneralStats.newParkBreakdownInstance, name: 'new-credit-park-breakdown.png' }
+        ];
+
+        const originalPixelRatio = window.devicePixelRatio;
+        const desktopFontSizes = { title: 20, legend: 12, yTitle: 16, yTicks: 14, xTicks: 13 };
+
+        for (const target of chartsToExport) {
+            const chart = target.instance;
+            if (!chart) continue;
+
+            const chartCanvas = chart.canvas;
+            const chartContainer = chartCanvas.parentElement;
+            
+            const originalAspectRatio = chart.options.aspectRatio;
+            const originalContainerWidth = chartContainer.style.width;
+            const originalContainerMaxWidth = chartContainer.style.maxWidth;
+            const isDonut = chart.config.type === 'doughnut';
+
+            const originalColors = {
+                titleColor: chart.options.plugins.title.color,
+                legendColor: chart.options.plugins.legend?.labels?.color
+            };
+            const originalFonts = {
+                titleSize: chart.options.plugins.title.font?.size,
+                legendSize: chart.options.plugins.legend?.labels?.font?.size,
+                legendPosition: chart.options.plugins.legend?.position
+            };
+
+            if (!isDonut) {
+                originalColors.yTitleColor = chart.options.scales.y.title.color;
+                originalColors.yTicksColor = chart.options.scales.y.ticks.color;
+                originalColors.yGridColor = chart.options.scales.y.grid.color;
+                originalColors.xTicksColor = chart.options.scales.x.ticks.color;
+                originalColors.xGridColor = chart.options.scales.x.grid.color;
+                originalFonts.yTitleSize = chart.options.scales.y.title.font?.size;
+                originalFonts.yTicksSize = chart.options.scales.y.ticks.font?.size;
+                originalFonts.xTicksSize = chart.options.scales.x.ticks.font?.size;
+            }
+
+            chart.options.plugins.title.color = '#000000';
+            chart.options.plugins.title.font.size = desktopFontSizes.title * 2;
+            
+            if (chart.options.plugins.legend) {
+                if (chart.options.plugins.legend.labels) {
+                    chart.options.plugins.legend.labels.color = '#000000';
+                    chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: desktopFontSizes.legend * 2 };
+                }
+                chart.options.plugins.legend.position = 'right';
+            }
+
+            if (!isDonut) {
+                chart.options.scales.y.title.color = '#000000';
+                chart.options.scales.y.ticks.color = '#000000';
+                chart.options.scales.y.grid.color = '#808080';
+                chart.options.scales.x.ticks.color = '#000000';
+                chart.options.scales.x.grid.color = '#808080';
+                chart.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
+                chart.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2;
+                chart.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
+            }
+
+            chart.options.devicePixelRatio = 4;
+            chart.options.aspectRatio = 16 / 9;
+            chartContainer.style.width = '1600px';
+            chartContainer.style.maxWidth = '1600px';
+            
+            chart.resize();
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            const exportCanvas = document.createElement('canvas');
+            const padding = 80;
+            exportCanvas.width = chartCanvas.width + (padding * 2);
+            exportCanvas.height = chartCanvas.height + (padding * 2);
+            
+            const ctx = exportCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            ctx.drawImage(chartCanvas, padding, padding);
+
+            const dataUrl = exportCanvas.toDataURL('image/png');
+            const base64Data = dataUrl.split(',')[1];
+            zip.file(target.name, base64Data, { base64: true });
+
+            chart.options.devicePixelRatio = originalPixelRatio;
+            chart.options.plugins.title.color = originalColors.titleColor;
+            chart.options.plugins.title.font.size = originalFonts.titleSize;
+            
+            if (chart.options.plugins.legend) {
+                if (chart.options.plugins.legend.labels) {
+                    chart.options.plugins.legend.labels.color = originalColors.legendColor;
+                    chart.options.plugins.legend.labels.font.size = originalFonts.legendSize;
+                }
+                chart.options.plugins.legend.position = originalFonts.legendPosition;
+            }
+
+            if (!isDonut) {
+                chart.options.scales.y.title.color = originalColors.yTitleColor;
+                chart.options.scales.y.ticks.color = originalColors.yTicksColor;
+                chart.options.scales.y.grid.color = originalColors.yGridColor;
+                chart.options.scales.x.ticks.color = originalColors.xTicksColor;
+                chart.options.scales.x.grid.color = originalColors.xGridColor;
+                chart.options.scales.y.title.font.size = originalFonts.yTitleSize;
+                chart.options.scales.y.ticks.font.size = originalFonts.yTicksSize;
+                chart.options.scales.x.ticks.font.size = originalFonts.xTicksSize;
+            }
+
+            chart.options.aspectRatio = originalAspectRatio;
+            chartContainer.style.width = originalContainerWidth;
+            chartContainer.style.maxWidth = originalContainerMaxWidth;
+            chart.resize();
+        }
+
+        // package collection zip pipeline download trigger
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `general-charts-summary-${currentYearStr}.zip`;
+        link.click();
+    });
     Utils.getElement('downloadComparisonChart')?.addEventListener('click', () => { downloadChart(Chart.instance, false); });
     Utils.getElement('downloadOverTimeChart')?.addEventListener('click', () => { downloadChart(OverTimeChart.instance, true); });
     Utils.getElement('editCoasterBtn').addEventListener('click', () => Modals.editCoasterDetails());
@@ -2666,13 +2835,25 @@ function setupEventListeners() {
     window._syncChartAspect = apply;
 })();
 
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch (e) {
+            if (i === retries - 1) throw e;
+            await new Promise(r => setTimeout(r, delay));
+        }
+    }
+}
+
 async function init() {
     document.getElementById('importDataBtn').disabled = true;
     
     // 1. Fetch the master coaster list
     try {
-        const res = await fetch('./master_coasters.json?v=' + Date.now());
-        masterCoasters = await res.json();
+        masterCoasters = await fetchWithRetry('./master_coasters.json?v=' + Date.now());
         originalMasterCoasters = JSON.parse(JSON.stringify(masterCoasters)); // Deep clone pure master data
         document.getElementById('importDataBtn').disabled = false;
     } catch(e) {
@@ -2708,12 +2889,9 @@ async function init() {
         console.log("Profile loaded from IndexedDB!");
     } else {
         try {
-            const profileRes = await fetch('./thomas_tracker_profile.json?v=' + Date.now());
-            if (profileRes.ok) {
-                userProfile = await profileRes.json();
-                console.log("Profile automatically loaded from GitHub!");
-                await localforage.setItem('thomasTrackerProfile', userProfile);
-            }
+            userProfile = await fetchWithRetry('./thomas_tracker_profile.json?v=' + Date.now());
+            console.log("Profile automatically loaded from GitHub!");
+            await localforage.setItem('thomasTrackerProfile', userProfile);
         } catch(e) {
             console.log("No profile found locally or on GitHub, starting fresh.");
             userProfile = {};
