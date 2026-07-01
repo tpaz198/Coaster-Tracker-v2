@@ -461,6 +461,16 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                         <canvas id="newCreditParkBreakdownChart"></canvas>
                     </div>
                 </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="ageDistributionChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 1.5rem;">
+                    <div class="chart-aspect-wrapper">
+                        <canvas id="ratingAgeCorrChart"></canvas>
+                    </div>
+                </div>
                 <div class="chart-download-btn-container">
                     <button class="btn btn-secondary" id="downloadGeneralChart">📥 Download Chart</button>
                 </div>
@@ -1459,6 +1469,8 @@ const GeneralStats = {
     newMfrBreakdownInstance: null,
     parkBreakdownInstance: null,
     newParkBreakdownInstance: null,
+    ageDistributionInstance: null,
+    ratingAgeCorrInstance: null,
     pieColors: ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#3b82f6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16','#e11d48','#7c3aed','#0ea5e9','#d946ef'],
     
     initialize() {
@@ -1508,6 +1520,26 @@ const GeneralStats = {
         this.parkBreakdownInstance = new window.Chart(Utils.getElement('parkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('Park Breakdown', 'park') });
         this.newParkBreakdownInstance = new window.Chart(Utils.getElement('newCreditParkBreakdownChart').getContext('2d'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 2, borderColor: cardBg }] }, options: getDonutOptions('New Credit Park Breakdown', 'newPark') });
 
+        this.ageDistributionInstance = new window.Chart(Utils.getElement('ageDistributionChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Credits', data: [], borderRadius: 4 }] },
+            options: {
+                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } },
+                scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } }
+            }
+        });
+
+        this.ratingAgeCorrInstance = new window.Chart(Utils.getElement('ratingAgeCorrChart').getContext('2d'), {
+            type: 'scatter',
+            data: { datasets: [{ label: 'Credits', data: [], pointRadius: 5, pointHoverRadius: 7 }] },
+            options: {
+                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                plugins: { legend: { display: false }, title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => { const p = context.raw; return `${p.name}: Rating ${p.y} (Year ${p.x})`; } } } },
+                scales: { y: { min: 1, max: 10, grid: { color: borderColor }, title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { type: 'linear', grid: { color: borderColor }, title: { display: true, text: 'Opening Year', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor, callback: (value) => value.toString().replace(/,/g, '') } } }
+            }
+        });
+
         this.update();
     },
     
@@ -1547,10 +1579,15 @@ const GeneralStats = {
         const currentLogs = userProfile[`logs_${currentYearStr}`] || {};
         const mfrCounts = {}; const newMfrCounts = {};
         const parkCounts = {}; const newParkCounts = {};
+        const ageBins = { 'Pre-1980': 0, '1980s': 0, '1990s': 0, '2000s': 0, '2010s': 0, '2020s+': 0 };
+        const scatterData = [];
         
         Object.entries(currentLogs).forEach(([id, log]) => {
-            const mfr = masterCoasters[id]?.manufacturer || 'Unknown';
-            const park = masterCoasters[id]?.park || 'Unknown';
+            const master = masterCoasters[id];
+            if (!master) return;
+
+            const mfr = master.manufacturer || 'Unknown';
+            const park = master.park || 'Unknown';
             
             mfrCounts[mfr] = (mfrCounts[mfr] || 0) + 1;
             parkCounts[park] = (parkCounts[park] || 0) + 1;
@@ -1558,6 +1595,20 @@ const GeneralStats = {
             if (log.newCredit) {
                 newMfrCounts[mfr] = (newMfrCounts[mfr] || 0) + 1;
                 newParkCounts[park] = (newParkCounts[park] || 0) + 1;
+            }
+
+            const yearInt = parseInt(master.openingYear);
+            if (!isNaN(yearInt)) {
+                if (yearInt < 1980) ageBins['Pre-1980']++;
+                else if (yearInt < 1990) ageBins['1980s']++;
+                else if (yearInt < 2000) ageBins['1990s']++;
+                else if (yearInt < 2010) ageBins['2000s']++;
+                else if (yearInt < 2020) ageBins['2010s']++;
+                else ageBins['2020s+']++;
+
+                if (log.rating > 0) {
+                    scatterData.push({ x: yearInt, y: log.rating, name: master.name });
+                }
             }
         });
 
@@ -1605,12 +1656,33 @@ const GeneralStats = {
         applyDonutData(this.parkBreakdownInstance, processDonutData(parkCounts, 10, 'park'), `Park Breakdown As of ${currentYearStr}`);
         applyDonutData(this.newParkBreakdownInstance, processDonutData(newParkCounts, 10, 'newPark'), `New Credit Park Breakdown (${currentYearStr})`);
 
+        this.ageDistributionInstance.data.labels = Object.keys(ageBins);
+        this.ageDistributionInstance.data.datasets[0].data = Object.values(ageBins);
+        this.ageDistributionInstance.data.datasets[0].backgroundColor = color;
+        this.ageDistributionInstance.options.plugins.title.text = `Coaster Age Distribution As Of ${currentYearStr}`;
+
+        this.ratingAgeCorrInstance.data.datasets[0].data = scatterData;
+        this.ratingAgeCorrInstance.data.datasets[0].backgroundColor = accentColor;
+        this.ratingAgeCorrInstance.options.plugins.title.text = `Rating vs. Age Correlation As Of ${currentYearStr}`;
+
+        [this.ageDistributionInstance, this.ratingAgeCorrInstance].forEach(chart => {
+            chart.options.plugins.title.color = textColor;
+            chart.options.scales.y.title.color = textColor;
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.scales.y.grid.color = borderColor;
+            if (chart.options.scales.x.title) chart.options.scales.x.title.color = textColor;
+            chart.options.scales.x.ticks.color = textColor;
+            chart.options.scales.x.grid.color = borderColor;
+        });
+
         this.instance.update();
         this.newCreditsInstance.update();
         this.mfrBreakdownInstance.update();
         this.newMfrBreakdownInstance.update();
         this.parkBreakdownInstance.update();
         this.newParkBreakdownInstance.update();
+        this.ageDistributionInstance.update();
+        this.ratingAgeCorrInstance.update();
     }
 };
 
@@ -2582,7 +2654,9 @@ function setupEventListeners() {
             { instance: GeneralStats.mfrBreakdownInstance, name: 'manufacturer-breakdown.png' },
             { instance: GeneralStats.newMfrBreakdownInstance, name: 'new-credit-manufacturer-breakdown.png' },
             { instance: GeneralStats.parkBreakdownInstance, name: 'park-breakdown.png' },
-            { instance: GeneralStats.newParkBreakdownInstance, name: 'new-credit-park-breakdown.png' }
+            { instance: GeneralStats.newParkBreakdownInstance, name: 'new-credit-park-breakdown.png' },
+            { instance: GeneralStats.ageDistributionInstance, name: 'coaster-age-distribution.png' },
+            { instance: GeneralStats.ratingAgeCorrInstance, name: 'rating-age-correlation.png' }
         ];
 
         const originalPixelRatio = window.devicePixelRatio;
@@ -2823,6 +2897,8 @@ function setupEventListeners() {
                     chart.resize();
                 }
             });
+            if (GeneralStats.ageDistributionInstance) { GeneralStats.ageDistributionInstance.options.aspectRatio = r; GeneralStats.ageDistributionInstance.resize(); }
+            if (GeneralStats.ratingAgeCorrInstance) { GeneralStats.ratingAgeCorrInstance.options.aspectRatio = r; GeneralStats.ratingAgeCorrInstance.resize(); }
         }
         
         const specificView = document.getElementById('specificStatsView');
