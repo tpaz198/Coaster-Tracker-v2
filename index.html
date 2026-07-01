@@ -425,11 +425,19 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
         </div>
 
         <div class="tab-content hidden" id="statisticsTab">
-            <!-- Chart-type toggle -->
             <div class="chart-type-toggle">
-                <button class="chart-type-btn active" data-chart-type="comparison">Comparison</button>
-                <button class="chart-type-btn" data-chart-type="overTime">Over Time</button>
+                <button class="chart-type-btn" data-stats-level="general">General</button>
+                <button class="chart-type-btn active" data-stats-level="specific">Specific</button>
             </div>
+
+            <div id="generalStatsView" style="display: none;">
+                </div>
+
+            <div id="specificStatsView">
+                <div class="chart-type-toggle">
+                    <button class="chart-type-btn active" data-chart-type="comparison">Comparison</button>
+                    <button class="chart-type-btn" data-chart-type="overTime">Over Time</button>
+                </div>
 
             <!-- Comparison view (existing chart) -->
             <div id="comparisonView">
@@ -485,7 +493,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                     <button class="btn btn-secondary chart-limit-btn" data-limit="10">Top 10</button>
                     <button class="btn btn-secondary chart-limit-btn" data-limit="15">Top 15</button>
                 </div>
-                <div class="chart-container">
+            <div class="chart-container">
                     <div class="chart-aspect-wrapper">
                         <canvas id="ratingsChart"></canvas>
                     </div>
@@ -495,7 +503,6 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
                 </div>
             </div>
 
-            <!-- Over Time view -->
             <div id="overTimeView" style="display: none;">
                 <div class="ot-source-toggle">
                     <div class="chart-type-toggle">
@@ -2102,8 +2109,11 @@ const Tabs = {
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
         
         if (tabName === 'statistics') {
-            if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
-            if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+            const specificView = Utils.getElement('specificStatsView');
+            if (specificView && specificView.style.display !== 'none') {
+                if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
+                if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+            }
         } else if (tabName === 'spreadsheet') {
             Render.spreadsheet();
         } else if (tabName === 'rankings') {
@@ -2454,12 +2464,24 @@ function setupEventListeners() {
             btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary', 'active'); Chart.update();
         });
     });
-    Utils.getElements('[data-chart-type]').forEach(btn => {
+    Utils.getElements('[data-stats-level]').forEach(btn => {
         btn.addEventListener('click', () => {
-            Utils.getElements('[data-chart-type]').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            const type = btn.dataset.chartType; Utils.getElement('comparisonView').style.display = (type === 'comparison') ? 'block' : 'none'; Utils.getElement('overTimeView').style.display   = (type === 'overTime')    ? 'block' : 'none';
-            if (type === 'overTime' && !OverTimeChart.instance) { OverTimeChart.initialize(); window._syncChartAspect(); }
-            if (type === 'comparison') Chart.update(); else if (type === 'overTime' && OverTimeChart.instance) OverTimeChart.update();
+            Utils.getElements('[data-stats-level]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const level = btn.dataset.statsLevel;
+            const generalView = Utils.getElement('generalStatsView');
+            const specificView = Utils.getElement('specificStatsView');
+            
+            if (level === 'general') {
+                generalView.style.display = 'block';
+                specificView.style.display = 'none';
+            } else {
+                generalView.style.display = 'none';
+                specificView.style.display = 'block';
+                if (Chart.instance) { Chart.instance.resize(); Chart.update(); }
+                if (OverTimeChart.instance) { OverTimeChart.instance.resize(); OverTimeChart.update(); }
+            }
         });
     });
     Utils.getElements('[data-ot-mode]').forEach(btn => { btn.addEventListener('click', () => { Utils.getElements('[data-ot-mode]').forEach(b => b.classList.remove('active')); btn.classList.add('active'); OverTimeChart.setMode(btn.dataset.otMode); }); });
@@ -2604,7 +2626,14 @@ function setupEventListeners() {
 
 (function setupChartResize() {
     const BP = 768; function ratio() { return window.innerWidth <= BP ? 3 / 4 : 16 / 9; }
-    function apply() { const r = ratio(); if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } }
+    function apply() { 
+        const r = ratio(); 
+        const specificView = document.getElementById('specificStatsView');
+        if (specificView && specificView.style.display === 'none') return;
+        
+        if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
+        if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
+    }
     let prev = window.innerWidth <= BP; window.addEventListener('resize', () => { const cur = window.innerWidth <= BP; if (cur !== prev) { prev = cur; apply(); } Stats.autoFitStatBoxes(); });
     window._syncChartAspect = apply;
 })();
