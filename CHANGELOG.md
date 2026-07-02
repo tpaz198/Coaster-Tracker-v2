@@ -1,6 +1,35 @@
 # Changelog
 
-## Version 2.1.0 (Current) - 2026-07-01
+## Version 2.2.0 (Current) - 2026-07-02
+
+### Comparison & General Charts Enhancements
+- Flipped the axes on the Specific Comparison charts so coaster names correctly populate the X-axis and numerical values on the Y-axis.
+- Updated sorting and rendering logic for Comparison charts: Rankings now sort ascending (best on the left) with a reversed Y-axis and a connected line graph, while Ratings sort descending as a pure scatter plot.
+- Integrated dynamic color scaling into the Ratings Comparison chart and Rating vs. Age Correlation scatter plot based on individual coaster scores.
+- Applied the rotating color palette to the New Credits Per Year bar chart.
+- Added a dynamically generated saturation/opacity gradient to the Coaster Age Distribution bar chart, where older bins are more transparent and modern bins are fully saturated.
+- Fixed clipping and sizing inconsistencies on Donut charts by enforcing a strict 1:1 aspect ratio and native layout padding across all device sizes.
+
+### Data Architecture & Security
+- **Automated New Year Rollover:** Built a migration script that detects calendar year changes and automatically carries over lifetime coaster data while resetting "New Credit" statuses to false.
+- **Ghost Data Purge:** Added an IndexedDB cleanup routine that dynamically wipes orphaned IDs from the active save state to prevent memory leaks and crash loops.
+- **Import Hardening:** The JSON import engine now performs strict schema validation and executes a deep-clone baseline reset to prevent cross-session data corruption and "ghost" custom coasters.
+- **Non-Destructive Editing:** Edit form submissions now safely update specific fields without accidentally erasing unmapped or future JSON variables.
+- **Local Timezone Exports:** Replaced UTC-based file naming with local system time parsing so evening exports do not accidentally stamp with "tomorrow's" date.
+
+### Drag-and-Drop Rankings Integrity
+- **Filter Synchronization:** The Rankings tab now strictly respects global searches and dropdown filters applied in the Credits tab.
+- **Reorder Data Trap Fix:** Implemented a mathematical safety lock (`isReorderable`) that completely disables drag-and-drop mechanics if any active filters are applied, preventing users from accidentally overwriting their master ranking order from a filtered view.
+- **Async Race Condition Fix:** Solved a UI glitch where rapidly starting and canceling a drag would permanently hide the card from the screen by properly tracking and clearing JavaScript timeouts.
+- **Mobile Touch Targeting:** Expanded the physical hit-box of the drag handles using CSS `background-clip` to intercept touches more reliably and prevent accidental native page scrolling.
+
+### UI Quality of Life
+- **Global Tab Sync:** Applying or clearing a search filter now instantly forces a background re-render of the Table and Rankings tabs, eliminating blank screens when switching views.
+- **Unrated Coaster Anomaly:** Coasters with a "0" rating now default to a neutral slate gray badge (`#64748b`) instead of inheriting the bottom-tier red color of the active rating gradient.
+
+---
+
+## Version 2.1.0 - 2026-07-01
 
 ### General Statistics Dashboard
 - Implemented a "General" versus "Specific" toggle within the Statistics tab.

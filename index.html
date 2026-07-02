@@ -164,14 +164,13 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .rankings-container.is-reordering .ranking-row:not(.dragging) { opacity: 0.4; transform: scale(0.98); }
 
 /* Pure CSS Grip Icon (2x3 Dot Grid) */
-.drag-handle { width: 24px; height: 30px; cursor: grab; opacity: 0.3; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 100% 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; padding-right: 0.5rem; touch-action: none; }
 /* NEW: Apply the Red/Green logic to the ranking cards */
 .ranking-item.new-credit { background: var(--new-credit-bg); border-color: var(--new-credit-border); box-shadow: 0 0 0 3px rgba(74,222,128,0.2), 3px 3px 0px rgba(0,0,0,0.1); }
 .ranking-item.defunct { background: var(--defunct-bg); border-color: var(--defunct-border); box-shadow: 0 0 0 3px rgba(248,113,113,0.2), 3px 3px 0px rgba(0,0,0,0.1); }
-.drag-handle:active { cursor: grabbing; }
 .ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
-.drag-handle { cursor: grab; font-size: 1.5rem; color: var(--text-secondary); padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; margin-left: 0.5rem; user-select: none; }
-.drag-handle:hover { color: var(--primary); }
+/* Expanded touch target for drag handle */
+.drag-handle { width: 44px; height: 50px; cursor: grab; opacity: 0.3; transition: opacity 0.2s, color 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 10px 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; touch-action: none; user-select: none; display: flex; align-items: center; justify-content: center; margin-left: 0.5rem; background-clip: content-box; padding: 10px; }
+.drag-handle:hover { opacity: 0.7; color: var(--primary); }
 .drag-handle:active { cursor: grabbing; }
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
@@ -784,6 +783,29 @@ function getLatestActiveYearStr() {
     return years.length > 0 ? Math.max(...years).toString() : ACTUAL_CURRENT_YEAR;
 }
 
+async function migrateProfileToCurrentYear() {
+    const actualYearInt = parseInt(ACTUAL_CURRENT_YEAR);
+    const latestYearStr = getLatestActiveYearStr();
+    const latestYearInt = parseInt(latestYearStr);
+    
+    if (actualYearInt > latestYearInt && userProfile[`logs_${latestYearStr}`]) {
+        console.log(`Migrating data from ${latestYearStr} to ${ACTUAL_CURRENT_YEAR}...`);
+        userProfile[`logs_${ACTUAL_CURRENT_YEAR}`] = {};
+        const oldLogs = userProfile[`logs_${latestYearStr}`];
+        
+        Object.keys(oldLogs).forEach(id => {
+            // Deep copy the log entry, but reset 'newCredit' for the new year
+            userProfile[`logs_${ACTUAL_CURRENT_YEAR}`][id] = {
+                ...oldLogs[id],
+                newCredit: false 
+            };
+        });
+        
+        setUnsavedChanges(true);
+        await saveProfileToLocal();
+    }
+}
+
 function getBaselineTotal() {
     const latestYearKey = `logs_${getLatestActiveYearStr()}`;
     return userProfile[latestYearKey] ? Object.keys(userProfile[latestYearKey]).length : 0;
@@ -838,9 +860,14 @@ function refreshDataForYear(year) {
     AppState.coasters = [];
     
     // Transform dictionaries back into flat arrays for UI rendering
+    let hasOrphans = false;
     Object.keys(logs).forEach(id => {
         const master = masterCoasters[id];
-        if (!master) return; // Skip if orphaned
+        if (!master) {
+            delete logs[id]; // Purge orphaned ID to prevent database ghosting
+            hasOrphans = true;
+            return; 
+        }
         const log = logs[id];
         
         AppState.coasters.push({
@@ -874,6 +901,11 @@ function refreshDataForYear(year) {
     if (typeof Render !== 'undefined') {
         if (Render.spreadsheet) Render.spreadsheet();
         if (Render.rankings) Render.rankings();
+    }
+
+    // Asynchronously save the cleaned profile if ghost data was removed
+    if (hasOrphans) {
+        saveProfileToLocal(); 
     }
 }
 
@@ -1128,7 +1160,7 @@ const Render = {
         
         const rating = Utils.parseRating(coaster.Rating);
         const ratingPercent = (rating / 10) * 100;
-        const ratingColor = Utils.getRatingColor(rating);
+        const ratingColor = rating > 0 ? Utils.getRatingColor(rating) : '#64748b'; // Neutral slate for unrated
         const statusClass = coaster.Status === 'Operating' ? 'status-operating' : coaster.Status === 'SBNO' ? 'status-sbno' : 'status-defunct';
         
         card.innerHTML = `
@@ -1257,7 +1289,8 @@ const Render = {
         const noRankings = Utils.getElement('noRankings');
         list.innerHTML = '';
         
-        const rankedCoasters = AppState.coasters
+        // Use the globally filtered array so search terms apply to the Rankings tab
+        const rankedCoasters = AppState.filtered
             .filter(c => c.Ranking && parseInt(c.Ranking) > 0)
             .sort((a, b) => parseInt(a.Ranking) - parseInt(b.Ranking));
         
@@ -1270,17 +1303,18 @@ const Render = {
         list.style.display = 'flex';
         noRankings.style.display = 'none';
         
-        const isCurrentYear = true; // Enable drag-and-drop reordering for all selected years
+        // DISARM DATA TRAP: Only enable drag-and-drop if NO filters are active
+        const isReorderable = AppState.filtered.length === AppState.coasters.length;
         const fragment = document.createDocumentFragment();
         
         rankedCoasters.forEach(coaster => {
             const rating = Utils.parseRating(coaster.Rating);
-            const ratingColor = Utils.getRatingColor(rating);
+            const ratingColor = rating > 0 ? Utils.getRatingColor(rating) : '#64748b'; // Neutral slate for unrated
             
             const row = document.createElement('div');
             row.className = 'ranking-row';
             row.dataset.id = coaster.id; 
-            row.draggable = isCurrentYear; 
+            row.draggable = isReorderable; 
             
             let itemClasses = 'ranking-item';
             if (coaster['New Credit'] === 'Yes') itemClasses += ' new-credit';
@@ -1295,17 +1329,18 @@ const Render = {
                     </div>
                     ${rating > 0 ? `<div class="ranking-rating" style="color: white;">${rating.toFixed(2)}</div>` : ''}
                 </div>
-                ${isCurrentYear ? `<div class="drag-handle" title="Drag to reorder"></div>` : ''}
+                ${isReorderable ? `<div class="drag-handle" title="Drag to reorder"></div>` : ''}
             `;
             
             const card = row.querySelector('.ranking-item');
             card.addEventListener('click', () => Modals.showDetail(coaster));
             
-            if (isCurrentYear) {
+            if (isReorderable) {
                 const handle = row.querySelector('.drag-handle');
                 handle.addEventListener('click', (e) => e.stopPropagation());
                 
                 let isHandlePressed = false;
+                let dragTimeout = null; // Fix for race condition
                 const press = () => isHandlePressed = true;
                 const release = () => isHandlePressed = false;
                 
@@ -1339,9 +1374,8 @@ const Render = {
                     // Insert the placeholder exactly where the row was
                     row.parentNode.insertBefore(placeholder, row.nextSibling);
                     
-                    // NEW: Hide the original row from the layout, but DO NOT remove 
-                    // it from the DOM so the polyfill doesn't lose touch tracking!
-                    setTimeout(() => {
+                    // Hide the original row asynchronously (save the timeout ID)
+                    dragTimeout = setTimeout(() => {
                         row.style.position = 'absolute';
                         row.style.left = '-9999px';
                         row.style.opacity = '0';
@@ -1349,14 +1383,17 @@ const Render = {
                 });
                 
                 row.addEventListener('dragend', () => {
-                    // NEW: Swap the real row into the placeholder's final location
+                    // FIX: Abort the timeout if the drag was canceled instantly
+                    if (dragTimeout) clearTimeout(dragTimeout);
+                    
+                    // Swap the real row into the placeholder's final location
                     const placeholder = list.querySelector('.placeholder');
                     if (placeholder && placeholder.parentNode) {
                         list.insertBefore(row, placeholder);
                         placeholder.remove();
                     }
                     
-                    // Restore original styles
+                    // Restore original styles strictly
                     row.style.position = '';
                     row.style.left = '';
                     row.style.opacity = '';
@@ -1373,7 +1410,7 @@ const Render = {
         
         list.appendChild(fragment);
 
-        if (isCurrentYear) {
+        if (isReorderable) {
             list.addEventListener('dragover', (e) => {
                 e.preventDefault(); 
                 
@@ -1495,7 +1532,7 @@ const GeneralStats = {
         this._otherDetails = { mfr: [], newMfr: [], park: [], newPark: [] };
 
         const getDonutOptions = (titleText, detailKey) => ({
-            responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+            responsive: true, maintainAspectRatio: true, aspectRatio: 1, layout: { padding: 15 },
             plugins: {
                 legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } },
                 title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
@@ -1595,7 +1632,7 @@ const GeneralStats = {
         
         this.newCreditsInstance.data.labels = labels;
         this.newCreditsInstance.data.datasets[0].data = newData;
-        this.newCreditsInstance.data.datasets[0].backgroundColor = accentColor;
+        this.newCreditsInstance.data.datasets[0].backgroundColor = labels.map((_, i) => this.pieColors[i % this.pieColors.length]);
         
         [this.instance, this.newCreditsInstance].forEach(chart => {
             chart.options.plugins.title.color = textColor;
@@ -1707,23 +1744,35 @@ const GeneralStats = {
 
         const isMobile = window.innerWidth <= 768;
 
-        applyDonutData(this.mfrBreakdownInstance, processDonutData(mfrCounts, 10, 'mfr'), `Manufacturer Breakdown As of ${currentYearStr}`);
-        applyDonutData(this.newMfrBreakdownInstance, processDonutData(newMfrCounts, 5, 'newMfr'), `New Credit Manufacturer Breakdown (${currentYearStr})`);
-        applyDonutData(this.parkBreakdownInstance, processDonutData(parkCounts, 10, 'park'), `Park Breakdown As of ${currentYearStr}`);
-        applyDonutData(this.newParkBreakdownInstance, processDonutData(newParkCounts, 10, 'newPark'), `New Credit Park Breakdown (${currentYearStr})`);
+        const ageLabels = Object.keys(ageBins);
+        const ageData = Object.values(ageBins);
+        
+        const hexToRgba = (hex, alpha) => {
+            if (hex.startsWith('#') && hex.length >= 7) {
+                const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return hex; 
+        };
+        const numBins = ageLabels.length;
+        const gradientColors = ageLabels.map((_, i) => {
+            const alpha = numBins > 1 ? 0.3 + (0.7 * (i / (numBins - 1))) : 1.0;
+            return hexToRgba(color, alpha);
+        });
 
-        this.ageDistributionInstance.data.labels = Object.keys(ageBins);
-        this.ageDistributionInstance.data.datasets[0].data = Object.values(ageBins);
-        this.ageDistributionInstance.data.datasets[0].backgroundColor = color;
+        this.ageDistributionInstance.data.labels = ageLabels;
+        this.ageDistributionInstance.data.datasets[0].data = ageData;
+        this.ageDistributionInstance.data.datasets[0].backgroundColor = gradientColors;
         this.ageDistributionInstance.options.plugins.title.text = `Coaster Age Distribution As Of ${currentYearStr}`;
 
         this.ratingAgeCorrInstance.data.datasets[0].data = scatterData;
-        this.ratingAgeCorrInstance.data.datasets[0].backgroundColor = accentColor;
+        this.ratingAgeCorrInstance.data.datasets[0].backgroundColor = scatterData.map(d => Utils.getRatingColor(d.y));
+        this.ratingAgeCorrInstance.data.datasets[0].borderColor = scatterData.map(d => Utils.getRatingColor(d.y));
         this.ratingAgeCorrInstance.options.plugins.title.text = `Rating vs. Age Correlation As Of ${currentYearStr}`;
 
         [this.ageDistributionInstance, this.ratingAgeCorrInstance].forEach(chart => {
             chart.options.plugins.title.color = textColor;
-            chart.options.scales.y.title.color = textColor;
+            if (chart.options.scales.y.title) chart.options.scales.y.title.color = textColor;
             chart.options.scales.y.ticks.color = textColor;
             chart.options.scales.y.grid.color = borderColor;
             if (chart.options.scales.x.title) chart.options.scales.x.title.color = textColor;
@@ -1756,7 +1805,6 @@ const Chart = {
             type: 'line',
             data: { labels: [], datasets: [] },
             options: {
-                indexAxis: 'y',
                 responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
                 plugins: {
                     legend: { display: false },
@@ -1764,8 +1812,8 @@ const Chart = {
                     tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 } }
                 },
                 scales: {
-                    x: { grid: { color: borderColor }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 14 } } },
-                    y: { grid: { display: false }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' } } }
+                    x: { grid: { display: false }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' } } },
+                    y: { grid: { color: borderColor }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 14 } } }
                 }
             }
         });
@@ -1825,21 +1873,24 @@ const Chart = {
 
         candidates.sort((a, b) => this.mode === 'rating' ? b.val - a.val : a.val - b.val);
         candidates = candidates.slice(0, limit);
-        candidates.reverse();
 
-        const color = Utils.getCSSVariable('--accent');
+        const accentColor = Utils.getCSSVariable('--accent');
         const textColor = Utils.getCSSVariable('--text');
         const borderColor = Utils.getCSSVariable('--border');
 
+        const dataPoints = candidates.map(c => this.mode === 'rating' ? c.val : Math.round(c.val * 100) / 100);
+        const dynamicColors = candidates.map(c => Utils.getRatingColor(c.val));
+
         this.instance.data.labels = candidates.map(c => Utils.truncateLabel(c.name, 25));
         this.instance.data.datasets = [{
-            data: candidates.map(c => this.mode === 'rating' ? c.val : Math.round(c.val * 100) / 100),
-            borderColor: color,
-            pointBackgroundColor: color,
+            data: dataPoints,
+            borderColor: accentColor,
+            pointBackgroundColor: this.mode === 'rating' ? dynamicColors : accentColor,
+            pointBorderColor: this.mode === 'rating' ? dynamicColors : accentColor,
             borderWidth: 3,
             tension: 0.1,
             fill: false,
-            showLine: this.mode === 'rating',
+            showLine: this.mode === 'ranking',
             pointRadius: 6,
             pointHoverRadius: 8
         }];
@@ -1847,22 +1898,22 @@ const Chart = {
         this.instance.options.plugins.title.text = Utils.buildFilterTitle(limit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', candidates.length);
         this.instance.options.plugins.title.color = textColor;
         this.instance.options.scales.x.ticks.color = textColor;
-        this.instance.options.scales.x.grid.color = borderColor;
+        this.instance.options.scales.y.grid.color = borderColor;
         this.instance.options.scales.y.ticks.color = textColor;
 
         if (this.mode === 'rating') {
-            this.instance.options.scales.x.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
             const allRatings = candidates.map(c => c.val);
             const min = allRatings.length ? Math.min(...allRatings) : 0;
             const max = allRatings.length ? Math.max(...allRatings) : 10;
-            this.instance.options.scales.x.min = Math.max(min - 0.5, 1);
-            this.instance.options.scales.x.max = max + 0.2;
-            this.instance.options.scales.x.reverse = false;
+            this.instance.options.scales.y.min = Math.max(min - 0.5, 1);
+            this.instance.options.scales.y.max = max + 0.2;
+            this.instance.options.scales.y.reverse = false;
         } else {
-            this.instance.options.scales.x.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
-            this.instance.options.scales.x.min = 0.5;
-            delete this.instance.options.scales.x.max;
-            this.instance.options.scales.x.reverse = true;
+            this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            this.instance.options.scales.y.min = 0.5;
+            delete this.instance.options.scales.y.max;
+            this.instance.options.scales.y.reverse = true;
         }
 
         this.instance.update();
@@ -2375,6 +2426,8 @@ const Filters = {
         });
         this.sortCards();
         Render.coasters();
+        if (typeof Render.spreadsheet === 'function') Render.spreadsheet();
+        if (typeof Render.rankings === 'function') Render.rankings();
     },
     sortCards() {
         const ranked = [], unranked = [];
@@ -2486,8 +2539,10 @@ const submittedMetadata = {
         const newRank = parseInt(Utils.getElement('ranking').value) || 0;
         const oldRank = AppState.editing && userProfile[yearKey][id] ? (userProfile[yearKey][id].ranking || 0) : 0;
         
-        // Save the new log data
+        // Save the new log data safely without overwriting unmapped properties
+        const existingLog = userProfile[yearKey][id] || {};
         userProfile[yearKey][id] = {
+            ...existingLog,
             rating: parseFloat(Utils.getElement('rating').value) || 0,
             ranking: newRank,
             newCredit: Utils.getElement('newCredit').checked,
@@ -2725,9 +2780,12 @@ function setupEventListeners() {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         
-        // NEW: Generate the current date in YYYY-MM-DD format
+        // NEW: Generate the current local date in YYYY-MM-DD format
         const date = new Date();
-        const dateString = date.toISOString().split('T')[0]; 
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const dateString = `${yyyy}-${mm}-${dd}`;
         
     // Append the date to the filename
         link.download = `thomas_tracker_profile_${dateString}.json`;
@@ -2742,19 +2800,33 @@ function setupEventListeners() {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = function(evt) {
+        reader.onload = async function(evt) {
             try {
-                userProfile = JSON.parse(evt.target.result);
+                const importedData = JSON.parse(evt.target.result);
                 
+                // Basic Schema Validation to prevent crashes from malformed files
+                if (!importedData || typeof importedData !== 'object' || Array.isArray(importedData)) {
+                    throw new Error("Imported data is not a valid profile object.");
+                }
+
+                userProfile = importedData;
+                
+                // FIX GHOST DATA: Reset masterCoasters to the pristine baseline before merging
+                masterCoasters = JSON.parse(JSON.stringify(originalMasterCoasters));
+
                 // MERGE IMPORTED CUSTOM COASTERS
                 if (userProfile.customCoasters) {
                     Object.assign(masterCoasters, userProfile.customCoasters);
                 }
                 
-                saveProfileToLocal(); 
+                // Fast-forward imported historical data to the current year if needed
+                await migrateProfileToCurrentYear();
+                await saveProfileToLocal(); 
+                
                 refreshDataForYear(currentYearStr);
             } catch (err) {
-                alert("Invalid Profile JSON");
+                console.error("Import Error:", err);
+                alert("Invalid Profile JSON: Could not import data.");
             }
         };
         reader.readAsText(file);
@@ -3098,8 +3170,8 @@ function setupEventListeners() {
             
             [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
                 if (chart) {
-                    chart.canvas.parentElement.style.paddingBottom = isMobile ? '100%' : '65%';
-                    chart.options.aspectRatio = isMobile ? 1 : 1.5;
+                    chart.canvas.parentElement.style.paddingBottom = '100%';
+                    chart.options.aspectRatio = 1;
                     chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
                     chart.resize();
                 }
@@ -3185,6 +3257,9 @@ async function init() {
     if (userProfile.customCoasters) {
         Object.assign(masterCoasters, userProfile.customCoasters);
     }
+
+    // EXECUTE NEW YEAR MIGRATION (IF APPLICABLE)
+    await migrateProfileToCurrentYear();
 
     // 3. Setup Dropdowns
     const currentYear = new Date().getFullYear();
