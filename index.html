@@ -1524,9 +1524,10 @@ const GeneralStats = {
             type: 'bar',
             data: { labels: [], datasets: [{ label: 'Credits', data: [], borderRadius: 4 }] },
             options: {
+                indexAxis: 'y',
                 responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
-                plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } },
-                scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } }
+                plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.x}` } } },
+                scales: { x: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, y: { grid: { display: false }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } }
             }
         });
 
@@ -1535,8 +1536,37 @@ const GeneralStats = {
             data: { datasets: [{ label: 'Credits', data: [], pointRadius: 5, pointHoverRadius: 7 }] },
             options: {
                 responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
-                plugins: { legend: { display: false }, title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => { const p = context.raw; return `${p.name}: Rating ${p.y} (Year ${p.x})`; } } } },
-                scales: { y: { min: 1, max: 10, grid: { color: borderColor }, title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { type: 'linear', grid: { color: borderColor }, title: { display: true, text: 'Opening Year', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor, callback: (value) => value.toString().replace(/,/g, '') } } }
+                plugins: { 
+                    legend: { display: false }, 
+                    title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, 
+                    tooltip: { 
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, 
+                        bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, 
+                        callbacks: { label: (context) => { const p = context.raw; return `${p.name}: Rating ${p.y.toFixed(2)} (Year ${p.rawYear})`; } } 
+                    } 
+                },
+                scales: { 
+                    y: { min: 1, max: 10, grid: { color: borderColor }, title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, 
+                    x: { 
+                        type: 'logarithmic', 
+                        grid: { color: borderColor }, 
+                        title: { display: true, text: 'Opening Year (Expanded Recent History)', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, 
+                        min: 1,
+                        max: 130,
+                        reverse: true,
+                        afterBuildTicks: function(axis) {
+                            const targetYears = [1900, 1920, 1940, 1960, 1970, 1980, 1990, 2000, 2010, 2020, 2025, 2026];
+                            axis.ticks = targetYears.map(year => ({ value: 2027 - year }));
+                        },
+                        ticks: { 
+                            font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, 
+                            color: textColor, 
+                            callback: function(value) {
+                                return (2027 - value).toString();
+                            } 
+                        } 
+                    } 
+                }
             }
         });
 
@@ -1559,9 +1589,9 @@ const GeneralStats = {
 
         this.instance.data.labels = labels;
         this.instance.data.datasets[0].data = totalData;
-        this.instance.data.datasets[0].borderColor = color;
-        this.instance.data.datasets[0].pointBackgroundColor = color;
-        this.instance.data.datasets[0].pointBorderColor = color;
+        this.instance.data.datasets[0].borderColor = accentColor;
+        this.instance.data.datasets[0].pointBackgroundColor = accentColor;
+        this.instance.data.datasets[0].pointBorderColor = accentColor;
         
         this.newCreditsInstance.data.labels = labels;
         this.newCreditsInstance.data.datasets[0].data = newData;
@@ -1579,15 +1609,28 @@ const GeneralStats = {
         const currentLogs = userProfile[`logs_${currentYearStr}`] || {};
         const mfrCounts = {}; const newMfrCounts = {};
         const parkCounts = {}; const newParkCounts = {};
-        const ageBins = { 'Pre-1980': 0, '1980s': 0, '1990s': 0, '2000s': 0, '2010s': 0, '2020s+': 0 };
+        
+        const ageBins = { 'Pre-1970': 0 };
+        const currentYearNum = new Date().getFullYear();
+        for (let y = 1970; y <= currentYearNum; y += 5) {
+            const endStage = Math.min(y + 4, currentYearNum);
+            const label = y === 2025 ? '2025+' : `${y}-${endStage}`;
+            ageBins[label] = 0;
+        }
+        
         const scatterData = [];
         
+        const mfrMap = { 'Bolliger and Mabillard': 'B&M', 'Arrow Dynamics': 'Arrow', 'Mack Rides': 'Mack', 'Philadelphia Toboggan Co.': 'PTC', 'Premier Rides': 'Premier', 'Rocky Mountain Construction': 'RMC', 'Great Coasters International': 'GCI', 'Custom Coasters International': 'CCI', 'Dinn Corporation': 'Dinn', 'E&F Miler': 'Miler', 'Chance Rides': 'Chance', 'Reverchon Industries': 'Reverchon' };
+
         Object.entries(currentLogs).forEach(([id, log]) => {
             const master = masterCoasters[id];
             if (!master) return;
 
-            const mfr = master.manufacturer || 'Unknown';
-            const park = master.park || 'Unknown';
+            const rawMfr = master.manufacturer || 'Unknown';
+            const rawPark = master.park || 'Unknown';
+            
+            const mfr = mfrMap[rawMfr] || rawMfr;
+            const park = rawPark.replace(/Six Flags/g, 'SF');
             
             mfrCounts[mfr] = (mfrCounts[mfr] || 0) + 1;
             parkCounts[park] = (parkCounts[park] || 0) + 1;
@@ -1599,15 +1642,28 @@ const GeneralStats = {
 
             const yearInt = parseInt(master.openingYear);
             if (!isNaN(yearInt)) {
-                if (yearInt < 1980) ageBins['Pre-1980']++;
-                else if (yearInt < 1990) ageBins['1980s']++;
-                else if (yearInt < 2000) ageBins['1990s']++;
-                else if (yearInt < 2010) ageBins['2000s']++;
-                else if (yearInt < 2020) ageBins['2010s']++;
-                else ageBins['2020s+']++;
+                if (yearInt < 1970) {
+                    ageBins['Pre-1970']++;
+                } else {
+                    let placed = false;
+                    for (const label of Object.keys(ageBins)) {
+                        if (label.includes('-')) {
+                            const [start, end] = label.split('-').map(Number);
+                            if (yearInt >= start && yearInt <= end) {
+                                ageBins[label]++;
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!placed && yearInt >= 2025) {
+                        ageBins['2025+']++;
+                    }
+                }
 
                 if (log.rating > 0) {
-                    scatterData.push({ x: yearInt, y: log.rating, name: master.name });
+                    const transformedX = Math.max(1, 2027 - yearInt);
+                    scatterData.push({ x: transformedX, y: log.rating, name: master.name, rawYear: yearInt });
                 }
             }
         });
@@ -1697,7 +1753,7 @@ const Chart = {
         const borderColor = Utils.getCSSVariable('--border');
 
         this.instance = new window.Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: { labels: [], datasets: [] },
             options: {
                 indexAxis: 'y',
@@ -1771,15 +1827,21 @@ const Chart = {
         candidates = candidates.slice(0, limit);
         candidates.reverse();
 
-        const color = this.mode === 'rating' ? Utils.getCSSVariable('--primary') : Utils.getCSSVariable('--accent');
+        const color = Utils.getCSSVariable('--accent');
         const textColor = Utils.getCSSVariable('--text');
         const borderColor = Utils.getCSSVariable('--border');
 
         this.instance.data.labels = candidates.map(c => Utils.truncateLabel(c.name, 25));
         this.instance.data.datasets = [{
             data: candidates.map(c => this.mode === 'rating' ? c.val : Math.round(c.val * 100) / 100),
-            backgroundColor: color,
-            borderRadius: 4
+            borderColor: color,
+            pointBackgroundColor: color,
+            borderWidth: 3,
+            tension: 0.1,
+            fill: false,
+            showLine: this.mode === 'rating',
+            pointRadius: 6,
+            pointHoverRadius: 8
         }];
 
         this.instance.options.plugins.title.text = Utils.buildFilterTitle(limit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', candidates.length);
@@ -2515,23 +2577,26 @@ async function downloadChart(chartInstance, isOverTime = false) {
             const originalContainerWidth = chartContainer.style.width;
             const originalContainerMaxWidth = chartContainer.style.maxWidth;
             const originalColors = {
-                titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color,
-                xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend.labels.color
+                titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title?.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color,
+                xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend?.labels?.color
             };
-            const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title.font.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size };
+            const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title?.font?.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size, xTitleSize: chartInstance.options.scales.x.title?.font?.size };
             const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
             
-            chartInstance.options.plugins.title.color = '#000000'; chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080';
+            chartInstance.options.plugins.title.color = '#000000'; 
+            if (chartInstance.options.scales.y.title) { chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; }
+            chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080';
             chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
-            if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = '#000000';
-            chartInstance.options.plugins.legend.labels.color = '#000000';
+            if (chartInstance.options.scales.x.title) { chartInstance.options.scales.x.title.color = '#000000'; chartInstance.options.scales.x.title.font.size = desktopFontSizes.yTitle * 2; }
+            if (chartInstance.options.plugins.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
             
             const originalPixelRatio = chartInstance.options.devicePixelRatio;
             chartInstance.options.devicePixelRatio = 4; chartInstance.options.aspectRatio = 16 / 9;
             if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
             
-            chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
-            chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
+            chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; 
+            chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; 
+            chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
             
             chartInstance.resize();
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -2574,10 +2639,12 @@ async function downloadChart(chartInstance, isOverTime = false) {
             
             const link = document.createElement('a'); link.download = filename; link.href = exportCanvas.toDataURL('image/png'); link.click();
             
-            chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
-            if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = originalColors.xTitleColor;
-            chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
-            chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
+            chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; 
+            if (chartInstance.options.scales.y.title) { chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; }
+            chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
+            if (chartInstance.options.scales.x.title) { chartInstance.options.scales.x.title.color = originalColors.xTitleColor; chartInstance.options.scales.x.title.font.size = originalFontSizes.xTitleSize; }
+            if (chartInstance.options.plugins.legend?.labels) chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
+            chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
             if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
             chartInstance.resize();
         } catch (error) { simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); }
@@ -2589,14 +2656,16 @@ async function downloadChart(chartInstance, isOverTime = false) {
 function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) {
     const originalPixelRatio = chartInstance.options.devicePixelRatio; const chartContainer = chartInstance.canvas.parentElement;
     const originalContainerWidth = chartContainer.style.width; const originalContainerMaxWidth = chartContainer.style.maxWidth;
-    const originalColors = { titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color, xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend.labels.color };
-    const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title.font.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size };
+    const originalColors = { titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title?.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color, xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend?.labels?.color };
+    const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title?.font?.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size, xTitleSize: chartInstance.options.scales.x.title?.font?.size };
     const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
     
-    chartInstance.options.plugins.title.color = '#000000'; chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080'; chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
-    if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = '#000000';
-    chartInstance.options.plugins.legend.labels.color = '#000000';
-    chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; chartInstance.options.scales.x.ticks.font.size = (desktopFontSizes.xTicks - 2) * 2;
+    chartInstance.options.plugins.title.color = '#000000'; 
+    if (chartInstance.options.scales.y.title) { chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; }
+    chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080'; chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
+    if (chartInstance.options.scales.x.title) { chartInstance.options.scales.x.title.color = '#000000'; chartInstance.options.scales.x.title.font.size = desktopFontSizes.yTitle * 2; }
+    if (chartInstance.options.plugins.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
+    chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; chartInstance.options.scales.x.ticks.font.size = (desktopFontSizes.xTicks - 2) * 2;
     chartInstance.options.devicePixelRatio = 4; chartInstance.options.aspectRatio = 16 / 9;
     if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
     chartInstance.resize();
@@ -2606,10 +2675,12 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
         const ctx = exportCanvas.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); ctx.drawImage(originalCanvas, 0, 0);
         const link = document.createElement('a'); link.download = filename; link.href = exportCanvas.toDataURL('image/png'); link.click();
         
-        chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
-        if (chartInstance.options.scales.x.title) chartInstance.options.scales.x.title.color = originalColors.xTitleColor;
-        chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
-        chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
+        chartInstance.options.devicePixelRatio = originalPixelRatio; chartInstance.options.plugins.title.color = originalColors.titleColor; 
+        if (chartInstance.options.scales.y.title) { chartInstance.options.scales.y.title.color = originalColors.yTitleColor; chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; }
+        chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; chartInstance.options.scales.y.grid.color = originalColors.yGridColor; chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; chartInstance.options.scales.x.grid.color = originalColors.xGridColor;
+        if (chartInstance.options.scales.x.title) { chartInstance.options.scales.x.title.color = originalColors.xTitleColor; chartInstance.options.scales.x.title.font.size = originalFontSizes.xTitleSize; }
+        if (chartInstance.options.plugins.legend?.labels) chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
+        chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
         if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
         chartInstance.resize();
     }, 500);
@@ -2806,14 +2877,16 @@ function setupEventListeners() {
             };
 
             if (!isDonut) {
-                originalColors.yTitleColor = chart.options.scales.y.title.color;
+                originalColors.yTitleColor = chart.options.scales.y.title?.color;
                 originalColors.yTicksColor = chart.options.scales.y.ticks.color;
                 originalColors.yGridColor = chart.options.scales.y.grid.color;
                 originalColors.xTicksColor = chart.options.scales.x.ticks.color;
                 originalColors.xGridColor = chart.options.scales.x.grid.color;
-                originalFonts.yTitleSize = chart.options.scales.y.title.font?.size;
+                originalColors.xTitleColor = chart.options.scales.x.title?.color;
+                originalFonts.yTitleSize = chart.options.scales.y.title?.font?.size;
                 originalFonts.yTicksSize = chart.options.scales.y.ticks.font?.size;
                 originalFonts.xTicksSize = chart.options.scales.x.ticks.font?.size;
+                originalFonts.xTitleSize = chart.options.scales.x.title?.font?.size;
             }
 
             chart.options.plugins.title.color = '#000000';
@@ -2828,12 +2901,18 @@ function setupEventListeners() {
             }
 
             if (!isDonut) {
-                chart.options.scales.y.title.color = '#000000';
+                if (chart.options.scales.y.title) {
+                    chart.options.scales.y.title.color = '#000000';
+                    chart.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
+                }
+                if (chart.options.scales.x.title) {
+                    chart.options.scales.x.title.color = '#000000';
+                    chart.options.scales.x.title.font.size = desktopFontSizes.yTitle * 2;
+                }
                 chart.options.scales.y.ticks.color = '#000000';
                 chart.options.scales.y.grid.color = '#808080';
                 chart.options.scales.x.ticks.color = '#000000';
                 chart.options.scales.x.grid.color = '#808080';
-                chart.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2;
                 chart.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2;
                 chart.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
             }
@@ -2873,12 +2952,18 @@ function setupEventListeners() {
             }
 
             if (!isDonut) {
-                chart.options.scales.y.title.color = originalColors.yTitleColor;
+                if (chart.options.scales.y.title) {
+                    chart.options.scales.y.title.color = originalColors.yTitleColor;
+                    chart.options.scales.y.title.font.size = originalFonts.yTitleSize;
+                }
+                if (chart.options.scales.x.title) {
+                    chart.options.scales.x.title.color = originalColors.xTitleColor;
+                    chart.options.scales.x.title.font.size = originalFonts.xTitleSize;
+                }
                 chart.options.scales.y.ticks.color = originalColors.yTicksColor;
                 chart.options.scales.y.grid.color = originalColors.yGridColor;
                 chart.options.scales.x.ticks.color = originalColors.xTicksColor;
                 chart.options.scales.x.grid.color = originalColors.xGridColor;
-                chart.options.scales.y.title.font.size = originalFonts.yTitleSize;
                 chart.options.scales.y.ticks.font.size = originalFonts.yTicksSize;
                 chart.options.scales.x.ticks.font.size = originalFonts.xTicksSize;
             }
@@ -3013,7 +3098,8 @@ function setupEventListeners() {
             
             [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
                 if (chart) {
-                    chart.options.aspectRatio = r;
+                    chart.canvas.parentElement.style.paddingBottom = isMobile ? '100%' : '65%';
+                    chart.options.aspectRatio = isMobile ? 1 : 1.5;
                     chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
                     chart.resize();
                 }
