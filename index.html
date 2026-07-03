@@ -987,14 +987,23 @@ const Utils = {
     getElements(selector) { return document.querySelectorAll(selector); },
     getCSSVariable(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); },
     getRatingColor(rating) {
-        const normalized = Math.max(0, Math.min(10, rating));
-        if (normalized >= 9) return '#10b981';
-        if (normalized >= 8) return '#22c55e';
-        if (normalized >= 7) return '#84cc16';
-        if (normalized >= 6) return '#eab308';
-        if (normalized >= 5) return '#f97316';
-        if (normalized >= 4) return '#ef4444';
-        return '#dc2626';
+        const r = Math.max(1, Math.min(10, rating));
+        let red, green, blue;
+        
+        if (r <= 5.5) {
+            // Smooth blend from Red (1.0) to Yellow (5.5)
+            const p = (r - 1) / (5.5 - 1);
+            red = 220;
+            green = Math.round(38 + (194 * p));
+            blue = Math.round(38 + (12 * p));
+        } else {
+            // Smooth blend from Yellow (5.5) to Rich Green (10.0)
+            const p = (r - 5.5) / (10 - 5.5);
+            red = Math.round(232 - (216 * p));
+            green = Math.round(232 - (47 * p));
+            blue = Math.round(50 + (79 * p));
+        }
+        return `rgb(${red}, ${green}, ${blue})`;
     },
     truncateLabel(label, maxLength = 15) {
         if (!label || label.length <= maxLength) return label;
@@ -1093,7 +1102,8 @@ const DOM = {
         const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
         if (!select) return;
         select.innerHTML = '<option value="">Not Ranked</option>';
-        for (let rank = 1; rank <= 100; rank++) {
+        const maxRank = typeof AppState !== 'undefined' ? Math.max(100, AppState.coasters.length + 1) : 100;
+        for (let rank = 1; rank <= maxRank; rank++) {
             const option = document.createElement('option');
             option.value = rank.toString();
             option.textContent = rank.toString();
@@ -1747,17 +1757,13 @@ const GeneralStats = {
         const ageLabels = Object.keys(ageBins);
         const ageData = Object.values(ageBins);
         
-        const hexToRgba = (hex, alpha) => {
-            if (hex.startsWith('#') && hex.length >= 7) {
-                const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-            }
-            return hex; 
-        };
         const numBins = ageLabels.length;
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const gradientColors = ageLabels.map((_, i) => {
-            const alpha = numBins > 1 ? 0.3 + (0.7 * (i / (numBins - 1))) : 1.0;
-            return hexToRgba(color, alpha);
+            const factor = numBins > 1 ? (i / (numBins - 1)) : 1.0;
+            const saturation = 15 + (75 * factor); // Scale from 15% to 90% saturation
+            const lightness = isDark ? 60 : 50;     // Keep a stable, readable theme contrast
+            return `hsl(270, ${saturation}%, ${lightness}%)`;
         });
 
         this.ageDistributionInstance.data.labels = ageLabels;
@@ -1881,7 +1887,8 @@ const Chart = {
         const dataPoints = candidates.map(c => this.mode === 'rating' ? c.val : Math.round(c.val * 100) / 100);
         const dynamicColors = candidates.map(c => Utils.getRatingColor(c.val));
 
-        this.instance.data.labels = candidates.map(c => Utils.truncateLabel(c.name, 25));
+        const isMobile = window.innerWidth <= 768;
+        this.instance.data.labels = candidates.map(c => isMobile ? Utils.wrapLabel(c.name, 12) : Utils.truncateLabel(c.name, 25));
         this.instance.data.datasets = [{
             data: dataPoints,
             borderColor: accentColor,
@@ -2350,6 +2357,7 @@ const Modals = {
         this._unlockScroll();
     },
     showAddCoaster() {
+        DOM.populateRankingSelect('ranking');
         Utils.getElement('addModalTitle').textContent = 'Add New Credit';
         Utils.getElement('coasterForm').reset();
         Utils.getElement('charCount').textContent = '0 / 350';
@@ -2369,6 +2377,7 @@ const Modals = {
         const coaster = AppState.editing;
         this.closeDetail();
         AppState.editing = coaster;
+        DOM.populateRankingSelect('ranking');
         Utils.getElement('addModalTitle').textContent = 'Edit Credit';
         Utils.getElement('rideName').value = coaster.Ride || '';
         Utils.getElement('parkName').value = coaster.Park || '';
@@ -2468,6 +2477,13 @@ const Tabs = {
 };
 
 const Forms = {
+    updateCharCount() {
+        const textarea = Utils.getElement('comments');
+        const charCount = Utils.getElement('charCount');
+        if (textarea && charCount) {
+            charCount.textContent = `${textarea.value.length} / 350`;
+        }
+    },
     async handleSubmit(e) {
         e.preventDefault();
         
@@ -2477,11 +2493,12 @@ const Forms = {
         } else {
             const ride = Utils.getElement('rideName').value;
             const park = Utils.getElement('parkName').value;
-            id = `${park}_${ride}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const baseId = `${park}_${ride}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
             
-            let baseId = id;
+            id = baseId;
             let counter = 1;
-            while(masterCoasters[id] && !AppState.editing) {
+            // Cleanly check if the specific generated ID string exists in master records
+            while (masterCoasters[id]) {
                 id = `${baseId}_${counter}`;
                 counter++;
             }
@@ -2508,18 +2525,18 @@ const submittedMetadata = {
         if (!originalMasterCoasters[id]) {
             isCustom = true; // Brand new user-created coaster
         } else {
-            const base = originalMasterCoasters[id];
-            if (base.name !== submittedMetadata.name ||
-                base.park !== submittedMetadata.park ||
-                base.manufacturer !== submittedMetadata.manufacturer ||
-                base.category !== submittedMetadata.category ||
-                base.type !== submittedMetadata.type ||
-                base.openingYear !== submittedMetadata.openingYear ||
-                base.lastRide !== submittedMetadata.lastRide ||
-                base.status !== submittedMetadata.status) {
-                isCustom = true; // Explicit metadata override of a master coaster
-            }
-        }
+                const base = originalMasterCoasters[id];
+                if (base.name != submittedMetadata.name ||
+                    base.park != submittedMetadata.park ||
+                    base.manufacturer != submittedMetadata.manufacturer ||
+                    base.category != submittedMetadata.category ||
+                    base.type != submittedMetadata.type ||
+                    base.openingYear != submittedMetadata.openingYear ||
+                    base.lastRide != submittedMetadata.lastRide ||
+                    base.status != submittedMetadata.status) {
+                    isCustom = true; // Explicit metadata override of a master coaster
+                    }
+                }
 
         if (isCustom) {
             userProfile.customCoasters[id] = submittedMetadata;
@@ -2787,6 +2804,10 @@ function setupEventListeners() {
         link.download = `thomas_tracker_profile_${dateString}.json`;
         
         link.click();
+        
+        // Clean up the object URL to prevent memory leaks
+        setTimeout(() => URL.revokeObjectURL(link.href), 100);
+        
         setUnsavedChanges(false);
     });
 
@@ -2800,9 +2821,16 @@ function setupEventListeners() {
             try {
                 const importedData = JSON.parse(evt.target.result);
                 
-                // Basic Schema Validation to prevent crashes from malformed files
+                // Deep Schema Validation: Prevent accidental DB wipe if wrong JSON is selected
                 if (!importedData || typeof importedData !== 'object' || Array.isArray(importedData)) {
-                    throw new Error("Imported data is not a valid profile object.");
+                    throw new Error("Imported data is not a valid object.");
+                }
+                
+                const hasLogKeys = Object.keys(importedData).some(key => key.startsWith('logs_'));
+                const isCompletelyEmpty = Object.keys(importedData).length === 0;
+                
+                if (!hasLogKeys && !isCompletelyEmpty) {
+                    throw new Error("Missing 'logs_' signature. This does not appear to be a Coaster Tracker profile.");
                 }
 
                 userProfile = importedData;
@@ -2819,10 +2847,16 @@ function setupEventListeners() {
                 await migrateProfileToCurrentYear();
                 await saveProfileToLocal(); 
                 
-                refreshDataForYear(currentYearStr);
+                // Sync the UI Year Selector to prevent visual desync
+                const yearSelect = Utils.getElement('yearSelect');
+                if (yearSelect && [...yearSelect.options].some(opt => opt.value === ACTUAL_CURRENT_YEAR)) {
+                    yearSelect.value = ACTUAL_CURRENT_YEAR;
+                }
+                
+                refreshDataForYear(ACTUAL_CURRENT_YEAR);
             } catch (err) {
                 console.error("Import Error:", err);
-                alert("Invalid Profile JSON: Could not import data.");
+                alert("Invalid Profile JSON: " + err.message);
             }
         };
         reader.readAsText(file);
