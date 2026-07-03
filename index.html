@@ -111,7 +111,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .status-defunct{background:rgba(239,68,68,0.2);color:var(--danger);}
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;padding:1rem;overflow-y:auto;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
 .modal.active{display:flex;align-items:center;justify-content:center;}
-body.modal-open{overflow:hidden;position:fixed;width:100%;}
+body.modal-open{overflow:hidden;}
 .modal-content{background:var(--card-bg);border-radius:12px;padding:2rem;max-width:800px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;}
 .modal-title{font-size:1.5625rem;font-weight:600;color:var(--text);line-height:1.3;}
@@ -169,8 +169,8 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .ranking-item.defunct { background: var(--defunct-bg); border-color: var(--defunct-border); box-shadow: 0 0 0 3px rgba(248,113,113,0.2), 3px 3px 0px rgba(0,0,0,0.1); }
 .ranking-item.dragging { opacity: 0.4; border: 3px dashed var(--primary); transform: scale(0.98); box-shadow: none; z-index: 10; }
 /* Expanded touch target for drag handle */
-.drag-handle { width: 44px; height: 50px; cursor: grab; opacity: 0.3; transition: opacity 0.2s, color 0.2s; background-image: radial-gradient(circle, var(--text) 2.5px, transparent 3px); background-size: 10px 10px; background-position: center; background-repeat: repeat-y; flex-shrink: 0; touch-action: none; user-select: none; display: flex; align-items: center; justify-content: center; margin-left: 0.5rem; background-clip: content-box; padding: 10px; }
-.drag-handle:hover { opacity: 0.7; color: var(--primary); }
+.drag-handle { width: 32px; height: 40px; cursor: grab; opacity: 0.4; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; background-repeat: repeat; flex-shrink: 0; touch-action: none; user-select: none; margin-left: 0.5rem; }
+.drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
@@ -298,7 +298,7 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 .ranking-item .ride-name { font-size: 1.2rem; }
 .ranking-item .park-name { font-size: 0.9rem; }
 .ranking-item .ranking-rating { font-size: 1.25rem; }
-.drag-handle { width: 20px; height: 26px; background-size: 100% 8px; }
+.drag-handle { width: 24px; height: 32px; background-size: 8px 8px; }
 /* --------------------------------------------- */
 }
 
@@ -1519,20 +1519,20 @@ const GeneralStats = {
         this.instance = new window.Chart(ctxTotal, {
             type: 'line',
             data: { labels: [], datasets: [{ label: 'Total Credits', data: [], borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8 }] },
-            options: { responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'Total Credits Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: false, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'Total Credits Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: false, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
         });
 
         const ctxNew = Utils.getElement('generalNewCreditsChart').getContext('2d');
         this.newCreditsInstance = new window.Chart(ctxNew, {
             type: 'bar',
             data: { labels: [], datasets: [{ label: 'New Credits', data: [], borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
         });
 
         this._otherDetails = { mfr: [], newMfr: [], park: [], newPark: [] };
 
         const getDonutOptions = (titleText, detailKey) => ({
-            responsive: true, maintainAspectRatio: true, aspectRatio: 1, layout: { padding: 15 },
+            responsive: true, maintainAspectRatio: false, aspectRatio: 1, layout: { padding: 15 },
             plugins: {
                 legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } },
                 title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
@@ -1562,7 +1562,7 @@ const GeneralStats = {
             data: { labels: [], datasets: [{ label: 'Credits', data: [], borderRadius: 4 }] },
             options: {
                 indexAxis: 'y',
-                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.x}` } } },
                 scales: { x: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, y: { grid: { display: false }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } }
             }
@@ -1572,7 +1572,7 @@ const GeneralStats = {
             type: 'scatter',
             data: { datasets: [{ label: 'Credits', data: [], pointRadius: 5, pointHoverRadius: 7 }] },
             options: {
-                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: { 
                     legend: { display: false }, 
                     title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, 
@@ -1805,7 +1805,7 @@ const Chart = {
             type: 'line',
             data: { labels: [], datasets: [] },
             options: {
-                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: {
                     legend: { display: false },
                     title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
@@ -1940,7 +1940,7 @@ const OverTimeChart = {
             type: 'line',
             data: { labels: [], datasets: [] },
             options: {
-                responsive: true, maintainAspectRatio: true, aspectRatio: 16 / 9,
+                responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: {
                     legend: {
                         display: false, position: 'right', align: 'center',
@@ -2307,14 +2307,10 @@ const OverTimeChart = {
 const Modals = {
     _savedScroll: 0,
     _lockScroll() {
-        this._savedScroll = window.scrollY;
         document.body.classList.add('modal-open');
-        document.body.style.top = `-${this._savedScroll}px`;
     },
     _unlockScroll() {
         document.body.classList.remove('modal-open');
-        document.body.style.top = '';
-        window.scrollTo(0, this._savedScroll);
     },
     showDetail(coaster) {
         AppState.editing = coaster;
