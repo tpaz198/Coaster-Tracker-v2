@@ -61,8 +61,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .chart-controls .btn{padding:0.5rem 1rem;font-size:0.9375rem;}
 .chart-limit-btn.active,.ot-chart-limit-btn.active{background:var(--toggle-bg);}
 .chart-limit-btn.active:hover,.ot-chart-limit-btn.active:hover{background:var(--toggle-hover);}
-.chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;}
-.chart-aspect-wrapper{position:relative;width:100%;aspect-ratio:16/9;}
+.chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.chart-aspect-wrapper{position:relative;width:100%;aspect-ratio:16/9;min-height:300px;}
 .chart-aspect-wrapper canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 .chart-download-btn-container{display:flex;justify-content:center;margin-top:1rem;}
 .controls{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
@@ -83,7 +83,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .filter-group label{display:block;font-weight:600;margin-bottom:0.5rem;color:var(--text);font-size:0.9375rem;}
 .filter-group select{width:100%;padding:0.625rem;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.9375rem;cursor:pointer;transition:all 0.2s;}
 .filter-group select:focus{outline:none;border-color:var(--primary);}
-@media (prefers-color-scheme:dark){.filter-group select{background:#0e7490;color:white;border:1px solid #06b6d4;}
+@media (prefers-color-scheme:dark){body{background:linear-gradient(135deg,#020617 0%,#0f172a 50%,#020617 100%);}
 }
 .coaster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:3rem;}
 .coaster-card{background:var(--card-bg);border-radius:10px;padding:1.25rem;border:3px solid var(--border);transition:all 0.2s;cursor:pointer;box-shadow:3px 3px 0px rgba(0,0,0,0.1);display:flex;flex-direction:column;}
@@ -270,7 +270,7 @@ body.modal-open{overflow:hidden;}
 .coaster-table{font-size:0.875rem;}
 .coaster-table td{font-size:0.875rem;}
 .coaster-table td.comments-cell{font-size:0.9375rem;min-width:200px;width:300px;}
-.chart-aspect-wrapper{aspect-ratio:3/4;min-height:350px;}
+.chart-aspect-wrapper{aspect-ratio:auto;height:400px;}
 .ot-legend-label{font-size:11px;}
 .card-title{font-size:1.4375rem;}
 .card-park{font-size:1.25rem;}
@@ -3200,27 +3200,29 @@ function setupEventListeners() {
         const isMobile = window.innerWidth <= BP;
         
         const generalView = document.getElementById('generalStatsView');
+        const scrollWidth = isMobile ? '700px' : '100%';
         if (generalView && generalView.style.display !== 'none') {
-            if (GeneralStats.instance) { GeneralStats.instance.options.aspectRatio = r; GeneralStats.instance.resize(); }
-            if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.options.aspectRatio = r; GeneralStats.newCreditsInstance.resize(); }
+            if (GeneralStats.instance) { GeneralStats.instance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.instance.options.aspectRatio = r; GeneralStats.instance.resize(); }
+            if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.newCreditsInstance.options.aspectRatio = r; GeneralStats.newCreditsInstance.resize(); }
             
             [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
                 if (chart) {
                     chart.canvas.parentElement.style.paddingBottom = '';
                     chart.canvas.parentElement.style.aspectRatio = '1 / 1';
+                    chart.canvas.parentElement.style.minWidth = '0';
                     chart.options.aspectRatio = 1;
                     chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
                     chart.resize();
                 }
             });
-            if (GeneralStats.ageDistributionInstance) { GeneralStats.ageDistributionInstance.options.aspectRatio = r; GeneralStats.ageDistributionInstance.resize(); }
-            if (GeneralStats.ratingAgeCorrInstance) { GeneralStats.ratingAgeCorrInstance.options.aspectRatio = r; GeneralStats.ratingAgeCorrInstance.resize(); }
+            if (GeneralStats.ageDistributionInstance) { GeneralStats.ageDistributionInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.ageDistributionInstance.options.aspectRatio = r; GeneralStats.ageDistributionInstance.resize(); }
+            if (GeneralStats.ratingAgeCorrInstance) { GeneralStats.ratingAgeCorrInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.ratingAgeCorrInstance.options.aspectRatio = r; GeneralStats.ratingAgeCorrInstance.resize(); }
         }
         
         const specificView = document.getElementById('specificStatsView');
         if (specificView && specificView.style.display !== 'none') {
-            if (Chart.instance) { Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
-            if (OverTimeChart.instance) { OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
+            if (Chart.instance) { Chart.instance.canvas.parentElement.style.minWidth = scrollWidth; Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
+            if (OverTimeChart.instance) { OverTimeChart.instance.canvas.parentElement.style.minWidth = scrollWidth; OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
         }
     }
     let prev = window.innerWidth <= BP; window.addEventListener('resize', () => { const cur = window.innerWidth <= BP; if (cur !== prev) { prev = cur; apply(); } Stats.autoFitStatBoxes(); });
