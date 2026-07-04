@@ -172,8 +172,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
 .table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
-.coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);}
-.coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
+.coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);width:100%;color:var(--text);}.coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
 .coaster-table th{padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);background:transparent;}
 .coaster-table th:hover{background:rgba(255,255,255,0.15);}
 .coaster-table th.sorted-asc::after{content:' ▲';font-size:0.7em;color:var(--accent);}
@@ -1362,6 +1361,10 @@ const Render = {
                             Utils.getElement('commentsModalTitle').textContent = this.dataset.rideName;
                             Utils.getElement('commentsModalBody').textContent = this.dataset.fullText;
                             modal.classList.add('active');
+                            
+                            // Read geometry layout metrics instantly to break Chromium overlay isolation locks
+                            if (modal) { const forceRepaint = modal.offsetHeight; }
+                            
                             Modals._lockScroll();
                         });
                     } else {
@@ -2008,17 +2011,22 @@ const Chart = {
         this.instance.options.scales.y.ticks.color = textColor;
         if (this.mode === 'rating') {
             this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
-            const allRatings = candidates.map(c => c.val);
-            const min = allRatings.length ? Math.min(...allRatings) : 0;
-            const max = allRatings.length ? Math.max(...allRatings) : 10;
-            this.instance.options.scales.y.min = Math.max(min - 0.5, 1);
-            this.instance.options.scales.y.max = max + 0.2;
+            this.instance.options.scales.y.min = 1;
+            this.instance.options.scales.y.max = 10;
             this.instance.options.scales.y.reverse = false;
+            this.instance.options.scales.y.ticks.callback = function(value) {
+                return value; // Standard number format
+            };
         } else {
             this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
             this.instance.options.scales.y.min = 0.5;
             delete this.instance.options.scales.y.max;
             this.instance.options.scales.y.reverse = true;
+            const isWeighted = this.useWeightedRanking;
+            this.instance.options.scales.y.ticks.callback = function(value) {
+                if (isWeighted) return value >= 1 ? '#' + Number(value.toFixed(1)) : '';
+                return (Number.isInteger(value) && value >= 1) ? '#' + value : '';
+            };
         }
 
         this.instance.update();
@@ -2466,7 +2474,12 @@ const Modals = {
         Utils.getElement('newCredit').closest('.form-group').style.display = '';
         const modal = Utils.getElement('addCoasterModal');
         modal.classList.add('active');
-        modal.offsetHeight; // Forces synchronous document reflow to fix mobile rendering deadlocks
+        
+        // Read geometry layout metrics instantly to break Chromium overlay isolation locks
+        if (modal) {
+            const forceRepaint = modal.offsetHeight;
+        }
+        
         this._lockScroll();
     },
     closeAddCoaster() {
@@ -2560,20 +2573,23 @@ const Tabs = {
         Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
         
     if (tabName === 'statistics') {
-            const specificView = Utils.getElement('specificStatsView');
-            const generalView = Utils.getElement('generalStatsView');
-            window._syncChartAspect();
-            if (specificView && specificView.style.display !== 'none') {
-                if (Chart.instance) Chart.update();
-                if (OverTimeChart.instance) OverTimeChart.update();
-            } else if (generalView && generalView.style.display !== 'none') {
-                if (GeneralStats.instance) GeneralStats.update();
-            }
-        } else if (tabName === 'spreadsheet') {
-            Render.spreadsheet();
-        } else if (tabName === 'rankings') {
-            Render.rankings();
-        }
+                    const specificView = Utils.getElement('specificStatsView');
+                    const generalView = Utils.getElement('generalStatsView');
+                    window._syncChartAspect();
+                    if (specificView && specificView.style.display !== 'none') {
+                        if (Chart.instance) Chart.update();
+                        if (OverTimeChart.instance) OverTimeChart.update();
+                    } else if (generalView && generalView.style.display !== 'none') {
+                        if (GeneralStats.instance) GeneralStats.update();
+                    }
+                } else if (tabName === 'spreadsheet') {
+                    Render.spreadsheet();
+                    // Force GPU repaint to prevent Chrome mobile deadlocks with sticky table headers
+                    const tab = Utils.getElement('spreadsheetTab');
+                    if (tab) { const forceRepaint = tab.offsetHeight; }
+                } else if (tabName === 'rankings') {
+                    Render.rankings();
+                }
     }
 };
 
