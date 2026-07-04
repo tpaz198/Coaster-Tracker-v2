@@ -23,7 +23,7 @@
 html { background: var(--bg); }
 @media (prefers-color-scheme:dark){ html { background: #020617; } }
 body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
-@media (prefers-color-scheme:dark){body{background:linear-gradient(135deg,#020617 0%,#0f172a 50%,#020617 100%);background-attachment:fixed;}
+@media (prefers-color-scheme:dark){body{background:linear-gradient(135deg,#020617 0%,#0f172a 50%,#020617 100%);}
 }
 .year-selector{display:flex;align-items:center;align-self:center;gap:0.5rem;}
 .year-selector label{font-weight:600;font-size:calc(1.1rem + 3px);color:var(--text-secondary);}
@@ -61,8 +61,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .chart-controls .btn{padding:0.5rem 1rem;font-size:0.9375rem;}
 .chart-limit-btn.active,.ot-chart-limit-btn.active{background:var(--toggle-bg);}
 .chart-limit-btn.active:hover,.ot-chart-limit-btn.active:hover{background:var(--toggle-hover);}
-.chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.chart-aspect-wrapper{position:relative;width:100%;aspect-ratio:16/9;min-height:300px;}
+.chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;}
+.chart-aspect-wrapper{position:relative;width:100%;aspect-ratio:16/9;min-height:300px;max-width:100%;}
 .chart-aspect-wrapper canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 .chart-download-btn-container{display:flex;justify-content:center;margin-top:1rem;}
 .controls{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
@@ -109,9 +109,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .status-operating{background:rgba(16,185,129,0.2);color:var(--success);}
 .status-sbno{background:rgba(245,158,11,0.2);color:var(--warning);}
 .status-defunct{background:rgba(239,68,68,0.2);color:var(--danger);}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;padding:1rem;overflow-y:auto;}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;padding:1rem;overflow-y:auto;overscroll-behavior:contain;}
 .modal.active{display:flex;align-items:center;justify-content:center;}
-body.modal-open{overflow:hidden;}
 .modal-content{background:var(--card-bg);border-radius:12px;padding:2rem;max-width:800px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;}
 .modal-title{font-size:1.5625rem;font-weight:600;color:var(--text);line-height:1.3;}
@@ -270,7 +269,7 @@ body.modal-open{overflow:hidden;}
 .coaster-table{font-size:0.875rem;}
 .coaster-table td{font-size:0.875rem;}
 .coaster-table td.comments-cell{font-size:0.9375rem;min-width:200px;width:300px;}
-.chart-aspect-wrapper{aspect-ratio:auto;height:400px;}
+.chart-aspect-wrapper{aspect-ratio:4/5;min-height:300px;height:auto;max-width:100%;}
 .ot-legend-label{font-size:11px;}
 .card-title{font-size:1.4375rem;}
 .card-park{font-size:1.25rem;}
@@ -1894,7 +1893,8 @@ const Chart = {
         const dynamicColors = candidates.map(c => Utils.getRatingColor(c.val));
 
         const isMobile = window.innerWidth <= 768;
-        this.instance.data.labels = candidates.map(c => isMobile ? Utils.wrapLabel(c.name, 12) : Utils.truncateLabel(c.name, 25));
+        // Pass flat strings instead of arrays to force Chart.js to rotate the labels 45 degrees
+        this.instance.data.labels = candidates.map(c => isMobile ? Utils.truncateLabel(c.name, 16) : Utils.truncateLabel(c.name, 25));
         this.instance.data.datasets = [{
             data: dataPoints,
             borderColor: accentColor,
@@ -3200,10 +3200,9 @@ function setupEventListeners() {
         const isMobile = window.innerWidth <= BP;
         
         const generalView = document.getElementById('generalStatsView');
-        const scrollWidth = isMobile ? '700px' : '100%';
         if (generalView && generalView.style.display !== 'none') {
-            if (GeneralStats.instance) { GeneralStats.instance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.instance.options.aspectRatio = r; GeneralStats.instance.resize(); }
-            if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.newCreditsInstance.options.aspectRatio = r; GeneralStats.newCreditsInstance.resize(); }
+            if (GeneralStats.instance) { GeneralStats.instance.canvas.parentElement.style.minWidth = '0'; GeneralStats.instance.options.aspectRatio = r; GeneralStats.instance.resize(); }
+            if (GeneralStats.newCreditsInstance) { GeneralStats.newCreditsInstance.canvas.parentElement.style.minWidth = '0'; GeneralStats.newCreditsInstance.options.aspectRatio = r; GeneralStats.newCreditsInstance.resize(); }
             
             [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
                 if (chart) {
@@ -3215,14 +3214,14 @@ function setupEventListeners() {
                     chart.resize();
                 }
             });
-            if (GeneralStats.ageDistributionInstance) { GeneralStats.ageDistributionInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.ageDistributionInstance.options.aspectRatio = r; GeneralStats.ageDistributionInstance.resize(); }
-            if (GeneralStats.ratingAgeCorrInstance) { GeneralStats.ratingAgeCorrInstance.canvas.parentElement.style.minWidth = scrollWidth; GeneralStats.ratingAgeCorrInstance.options.aspectRatio = r; GeneralStats.ratingAgeCorrInstance.resize(); }
+            if (GeneralStats.ageDistributionInstance) { GeneralStats.ageDistributionInstance.canvas.parentElement.style.minWidth = '0'; GeneralStats.ageDistributionInstance.options.aspectRatio = r; GeneralStats.ageDistributionInstance.resize(); }
+            if (GeneralStats.ratingAgeCorrInstance) { GeneralStats.ratingAgeCorrInstance.canvas.parentElement.style.minWidth = '0'; GeneralStats.ratingAgeCorrInstance.options.aspectRatio = r; GeneralStats.ratingAgeCorrInstance.resize(); }
         }
         
         const specificView = document.getElementById('specificStatsView');
         if (specificView && specificView.style.display !== 'none') {
-            if (Chart.instance) { Chart.instance.canvas.parentElement.style.minWidth = scrollWidth; Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
-            if (OverTimeChart.instance) { OverTimeChart.instance.canvas.parentElement.style.minWidth = scrollWidth; OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
+            if (Chart.instance) { Chart.instance.canvas.parentElement.style.minWidth = '0'; Chart.instance.options.aspectRatio = r; Chart.instance.resize(); } 
+            if (OverTimeChart.instance) { OverTimeChart.instance.canvas.parentElement.style.minWidth = '0'; OverTimeChart.instance.options.aspectRatio = r; OverTimeChart.instance.resize(); } 
         }
     }
     let prev = window.innerWidth <= BP; window.addEventListener('resize', () => { const cur = window.innerWidth <= BP; if (cur !== prev) { prev = cur; apply(); } Stats.autoFitStatBoxes(); });
