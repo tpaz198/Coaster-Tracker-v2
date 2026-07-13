@@ -52,8 +52,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 }
 .tab-btn:hover{background:var(--bg);transform:translateY(-2px);bottom:-2px;}
 .tab-btn.active{background:var(--bg);border-color:var(--primary);border-bottom:4px solid var(--bg);box-shadow:none;font-weight:800;}
-.tab-content{display:none !important; width:100%;}
-.tab-content.active-tab{display:block !important;}
+.tab-content{display:none; width:100%; animation: fadeIn 0.2s ease;}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed var(--border);}
 .modal-actions .btn{flex:1;}
 .stats-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg-secondary);border-radius:10px;border:2px solid var(--border);box-shadow:var(--shadow);}
@@ -352,7 +352,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
             </div>
         </header>
 
-        <div class="tab-content" id="creditsTab">
+        <div class="tab-content" id="creditsTab" style="display: block;">
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Search by ride name, park, or manufacturer...">
@@ -2500,12 +2500,7 @@ const Tabs = {
         ['credits', 'rankings', 'statistics', 'spreadsheet'].forEach(t => {
             const el = Utils.getElement(t + 'Tab');
             if (el) {
-                el.classList.toggle('active-tab', t === tabName);
-                el.classList.toggle('hidden', t !== tabName);
-                // Strip inline styles to prevent CSS engine layout deadlocks
-                el.style.display = '';
-                el.style.visibility = '';
-                el.style.opacity = '';
+                el.style.display = (t === tabName) ? 'block' : 'none';
             }
         });
         
@@ -2760,9 +2755,14 @@ async function downloadChart(chartInstance, isOverTime = false) {
             ctx.drawImage(chartCanvas, padding, padding);
             if (legendCanvas) { const legendX = (exportCanvas.width - legendCanvas.width) / 2; ctx.drawImage(legendCanvas, legendX, chartCanvas.height + padding + 60); }
             
-            const link = document.createElement('a'); link.download = filename; link.href = exportCanvas.toDataURL('image/png'); link.click();
+            const link = document.createElement('a'); 
+            link.download = filename; 
+            link.href = exportCanvas.toDataURL('image/png'); 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            chartInstance.options.devicePixelRatio = originalPixelRatio; 
+            chartInstance.options.devicePixelRatio = originalPixelRatio;
             if (chartInstance.options.plugins?.title) {
                 chartInstance.options.plugins.title.color = originalColors.titleColor; 
                 if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize;
@@ -2953,7 +2953,9 @@ function setupEventListeners() {
     // Append the date to the filename
         link.download = `thomas_tracker_profile_${dateString}.json`;
         
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
         
         // Clean up the object URL to prevent memory leaks
         setTimeout(() => URL.revokeObjectURL(link.href), 100);
@@ -3239,7 +3241,9 @@ function setupEventListeners() {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(content);
         link.download = `general-charts-summary-${currentYearStr}.zip`;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     });
     Utils.getElement('downloadComparisonChart')?.addEventListener('click', () => { downloadChart(Chart.instance, false); });
     Utils.getElement('downloadOverTimeChart')?.addEventListener('click', () => { downloadChart(OverTimeChart.instance, true); });
