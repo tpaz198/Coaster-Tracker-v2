@@ -171,7 +171,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .drag-handle { width: 32px; height: 40px; cursor: grab; opacity: 0.4; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; background-repeat: repeat; flex-shrink: 0; touch-action: none; user-select: none; margin-left: 0.5rem; }
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
-.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;}
+.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:300px;}
 .coaster-table{border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);width:100%;color:var(--text);}.coaster-table thead{background:#0e7490;color:white;position:sticky;top:0;z-index:10;}
 .coaster-table th{padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);background:transparent;}
 .coaster-table th:hover{background:rgba(255,255,255,0.15);}
@@ -1657,7 +1657,7 @@ const GeneralStats = {
         this.newCreditsInstance.data.datasets[0].backgroundColor = labels.map((_, i) => this.pieColors[i % this.pieColors.length]);
         
         [this.instance, this.newCreditsInstance].forEach(chart => {
-            chart.options.plugins.title.color = textColor;
+            chart.options.plugins.title.color = Utils.getCSSVariable('--text');
             chart.options.scales.y.title.color = textColor;
             chart.options.scales.y.ticks.color = textColor;
             chart.options.scales.y.grid.color = borderColor;
@@ -1911,10 +1911,10 @@ const Chart = {
             type: this.mode === 'rating' ? 'bar' : 'line',
             data: dataPoints,
             backgroundColor: this.mode === 'rating' ? dynamicColors : 'transparent',
-            borderColor: accentColor,
+            borderColor: this.mode === 'rating' ? 'transparent' : accentColor,
             pointBackgroundColor: this.mode === 'rating' ? dynamicColors : accentColor,
-            pointBorderColor: this.mode === 'rating' ? dynamicColors : accentColor,
-            borderWidth: this.mode === 'rating' ? 2 : 3,
+            pointBorderColor: this.mode === 'rating' ? 'transparent' : accentColor,
+            borderWidth: this.mode === 'rating' ? 0 : 3,
             tension: 0.1,
             fill: false,
             showLine: this.mode === 'ranking',
@@ -2494,14 +2494,24 @@ const Filters = {
 };
 
 const Tabs = {
-    switch(tabName) {
-        Utils.getElements('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
-        Utils.getElement('creditsTab').classList.toggle('hidden', tabName !== 'credits');
-        Utils.getElement('rankingsTab').classList.toggle('hidden', tabName !== 'rankings');
-        Utils.getElement('statisticsTab').classList.toggle('hidden', tabName !== 'statistics');
-        Utils.getElement('spreadsheetTab').classList.toggle('hidden', tabName !== 'spreadsheet');
-        
-    if (tabName === 'statistics') {
+            switch(tabName) {
+                Utils.getElements('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+                
+                const tabs = ['credits', 'rankings', 'statistics', 'spreadsheet'];
+                tabs.forEach(t => {
+                    const el = Utils.getElement(t + 'Tab');
+                    if (el) {
+                        if (t === tabName) {
+                            el.classList.remove('hidden');
+                            el.style.display = 'block';
+                        } else {
+                            el.classList.add('hidden');
+                            el.style.display = 'none';
+                        }
+                    }
+                });
+
+                if (tabName === 'statistics') {
                     const specificView = Utils.getElement('specificStatsView');
                     const generalView = Utils.getElement('generalStatsView');
                     window._syncChartAspect();
@@ -2512,15 +2522,13 @@ const Tabs = {
                         if (GeneralStats.instance) GeneralStats.update();
                     }
                 } else if (tabName === 'spreadsheet') {
-                    const tab = Utils.getElement('spreadsheetTab');
-                    if (tab) tab.style.display = 'block'; // Force layout before render
                     Render.spreadsheet();
-                    // Force GPU repaint to prevent Chrome mobile deadlocks with sticky table headers
-                    if (tab) { const forceRepaint = tab.offsetHeight; tab.style.display = ''; }
+                    const tab = Utils.getElement('spreadsheetTab');
+                    if (tab) { const forceRepaint = tab.offsetHeight; }
                 } else if (tabName === 'rankings') {
                     Render.rankings();
                 }
-    }
+            }
 };
 
 const Forms = {
@@ -2715,9 +2723,10 @@ async function downloadChart(chartInstance, isOverTime = false) {
             chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
             
             chartInstance.resize();
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Force browser to wait for the next repaint cycle to ensure all elements are rendered
+            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 300)));
             
-            let legendCanvas = null; let legendScale = 4;
+            let legendCanvas = null; let legendScale = 2; // Reduced scale to prevent memory crashes
             if (legend && legend.children.length > 0) {
                 const originalLegendWidth = legend.style.width; const originalLegendMaxWidth = legend.style.maxWidth;
                 if (isMobile) { legend.style.width = '1600px'; legend.style.maxWidth = '1600px'; }
@@ -2763,6 +2772,7 @@ async function downloadChart(chartInstance, isOverTime = false) {
             chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
             if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
             chartInstance.resize();
+            chartInstance.update('none');
         } catch (error) { simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); }
     } else {
         simpleDownload(chartInstance, filename, isMobile, originalAspectRatio);
@@ -2799,6 +2809,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
         chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize; chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize;
         if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
         chartInstance.resize();
+        chartInstance.update('none');
     }, 500);
 }
 
@@ -3073,7 +3084,7 @@ function setupEventListeners() {
             chartContainer.style.maxWidth = '1600px';
             
             chart.resize();
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
 
             const exportCanvas = document.createElement('canvas');
             const padding = 80;
@@ -3122,6 +3133,7 @@ function setupEventListeners() {
             chartContainer.style.width = originalContainerWidth;
             chartContainer.style.maxWidth = originalContainerMaxWidth;
             chart.resize();
+            chart.update('none');
         }
 
         // package collection zip pipeline download trigger
@@ -3250,7 +3262,9 @@ function setupEventListeners() {
                 if (chart) {
                     chart.canvas.parentElement.style.paddingBottom = '';
                     chart.canvas.parentElement.style.aspectRatio = isMobile ? 'auto' : '1 / 1';
-                    chart.canvas.parentElement.style.height = isMobile ? '450px' : 'auto';
+                    chart.canvas.parentElement.style.height = isMobile ? '450px' : '300px';
+                    chart.canvas.parentElement.style.maxWidth = isMobile ? '100%' : '500px';
+                    chart.canvas.parentElement.style.margin = '0 auto';
                     chart.canvas.parentElement.style.minWidth = '0';
                     chart.options.aspectRatio = null;
                     chart.options.maintainAspectRatio = false;
