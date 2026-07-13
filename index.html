@@ -52,8 +52,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 }
 .tab-btn:hover{background:var(--bg);transform:translateY(-2px);bottom:-2px;}
 .tab-btn.active{background:var(--bg);border-color:var(--primary);border-bottom:4px solid var(--bg);box-shadow:none;font-weight:800;}
-.tab-content{display:block;}
-.tab-content.hidden{display:none;}
+.tab-content{display:block; width:100%; visibility:visible; opacity:1;}
+.tab-content.hidden{display:none !important; visibility:hidden; opacity:0;}
 .modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed var(--border);}
 .modal-actions .btn{flex:1;}
 .stats-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg-secondary);border-radius:10px;border:2px solid var(--border);box-shadow:var(--shadow);}
@@ -728,88 +728,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
             </form>
         </div>
     </div>
-    </div> <div class="modal" id="addCoasterModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="addModalTitle">Add New Credit</h2>
-                <button class="close-btn" id="closeAddModal">&times;</button>
-            </div>
-            <form id="coasterForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="rideName">Ride Name *</label>
-                        <input type="text" id="rideName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="parkName">Park *</label>
-                        <div class="type-autocomplete">
-                            <input type="text" id="parkName" required autocomplete="off">
-                            <div class="type-autocomplete-dropdown" id="parkDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="manufacturer">Manufacturer</label>
-                        <div class="type-autocomplete">
-                            <input type="text" id="manufacturer" placeholder="Enter manufacturer" autocomplete="off">
-                            <div class="type-autocomplete-dropdown" id="manufacturerDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="category">Category</label>
-                        <select id="category"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="type">Type</label>
-                        <div class="type-autocomplete">
-                            <input type="text" id="type" placeholder="Enter coaster type" autocomplete="off">
-                            <div class="type-autocomplete-dropdown" id="typeDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="openingYear">Opening Year</label>
-                        <select id="openingYear"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastRide">Last Ride</label>
-                        <select id="lastRide"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select id="status">
-                            <option value="">Select Status</option>
-                            <option value="Operating">Operating</option>
-                            <option value="SBNO">SBNO</option>
-                            <option value="Defunct">Defunct</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rating">Rating (1-10)</label>
-                        <select id="rating"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="ranking">Ranking (1-100)</label>
-                        <select id="ranking">
-                            <option value="">Not Ranked</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="newCredit">
-                            <label for="newCredit">New Credit</label>
-                        </div>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="comments">Comments (350 characters max)</label>
-                        <textarea id="comments" maxlength="350"></textarea>
-                        <div class="char-count" id="charCount">0 / 350</div>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Save Credit</button>
-                    <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
-                </div>
-            </form>
-        </div>
+    </div>
     </div>
 
     <div class="modal" id="detailModal">
@@ -1583,9 +1502,14 @@ const Spreadsheet = {
                     }
                     aVal = aEmpty ? 0 : aNum;
                     bVal = bEmpty ? 0 : bNum;
+                    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                } else {
+                    const strA = String(aVal).toLowerCase();
+                    const strB = String(bVal).toLowerCase();
+                    if (strA < strB) return direction === 'asc' ? -1 : 1;
+                    if (strA > strB) return direction === 'asc' ? 1 : -1;
                 }
-                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
             }
             return 0;
         });
@@ -1687,17 +1611,20 @@ const GeneralStats = {
                         max: 130,
                         reverse: true,
                         afterBuildTicks: function(axis) {
-                            const targetYears = [1900, 1920, 1940, 1960, 1970, 1980, 1990, 2000, 2010, 2020, 2025, 2026];
-                            axis.ticks = targetYears.map(year => ({ value: 2027 - year }));
+                            const currentYear = new Date().getFullYear();
+                            const baseYear = currentYear + 1;
+                            const targetYears = [1900, 1920, 1940, 1960, 1970, 1980, 1990, 2000, 2010, 2020, currentYear - 1, currentYear];
+                            axis.ticks = targetYears.map(year => ({ value: baseYear - year }));
                         },
                         ticks: { 
                             font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, 
                             color: textColor, 
                             callback: function(value) {
-                                return (2027 - value).toString();
+                                const baseYear = new Date().getFullYear() + 1;
+                                return (baseYear - value).toString();
                             } 
                         } 
-                    } 
+                    }
                 }
             }
         });
@@ -1744,9 +1671,11 @@ const GeneralStats = {
         
         const ageBins = { 'Pre-1970': 0 };
         const currentYearNum = new Date().getFullYear();
+        const baseYear = currentYearNum + 1;
+        
         for (let y = 1970; y <= currentYearNum; y += 5) {
-            const endStage = Math.min(y + 4, currentYearNum);
-            const label = y === 2025 ? '2025+' : `${y}-${endStage}`;
+            const endStage = y + 4;
+            const label = `${y}-${endStage}`;
             ageBins[label] = 0;
         }
         
@@ -1777,24 +1706,17 @@ const GeneralStats = {
                 if (yearInt < 1970) {
                     ageBins['Pre-1970']++;
                 } else {
-                    let placed = false;
-                    for (const label of Object.keys(ageBins)) {
-                        if (label.includes('-')) {
-                            const [start, end] = label.split('-').map(Number);
-                            if (yearInt >= start && yearInt <= end) {
-                                ageBins[label]++;
-                                placed = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!placed && yearInt >= 2025) {
-                        ageBins['2025+']++;
+                    const binStart = Math.floor(yearInt / 5) * 5;
+                    const label = `${binStart}-${binStart + 4}`;
+                    if (ageBins[label] !== undefined) {
+                        ageBins[label]++;
+                    } else {
+                        ageBins[label] = 1;
                     }
                 }
 
                 if (log.rating > 0) {
-                    const transformedX = Math.max(1, 2027 - yearInt);
+                    const transformedX = Math.max(1, baseYear - yearInt);
                     scatterData.push({ x: transformedX, y: log.rating, name: master.name, rawYear: yearInt });
                 }
             }
@@ -1854,7 +1776,8 @@ const GeneralStats = {
             const factor = numBins > 1 ? (i / (numBins - 1)) : 1.0;
             const saturation = 15 + (75 * factor); // Scale from 15% to 90% saturation
             const lightness = isDark ? 60 : 50;     // Keep a stable, readable theme contrast
-            return `hsl(270, ${saturation}%, ${lightness}%)`;
+            const hue = isDark ? 190 : 270;         // Match blue accent in dark mode
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         });
 
         this.ageDistributionInstance.data.labels = ageLabels;
@@ -1899,7 +1822,7 @@ const Chart = {
         const borderColor = Utils.getCSSVariable('--border');
 
         this.instance = new window.Chart(ctx, {
-            type: 'line',
+            type: this.mode === 'rating' ? 'bar' : 'line',
             data: { labels: [], datasets: [] },
             options: {
                 responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
@@ -1927,7 +1850,10 @@ const Chart = {
             this.useWeightedRanking = false;
             Utils.getElement('statsWeightedCheck').checked = false;
         }
-        this.update();
+        if (this.instance) {
+            this.instance.destroy();
+            this.initialize();
+        }
     },
 
     update() {
@@ -1982,16 +1908,19 @@ const Chart = {
         // Pass flat strings instead of arrays to force Chart.js to rotate the labels 45 degrees
         this.instance.data.labels = candidates.map(c => isMobile ? Utils.truncateLabel(c.name, 13) : Utils.truncateLabel(c.name, 25));
         this.instance.data.datasets = [{
+            type: this.mode === 'rating' ? 'bar' : 'line',
             data: dataPoints,
+            backgroundColor: this.mode === 'rating' ? dynamicColors : 'transparent',
             borderColor: accentColor,
             pointBackgroundColor: this.mode === 'rating' ? dynamicColors : accentColor,
             pointBorderColor: this.mode === 'rating' ? dynamicColors : accentColor,
-            borderWidth: 3,
+            borderWidth: this.mode === 'rating' ? 2 : 3,
             tension: 0.1,
             fill: false,
             showLine: this.mode === 'ranking',
             pointRadius: 6,
-            pointHoverRadius: 8
+            pointHoverRadius: 8,
+            borderRadius: this.mode === 'rating' ? 4 : 0
         }];
 
         this.instance.options.plugins.title.text = Utils.buildFilterTitle(limit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', candidates.length);
@@ -2099,7 +2028,7 @@ const OverTimeChart = {
     },
 
     getYearlyAverages() {
-        const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
+        const years = Object.keys(userProfile).filter(k => k.startsWith('logs_')).map(k => k.replace('logs_', '')).sort();
         const currentTotal = getBaselineTotal();
 
         return years.map(year => {
@@ -2130,7 +2059,7 @@ const OverTimeChart = {
     },
 
     getRideDataById(id) {
-        const years = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort();
+        const years = Object.keys(userProfile).filter(k => k.startsWith('logs_')).map(k => k.replace('logs_', '')).sort();
         const currentTotal = getBaselineTotal();
 
         return years.map(year => {
@@ -2534,7 +2463,7 @@ const Filters = {
         const minRating = Utils.parseRating(Utils.getElement('filterRating').value);
         
         AppState.filtered = AppState.coasters.filter(coaster => {
-            if (searchTerm && !`${coaster.Ride} ${coaster.Park} ${coaster.Manufacturer}`.toLowerCase().includes(searchTerm)) return false;
+            if (searchTerm && !`${coaster.Ride || ''} ${coaster.Park || ''} ${coaster.Manufacturer || ''}`.toLowerCase().includes(searchTerm)) return false;
             if (park && coaster.Park !== park) return false;
             if (manufacturer && coaster.Manufacturer !== manufacturer) return false;
             if (category && coaster.Category !== category) return false;
@@ -2583,10 +2512,11 @@ const Tabs = {
                         if (GeneralStats.instance) GeneralStats.update();
                     }
                 } else if (tabName === 'spreadsheet') {
+                    const tab = Utils.getElement('spreadsheetTab');
+                    if (tab) tab.style.display = 'block'; // Force layout before render
                     Render.spreadsheet();
                     // Force GPU repaint to prevent Chrome mobile deadlocks with sticky table headers
-                    const tab = Utils.getElement('spreadsheetTab');
-                    if (tab) { const forceRepaint = tab.offsetHeight; }
+                    if (tab) { const forceRepaint = tab.offsetHeight; tab.style.display = ''; }
                 } else if (tabName === 'rankings') {
                     Render.rankings();
                 }
@@ -2622,6 +2552,7 @@ const Forms = {
         }
         
 const submittedMetadata = {
+            ...(masterCoasters[id] || {}),
             name: Utils.getElement('rideName').value,
             park: Utils.getElement('parkName').value,
             manufacturer: Utils.getElement('manufacturer').value,
@@ -3042,7 +2973,7 @@ function setupEventListeners() {
             });
             if (hits.length === 0) dropdown.innerHTML = '<div class="ot-dropdown-none">No rides found</div>';
             else {
-                dropdown.innerHTML = hits.map(({ ride, id }) => `<div class="ot-dropdown-item" data-idx="${id}">${ride.name}<span class="ride-park">${ride.park}</span></div>`).join('');
+                dropdown.innerHTML = hits.map(({ ride, id }) => `<div class="ot-dropdown-item" data-idx="${id}">${Utils.escapeHtml(ride.name)}<span class="ride-park">${Utils.escapeHtml(ride.park)}</span></div>`).join('');
                 dropdown.querySelectorAll('.ot-dropdown-item').forEach(item => { item.addEventListener('click', () => OverTimeChart.selectRide(item.dataset.idx)); });
             }
             dropdown.style.display = 'block';
@@ -3318,10 +3249,17 @@ function setupEventListeners() {
             [GeneralStats.mfrBreakdownInstance, GeneralStats.newMfrBreakdownInstance, GeneralStats.parkBreakdownInstance, GeneralStats.newParkBreakdownInstance].forEach(chart => {
                 if (chart) {
                     chart.canvas.parentElement.style.paddingBottom = '';
-                    chart.canvas.parentElement.style.aspectRatio = '1 / 1';
+                    chart.canvas.parentElement.style.aspectRatio = isMobile ? 'auto' : '1 / 1';
+                    chart.canvas.parentElement.style.height = isMobile ? '450px' : 'auto';
                     chart.canvas.parentElement.style.minWidth = '0';
-                    chart.options.aspectRatio = 1;
+                    chart.options.aspectRatio = null;
+                    chart.options.maintainAspectRatio = false;
                     chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
+                    if (isMobile && chart.options.plugins.legend.labels) {
+                        chart.options.plugins.legend.labels.boxWidth = 12;
+                        chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: 11 };
+                        chart.options.layout.padding = 5;
+                    }
                     chart.resize();
                 }
             });
