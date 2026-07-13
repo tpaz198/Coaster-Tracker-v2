@@ -51,9 +51,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 @media (max-width:480px){.tab-btn{padding:0.5rem 0.6rem;font-size:calc(0.7rem + 3px);}
 }
 .tab-btn:hover{background:var(--bg);transform:translateY(-2px);bottom:-2px;}
-.tab-btn.active{background:var(--bg);border-color:var(--primary);border-bottom:4px solid var(--bg);box-shadow:none;font-weight:800;}
-.tab-content{display:none; width:100%; animation: fadeIn 0.2s ease;}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Duplicate CSS Block Removed */
 .modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed var(--border);}
 .modal-actions .btn{flex:1;}
 .stats-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg-secondary);border-radius:10px;border:2px solid var(--border);box-shadow:var(--shadow);}
@@ -2686,39 +2684,66 @@ async function downloadChart(chartInstance, isOverTime = false) {
     const filename = chartTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + (isOverTime ? '-over-time' : '') + '.png';
     const isMobile = window.innerWidth <= 768;
     const originalAspectRatio = chartInstance.options.aspectRatio;
-    
+
+    const safeExtract = () => ({
+        titleColor: chartInstance.options.plugins?.title?.color,
+        yTitleColor: chartInstance.options.scales?.y?.title?.color,
+        yTicksColor: chartInstance.options.scales?.y?.ticks?.color,
+        yGridColor: chartInstance.options.scales?.y?.grid?.color,
+        xTicksColor: chartInstance.options.scales?.x?.ticks?.color,
+        xGridColor: chartInstance.options.scales?.x?.grid?.color,
+        xTitleColor: chartInstance.options.scales?.x?.title?.color,
+        legendColor: chartInstance.options.plugins?.legend?.labels?.color,
+        titleSize: chartInstance.options.plugins?.title?.font?.size,
+        yTitleSize: chartInstance.options.scales?.y?.title?.font?.size,
+        yTicksSize: chartInstance.options.scales?.y?.ticks?.font?.size,
+        xTicksSize: chartInstance.options.scales?.x?.ticks?.font?.size,
+        xTitleSize: chartInstance.options.scales?.x?.title?.font?.size
+    });
+
+    const applyExportStyles = (fs) => {
+        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = '#000000'; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = fs.title * 2; }
+        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = '#000000'; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = fs.yTitle * 2; }
+        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = '#000000'; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = fs.yTicks * 2; }
+        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = '#808080';
+        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = '#000000'; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = fs.xTicks * 2; }
+        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = '#808080';
+        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = '#000000'; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = fs.yTitle * 2; }
+        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
+    };
+
+    const restoreStyles = (orig) => {
+        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = orig.titleColor; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = orig.titleSize; }
+        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = orig.yTitleColor; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = orig.yTitleSize; }
+        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = orig.yTicksColor; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = orig.yTicksSize; }
+        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = orig.yGridColor;
+        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = orig.xTicksColor; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = orig.xTicksSize; }
+        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = orig.xGridColor;
+        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = orig.xTitleColor; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = orig.xTitleSize; }
+        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = orig.legendColor;
+    };
+
+    const originalState = safeExtract();
+    const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
+    const originalPixelRatio = chartInstance.options.devicePixelRatio;
+    const chartContainer = chartInstance.canvas.parentElement;
+    const originalContainerWidth = chartContainer.style.width;
+    const originalContainerMaxWidth = chartContainer.style.maxWidth;
+
     if (isOverTime) {
         try {
             const legend = document.getElementById('otLegend');
             const chartCanvas = chartInstance.canvas;
-            const chartContainer = chartCanvas.parentElement;
-            const originalContainerWidth = chartContainer.style.width;
-            const originalContainerMaxWidth = chartContainer.style.maxWidth;
-            const originalColors = {
-                titleColor: chartInstance.options.plugins.title.color, yTitleColor: chartInstance.options.scales.y.title?.color, yTicksColor: chartInstance.options.scales.y.ticks.color, yGridColor: chartInstance.options.scales.y.grid.color,
-                xTicksColor: chartInstance.options.scales.x.ticks.color, xGridColor: chartInstance.options.scales.x.grid.color, xTitleColor: chartInstance.options.scales.x.title?.color, legendColor: chartInstance.options.plugins.legend?.labels?.color
-            };
-            const originalFontSizes = { titleSize: chartInstance.options.plugins.title.font.size, yTitleSize: chartInstance.options.scales.y.title?.font?.size, yTicksSize: chartInstance.options.scales.y.ticks.font.size, xTicksSize: chartInstance.options.scales.x.ticks.font.size, xTitleSize: chartInstance.options.scales.x.title?.font?.size };
-            const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
             
-            chartInstance.options.plugins.title.color = '#000000'; 
-            if (chartInstance.options.scales.y.title) { chartInstance.options.scales.y.title.color = '#000000'; chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; }
-            chartInstance.options.scales.y.ticks.color = '#000000'; chartInstance.options.scales.y.grid.color = '#808080';
-            chartInstance.options.scales.x.ticks.color = '#000000'; chartInstance.options.scales.x.grid.color = '#808080';
-            if (chartInstance.options.scales.x.title) { chartInstance.options.scales.x.title.color = '#000000'; chartInstance.options.scales.x.title.font.size = desktopFontSizes.yTitle * 2; }
-            if (chartInstance.options.plugins.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
+            applyExportStyles(desktopFontSizes);
             
-            const originalPixelRatio = chartInstance.options.devicePixelRatio;
-            chartInstance.options.devicePixelRatio = 4; chartInstance.options.aspectRatio = 16 / 9;
+            chartInstance.options.devicePixelRatio = 4;
+            chartInstance.options.aspectRatio = 16 / 9;
             if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
             
-            if (chartInstance.options.plugins?.title?.font) chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2; 
-            if (chartInstance.options.scales?.y?.ticks?.font) chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; 
-            if (chartInstance.options.scales?.x?.ticks?.font) chartInstance.options.scales.x.ticks.font.size = desktopFontSizes.xTicks * 2;
-        
             chartInstance.update('none');
-            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 100)));
-        
+            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
+            
             let legendCanvas = null; let legendScale = 2;
             if (legend && legend.children.length > 0) {
                 const originalLegendWidth = legend.style.width; const originalLegendMaxWidth = legend.style.maxWidth;
@@ -2762,34 +2787,16 @@ async function downloadChart(chartInstance, isOverTime = false) {
             link.click();
             document.body.removeChild(link);
             
-            chartInstance.options.devicePixelRatio = originalPixelRatio;
-            if (chartInstance.options.plugins?.title) {
-                chartInstance.options.plugins.title.color = originalColors.titleColor; 
-                if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize;
-            }
-            if (chartInstance.options.scales?.y?.title) { 
-                chartInstance.options.scales.y.title.color = originalColors.yTitleColor; 
-                if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; 
-            }
-            if (chartInstance.options.scales?.y?.ticks) { 
-                chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; 
-                if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; 
-            }
-            if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = originalColors.yGridColor; 
-            if (chartInstance.options.scales?.x?.ticks) { 
-                chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; 
-                if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize; 
-            }
-            if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = originalColors.xGridColor; 
-            if (chartInstance.options.scales?.x?.title) { 
-                chartInstance.options.scales.x.title.color = originalColors.xTitleColor; 
-                if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = originalFontSizes.xTitleSize; 
-            }
-            if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
+            chartInstance.options.devicePixelRatio = originalPixelRatio; 
+            restoreStyles(originalState);
             if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
             chartInstance.update('none');
         } catch (error) { 
             console.error('DownloadChart fallback triggered:', error);
+            chartInstance.options.devicePixelRatio = originalPixelRatio; 
+            restoreStyles(originalState);
+            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+            chartInstance.update('none');
             simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); 
         }
     } else {
@@ -2802,106 +2809,82 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
     const chartContainer = chartInstance.canvas.parentElement;
     const originalContainerWidth = chartContainer.style.width; 
     const originalContainerMaxWidth = chartContainer.style.maxWidth;
-    
-    const originalColors = { 
-        titleColor: chartInstance.options.plugins?.title?.color, 
-        yTitleColor: chartInstance.options.scales?.y?.title?.color, 
-        yTicksColor: chartInstance.options.scales?.y?.ticks?.color, 
-        yGridColor: chartInstance.options.scales?.y?.grid?.color, 
-        xTicksColor: chartInstance.options.scales?.x?.ticks?.color, 
-        xGridColor: chartInstance.options.scales?.x?.grid?.color, 
-        xTitleColor: chartInstance.options.scales?.x?.title?.color, 
-        legendColor: chartInstance.options.plugins?.legend?.labels?.color 
+
+    const safeExtract = () => ({
+        titleColor: chartInstance.options.plugins?.title?.color,
+        yTitleColor: chartInstance.options.scales?.y?.title?.color,
+        yTicksColor: chartInstance.options.scales?.y?.ticks?.color,
+        yGridColor: chartInstance.options.scales?.y?.grid?.color,
+        xTicksColor: chartInstance.options.scales?.x?.ticks?.color,
+        xGridColor: chartInstance.options.scales?.x?.grid?.color,
+        xTitleColor: chartInstance.options.scales?.x?.title?.color,
+        legendColor: chartInstance.options.plugins?.legend?.labels?.color,
+        titleSize: chartInstance.options.plugins?.title?.font?.size,
+        yTitleSize: chartInstance.options.scales?.y?.title?.font?.size,
+        yTicksSize: chartInstance.options.scales?.y?.ticks?.font?.size,
+        xTicksSize: chartInstance.options.scales?.x?.ticks?.font?.size,
+        xTitleSize: chartInstance.options.scales?.x?.title?.font?.size
+    });
+
+    const applyExportStyles = (fs) => {
+        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = '#000000'; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = fs.title * 2; }
+        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = '#000000'; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = fs.yTitle * 2; }
+        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = '#000000'; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = fs.yTicks * 2; }
+        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = '#808080';
+        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = '#000000'; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = (fs.xTicks - 2) * 2; }
+        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = '#808080';
+        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = '#000000'; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = fs.yTitle * 2; }
+        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
     };
-    const originalFontSizes = { 
-        titleSize: chartInstance.options.plugins?.title?.font?.size, 
-        yTitleSize: chartInstance.options.scales?.y?.title?.font?.size, 
-        yTicksSize: chartInstance.options.scales?.y?.ticks?.font?.size, 
-        xTicksSize: chartInstance.options.scales?.x?.ticks?.font?.size, 
-        xTitleSize: chartInstance.options.scales?.x?.title?.font?.size 
+
+    const restoreStyles = (orig) => {
+        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = orig.titleColor; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = orig.titleSize; }
+        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = orig.yTitleColor; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = orig.yTitleSize; }
+        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = orig.yTicksColor; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = orig.yTicksSize; }
+        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = orig.yGridColor;
+        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = orig.xTicksColor; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = orig.xTicksSize; }
+        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = orig.xGridColor;
+        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = orig.xTitleColor; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = orig.xTitleSize; }
+        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = orig.legendColor;
     };
+
+    const originalState = safeExtract();
     const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
     
-    if (chartInstance.options.plugins?.title) {
-        chartInstance.options.plugins.title.color = '#000000'; 
-        if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = desktopFontSizes.title * 2;
-    }
-    if (chartInstance.options.scales?.y?.title) { 
-        chartInstance.options.scales.y.title.color = '#000000'; 
-        if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = desktopFontSizes.yTitle * 2; 
-    }
-    if (chartInstance.options.scales?.y?.ticks) { 
-        chartInstance.options.scales.y.ticks.color = '#000000'; 
-        if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = desktopFontSizes.yTicks * 2; 
-    }
-    if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = '#808080'; 
-    if (chartInstance.options.scales?.x?.ticks) { 
-        chartInstance.options.scales.x.ticks.color = '#000000'; 
-        if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = (desktopFontSizes.xTicks - 2) * 2; 
-    }
-    if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = '#808080'; 
-    if (chartInstance.options.scales?.x?.title) { 
-        chartInstance.options.scales.x.title.color = '#000000'; 
-        if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = desktopFontSizes.yTitle * 2; 
-    }
-    if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
+    applyExportStyles(desktopFontSizes);
     
     chartInstance.options.devicePixelRatio = 4; 
     chartInstance.options.aspectRatio = 16 / 9;
     if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
     
-    // Force immediate, animation-free repaint
     chartInstance.update('none');
     
-    try {
-        const originalCanvas = chartInstance.canvas; 
-        const exportCanvas = document.createElement('canvas'); 
-        exportCanvas.width = originalCanvas.width; 
-        exportCanvas.height = originalCanvas.height;
-        const ctx = exportCanvas.getContext('2d'); 
-        ctx.fillStyle = '#ffffff'; 
-        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); 
-        ctx.drawImage(originalCanvas, 0, 0);
+    setTimeout(() => {
+        try {
+            const originalCanvas = chartInstance.canvas; 
+            const exportCanvas = document.createElement('canvas'); 
+            exportCanvas.width = originalCanvas.width; 
+            exportCanvas.height = originalCanvas.height;
+            const ctx = exportCanvas.getContext('2d'); 
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); 
+            ctx.drawImage(originalCanvas, 0, 0);
+            
+            const link = document.createElement('a'); 
+            link.download = filename; 
+            link.href = exportCanvas.toDataURL('image/png'); 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error('Download failed:', err);
+        }
         
-        const link = document.createElement('a'); 
-        link.download = filename; 
-        link.href = exportCanvas.toDataURL('image/png'); 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (err) {
-        console.error('Download failed:', err);
-    }
-    
-    chartInstance.options.devicePixelRatio = originalPixelRatio; 
-    if (chartInstance.options.plugins?.title) {
-        chartInstance.options.plugins.title.color = originalColors.titleColor; 
-        if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = originalFontSizes.titleSize;
-    }
-    if (chartInstance.options.scales?.y?.title) { 
-        chartInstance.options.scales.y.title.color = originalColors.yTitleColor; 
-        if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = originalFontSizes.yTitleSize; 
-    }
-    if (chartInstance.options.scales?.y?.ticks) { 
-        chartInstance.options.scales.y.ticks.color = originalColors.yTicksColor; 
-        if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = originalFontSizes.yTicksSize; 
-    }
-    if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = originalColors.yGridColor; 
-    if (chartInstance.options.scales?.x?.ticks) { 
-        chartInstance.options.scales.x.ticks.color = originalColors.xTicksColor; 
-        if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = originalFontSizes.xTicksSize; 
-    }
-    if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = originalColors.xGridColor; 
-    if (chartInstance.options.scales?.x?.title) { 
-        chartInstance.options.scales.x.title.color = originalColors.xTitleColor; 
-        if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = originalFontSizes.xTitleSize; 
-    }
-    if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = originalColors.legendColor;
-    
-    if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
-    
-    // Restore exact visual state dynamically
-    chartInstance.update('none');
+        chartInstance.options.devicePixelRatio = originalPixelRatio; 
+        restoreStyles(originalState);
+        if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+        chartInstance.update('none');
+    }, 300);
 }
 
 function updateCascadingFilters(parkId, mfrId, catId, typeId, statusId) {
