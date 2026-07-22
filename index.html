@@ -107,6 +107,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .status-operating{background:rgba(16,185,129,0.2);color:var(--success);}
 .status-sbno{background:rgba(245,158,11,0.2);color:var(--warning);}
 .status-defunct{background:rgba(239,68,68,0.2);color:var(--danger);}
+.hidden{display:none !important;}
 .modal{position:fixed;top:0;left:-9999px;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;padding:1rem;overflow-y:auto;overscroll-behavior:contain;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.25s ease;}
 .modal.active{left:0;opacity:1;}
 .modal-content{background:var(--card-bg);border-radius:12px;padding:2rem;max-width:800px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
@@ -2741,6 +2742,7 @@ async function downloadChart(chartInstance, isOverTime = false) {
             chartInstance.options.aspectRatio = 16 / 9;
             if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
             
+            chartInstance.resize();
             chartInstance.update('none');
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
             
@@ -2790,12 +2792,14 @@ async function downloadChart(chartInstance, isOverTime = false) {
             chartInstance.options.devicePixelRatio = originalPixelRatio; 
             restoreStyles(originalState);
             if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+            chartInstance.resize();
             chartInstance.update('none');
         } catch (error) { 
             console.error('DownloadChart fallback triggered:', error);
             chartInstance.options.devicePixelRatio = originalPixelRatio; 
             restoreStyles(originalState);
             if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+            chartInstance.resize();
             chartInstance.update('none');
             simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); 
         }
@@ -2857,6 +2861,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
     chartInstance.options.aspectRatio = 16 / 9;
     if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
     
+    chartInstance.resize();
     chartInstance.update('none');
     
     setTimeout(() => {
@@ -2883,6 +2888,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
         chartInstance.options.devicePixelRatio = originalPixelRatio; 
         restoreStyles(originalState);
         if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+        chartInstance.resize();
         chartInstance.update('none');
     }, 300);
 }
@@ -3163,6 +3169,7 @@ function setupEventListeners() {
             chartContainer.style.width = '1600px';
             chartContainer.style.maxWidth = '1600px';
         
+            chart.resize();
             chart.update('none');
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 100)));
 
@@ -3216,6 +3223,7 @@ function setupEventListeners() {
             chart.options.aspectRatio = originalAspectRatio;
             chartContainer.style.width = originalContainerWidth;
             chartContainer.style.maxWidth = originalContainerMaxWidth;
+            chart.resize();
             chart.update('none');
         }
 
