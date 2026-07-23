@@ -108,8 +108,8 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .status-sbno{background:rgba(245,158,11,0.2);color:var(--warning);}
 .status-defunct{background:rgba(239,68,68,0.2);color:var(--danger);}
 .hidden{display:none;}
-.modal{position:fixed;top:0;left:-9999px;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;padding:1rem;overflow-y:auto;overscroll-behavior:contain;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.25s ease;}
-.modal.active{left:0;opacity:1;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;padding:1rem;overflow-y:auto;overscroll-behavior:contain;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.25s ease, visibility 0.25s ease;}
+.modal.active{opacity:1;visibility:visible;}
 .modal-content{background:var(--card-bg);border-radius:12px;padding:2rem;max-width:800px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;}
 .modal-title{font-size:1.5625rem;font-weight:600;color:var(--text);line-height:1.3;}
@@ -170,7 +170,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .drag-handle { width: 32px; height: 40px; cursor: grab; opacity: 0.4; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; background-repeat: repeat; flex-shrink: 0; touch-action: none; user-select: none; margin-left: 0.5rem; }
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
-.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:50vh;display:block;}
+.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:50vh;display:block; transform:translateZ(0); -webkit-transform:translateZ(0); will-change:transform;}
 .coaster-table{display:table;border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);width:100%;min-width:100%;color:var(--text);}
 .coaster-table th{padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);background:transparent;}
 .coaster-table th:hover{background:rgba(255,255,255,0.15);}
@@ -1279,13 +1279,6 @@ const Render = {
                             Utils.getElement('commentsModalTitle').textContent = this.dataset.rideName;
                             Utils.getElement('commentsModalBody').textContent = this.dataset.fullText;
                             modal.classList.add('active');
-                            if (modal) {
-                                modal.style.display = 'none';
-                                modal.offsetHeight;
-                                modal.style.display = 'flex';
-                                modal.style.transform = 'translateZ(0)';
-                                requestAnimationFrame(() => modal.style.transform = 'none');
-                            }
                             Modals._lockScroll();
                         });
                     } else {
@@ -2386,13 +2379,6 @@ const Modals = {
         Utils.getElement('editCoasterBtn').style.display = ''; // Enable editing for all years
         Utils.getElement('deleteCoasterBtn').style.display = ''; // Enable deleting for all years
         modal.classList.add('active');
-        if (modal) {
-            modal.style.display = 'none';
-            modal.offsetHeight;
-            modal.style.display = 'flex';
-            modal.style.transform = 'translateZ(0)';
-            requestAnimationFrame(() => modal.style.transform = 'none');
-        }
         this._lockScroll();
     },
     closeDetail() {
@@ -2411,15 +2397,6 @@ const Modals = {
         Utils.getElement('newCredit').closest('.form-group').style.display = '';
         const modal = Utils.getElement('addCoasterModal');
         modal.classList.add('active');
-        
-        if (modal) {
-            modal.style.display = 'none';
-            modal.offsetHeight;
-            modal.style.display = 'flex';
-            modal.style.transform = 'translateZ(0)';
-            requestAnimationFrame(() => modal.style.transform = 'none');
-        }
-        
         this._lockScroll();
     },
     closeAddCoaster() {
@@ -2523,30 +2500,14 @@ const Tabs = {
                         if (Chart.instance) Chart.update();
                         if (OverTimeChart.instance) OverTimeChart.update();
                     } else if (generalView && generalView.style.display !== 'none') {
-                        if (GeneralStats.instance) GeneralStats.update();
-                    }
-        } else if (tabName === 'spreadsheet') {
-                            Render.spreadsheet();
-                            const tab = Utils.getElement('spreadsheetTab');
-                            if (tab) {
-                                tab.style.display = 'none';
-                                tab.offsetHeight;
-                                tab.style.display = 'block';
-                                tab.style.transform = 'translateZ(0)';
-                                requestAnimationFrame(() => tab.style.transform = 'none');
-                            }
-                        } else if (tabName === 'rankings') {
-                            Render.rankings();
-                            const tab = Utils.getElement('rankingsTab');
-                            if (tab) {
-                                tab.style.display = 'none';
-                                tab.offsetHeight;
-                                tab.style.display = 'block';
-                                tab.style.transform = 'translateZ(0)';
-                                requestAnimationFrame(() => tab.style.transform = 'none');
-                            }
-                        }
-                    }
+                    if (GeneralStats.instance) GeneralStats.update();
+                }
+            } else if (tabName === 'spreadsheet') {
+                Render.spreadsheet();
+            } else if (tabName === 'rankings') {
+                Render.rankings();
+            }
+        }
 };
 
 const Forms = {
