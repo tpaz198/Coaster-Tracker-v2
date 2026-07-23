@@ -628,6 +628,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
                 </div>
             </div>
         </div>
+        </div>
 
         <div class="tab-content hidden" id="spreadsheetTab">
             <div class="table-controls">
@@ -726,7 +727,6 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
                 </div>
             </form>
         </div>
-    </div>
     </div>
     </div>
 
@@ -3158,7 +3158,7 @@ function setupEventListeners() {
             chartContainer.style.width = '1600px';
             chartContainer.style.maxWidth = '1600px';
         
-            chartInstance.resize();
+            chart.resize();
             chart.update('none');
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 100)));
 
@@ -3212,7 +3212,7 @@ function setupEventListeners() {
             chart.options.aspectRatio = originalAspectRatio;
             chartContainer.style.width = originalContainerWidth;
             chartContainer.style.maxWidth = originalContainerMaxWidth;
-            chartInstance.resize();
+            chart.resize();
             chart.update('none');
         }
 
