@@ -1250,7 +1250,8 @@ const Render = {
             const row = document.createElement('tr');
             if (coaster['New Credit'] === 'Yes') row.classList.add('new-credit-row');
             if (coaster.Status === 'Defunct') row.classList.add('defunct-row');
-            
+            row.addEventListener('click', () => Modals.showDetail(coaster));
+
             Object.entries(AppState.columns).forEach(([column, visible]) => {
                 if (!visible) return;
                 const td = document.createElement('td');
@@ -2387,6 +2388,7 @@ const Modals = {
         this._unlockScroll();
     },
     showAddCoaster() {
+        AppState.editing = null;
         DOM.populateRankingSelect('ranking');
         Utils.getElement('addModalTitle').textContent = 'Add New Credit';
         Utils.getElement('coasterForm').reset();
