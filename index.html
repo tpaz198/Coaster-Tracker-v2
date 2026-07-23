@@ -1533,15 +1533,15 @@ const GeneralStats = {
         const ctxTotal = Utils.getElement('generalStatsChart').getContext('2d');
         this.instance = new window.Chart(ctxTotal, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Total Credits', data: [], borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8 }] },
-            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'Total Credits Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: false, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+            data: { labels: [], datasets: [{ label: 'Total Credits', data: [], borderWidth: 4, tension: 0.3, fill: false, pointRadius: 8, pointHoverRadius: 10 }] },
+            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'Total Credits Over Time', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 }, callbacks: { label: (context) => `Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: false, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, color: textColor } } } }
         });
 
         const ctxNew = Utils.getElement('generalNewCreditsChart').getContext('2d');
         this.newCreditsInstance = new window.Chart(ctxNew, {
             type: 'bar',
             data: { labels: [], datasets: [{ label: 'New Credits', data: [], borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } } }
+            options: { responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9, plugins: { legend: { display: false }, title: { display: true, text: 'New Credits Per Year', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 }, callbacks: { label: (context) => `New Credits: ${context.parsed.y}` } } }, scales: { y: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'New Credits', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor } }, x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, color: textColor } } } }
         });
 
         this._otherDetails = { mfr: [], newMfr: [], park: [], newPark: [] };
@@ -1549,10 +1549,10 @@ const GeneralStats = {
         const getDonutOptions = (titleText, detailKey) => ({
             responsive: true, maintainAspectRatio: false, aspectRatio: 1, layout: { padding: 15 },
             plugins: {
-                legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 12 } } },
-                title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                legend: { display: true, position: 'right', labels: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 15 } } },
+                title: { display: true, text: titleText, font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor },
                 tooltip: {
-                    titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 14 },
+                    titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 },
                     callbacks: {
                         label: (context) => {
                             const label = context.label || '';
@@ -1578,31 +1578,31 @@ const GeneralStats = {
             options: {
                 indexAxis: 'y',
                 responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
-                plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, callbacks: { label: (context) => `Credits: ${context.parsed.x}` } } },
-                scales: { x: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, y: { grid: { display: false }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } } }
+                plugins: { legend: { display: false }, title: { display: true, text: 'Coaster Age Distribution', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor }, tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 }, callbacks: { label: (context) => `Credits: ${context.parsed.x}` } } },
+                scales: { x: { beginAtZero: true, grid: { color: borderColor }, title: { display: true, text: 'Credits', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor } }, y: { grid: { display: false }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, color: textColor } } }
             }
         });
 
         this.ratingAgeCorrInstance = new window.Chart(Utils.getElement('ratingAgeCorrChart').getContext('2d'), {
             type: 'scatter',
-            data: { datasets: [{ label: 'Credits', data: [], pointRadius: 5, pointHoverRadius: 7 }] },
+            data: { datasets: [{ label: 'Credits', data: [], pointRadius: 8, pointHoverRadius: 10 }] },
             options: {
                 responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: { 
                     legend: { display: false }, 
-                    title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor }, 
+                    title: { display: true, text: 'Rating vs. Age Correlation', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor }, 
                     tooltip: { 
-                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, 
-                        bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 }, 
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, 
+                        bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 }, 
                         callbacks: { label: (context) => { const p = context.raw; return `${p.name}: Rating ${p.y.toFixed(2)} (Year ${p.rawYear})`; } } 
                     } 
                 },
                 scales: { 
-                    y: { min: 1, max: 10, grid: { color: borderColor }, title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor } }, 
+                    y: { min: 1, max: 10, grid: { color: borderColor }, title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor } }, 
                     x: { 
                         type: 'logarithmic', 
                         grid: { color: borderColor }, 
-                        title: { display: true, text: 'Opening Year (Expanded Recent History)', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor }, 
+                        title: { display: true, text: 'Opening Year (Expanded Recent History)', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor }, 
                         min: 1,
                         max: 130,
                         reverse: true,
@@ -1613,7 +1613,10 @@ const GeneralStats = {
                             axis.ticks = targetYears.map(year => ({ value: baseYear - year }));
                         },
                         ticks: { 
-                            font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, 
+                            autoSkip: true,
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, 
                             color: textColor, 
                             callback: function(value) {
                                 const baseYear = new Date().getFullYear() + 1;
@@ -1824,12 +1827,12 @@ const Chart = {
                 responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
-                    tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 } }
+                    title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor },
+                    tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 } }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45, color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' } } },
-                    y: { grid: { color: borderColor }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 14 } } }
+                    x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45, color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' } } },
+                    y: { grid: { color: borderColor }, ticks: { color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 15 } } }
                 }
             }
         });
@@ -1910,12 +1913,12 @@ const Chart = {
             borderColor: this.mode === 'rating' ? 'transparent' : accentColor,
             pointBackgroundColor: this.mode === 'rating' ? dynamicColors : accentColor,
             pointBorderColor: this.mode === 'rating' ? 'transparent' : accentColor,
-            borderWidth: this.mode === 'rating' ? 0 : 3,
+            borderWidth: this.mode === 'rating' ? 0 : 4,
             tension: 0.1,
             fill: false,
             showLine: this.mode === 'ranking',
-            pointRadius: 6,
-            pointHoverRadius: 8,
+            pointRadius: 8,
+            pointHoverRadius: 10,
             borderRadius: this.mode === 'rating' ? 4 : 0
         }];
 
@@ -1929,13 +1932,13 @@ const Chart = {
             maxRotation: 45,
             minRotation: 45,
             color: textColor,
-            font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 10 : 13, weight: '600' }
+            font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 12 : 15, weight: '600' }
         };
         
         this.instance.options.scales.y.grid.color = borderColor;
         this.instance.options.scales.y.ticks.color = textColor;
         if (this.mode === 'rating') {
-            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' } };
             this.instance.options.scales.y.min = 1;
             this.instance.options.scales.y.max = 10;
             this.instance.options.scales.y.reverse = false;
@@ -1943,7 +1946,7 @@ const Chart = {
                 return value; // Standard number format
             };
         } else {
-            this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' } };
             this.instance.options.scales.y.min = 0.5;
             delete this.instance.options.scales.y.max;
             this.instance.options.scales.y.reverse = true;
@@ -1982,11 +1985,11 @@ const OverTimeChart = {
                 plugins: {
                     legend: {
                         display: false, position: 'right', align: 'center',
-                        labels: { font: { family: "'Space Grotesk', sans-serif", size: 11 }, color: textColor, boxWidth: 12, boxHeight: 12, padding: 10, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 10, maxWidth: 140 }
+                        labels: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor, boxWidth: 14, boxHeight: 14, padding: 12, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 12, maxWidth: 140 }
                     },
-                    title: { display: true, text: 'Average Rating Over Time', font: { family: "'Space Grotesk', sans-serif", size: 20, weight: 'bold' }, color: textColor },
+                    title: { display: true, text: 'Average Rating Over Time', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor },
                     tooltip: {
-                        titleFont: { family: "'Space Grotesk', sans-serif", size: 16 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 15 },
+                        titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 },
                         callbacks: {
                             label: (context) => {
                                 const ds    = context.dataset;
@@ -2013,10 +2016,10 @@ const OverTimeChart = {
                                 axis.ticks.sort((a, b) => a.value - b.value);
                             }
                         },
-                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 16, weight: 'bold' }, color: textColor },
-                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor }
+                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor },
+                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor }
                     },
-                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 13, weight: '600' }, color: textColor } }
+                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, color: textColor } }
                 }
             }
         });
@@ -2182,7 +2185,7 @@ const OverTimeChart = {
                     _baseIdx: id,
                     data: this.mode === 'rating' ? rideData.map(d => d.rating) : (this.useWeightedRanking ? rideData.map(d => d.weightedRanking) : rideData.map(d => d.ranking)),
                     _originalData: this.mode === 'rating' ? rideData.map(d => d.rating) : (this.useWeightedRanking ? rideData.map(d => d.weightedRanking) : rideData.map(d => d.ranking)),
-                    borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 2.5, tension: 0.3, fill: false, pointRadius: 4, pointHoverRadius: 6, spanGaps: true
+                    borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 3.5, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8, spanGaps: true
                 };
             });
 
@@ -2256,7 +2259,7 @@ const OverTimeChart = {
             this.instance.data.labels = data.map(d => d.year);
             this.instance.data.datasets = [{
                 label: this.mode === 'rating' ? (isRide ? 'Rating' : 'Average Rating') : (isRide ? (this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking') : (this.useWeightedRanking ? 'Average Weighted Ranking' : 'Average Ranking')),
-                data: values, borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 3, tension: 0.3, fill: false, pointRadius: 6, pointHoverRadius: 8, spanGaps: isRide
+                data: values, borderColor: color, pointBackgroundColor: color, pointBorderColor: color, borderWidth: 4, tension: 0.3, fill: false, pointRadius: 8, pointHoverRadius: 10, spanGaps: isRide
             }];
 
             opts.plugins.legend.display = false;
@@ -2769,7 +2772,16 @@ async function downloadChart(chartInstance, isOverTime = false) {
             exportCanvas.width = chartCanvas.width + (padding * 2); exportCanvas.height = chartCanvas.height + (padding * 2) + legendHeight;
             const ctx = exportCanvas.getContext('2d');
             ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            
+            // Add shadow to the chart elements on export
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             ctx.drawImage(chartCanvas, padding, padding);
+            
+            // Reset shadow before drawing the custom HTML legend to avoid double-shadowing text
+            ctx.shadowColor = 'transparent';
             if (legendCanvas) { const legendX = (exportCanvas.width - legendCanvas.width) / 2; ctx.drawImage(legendCanvas, legendX, chartCanvas.height + padding + 60); }
             
             const link = document.createElement('a'); 
@@ -2864,6 +2876,12 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
             const ctx = exportCanvas.getContext('2d'); 
             ctx.fillStyle = '#ffffff'; 
             ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); 
+            
+            // Add shadow to the chart elements on export
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             ctx.drawImage(originalCanvas, 0, 0);
             
             const link = document.createElement('a'); 
@@ -3086,7 +3104,7 @@ function setupEventListeners() {
         ];
 
         const originalPixelRatio = window.devicePixelRatio;
-        const desktopFontSizes = { title: 36, legend: 20, yTitle: 28, yTicks: 24, xTicks: 22 };
+        const desktopFontSizes = { title: 36, legend: 28, yTitle: 28, yTicks: 24, xTicks: 22 };
 
         for (const target of chartsToExport) {
             const chart = target.instance;
@@ -3176,6 +3194,12 @@ function setupEventListeners() {
             const ctx = exportCanvas.getContext('2d');
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            
+            // Add shadow to the chart elements on export
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             ctx.drawImage(chartCanvas, padding, padding);
 
             const dataUrl = exportCanvas.toDataURL('image/png');
