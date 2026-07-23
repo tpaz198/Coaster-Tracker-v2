@@ -2714,11 +2714,12 @@ async function downloadChart(chartInstance, isOverTime = false) {
     };
 
     const originalState = safeExtract();
-    const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
+    const desktopFontSizes = { title: 36, yTitle: 28, yTicks: 24, xTicks: 22 };
     const originalPixelRatio = chartInstance.options.devicePixelRatio;
     const chartContainer = chartInstance.canvas.parentElement;
     const originalContainerWidth = chartContainer.style.width;
     const originalContainerMaxWidth = chartContainer.style.maxWidth;
+    const originalContainerAspectRatio = chartContainer.style.aspectRatio;
 
     if (isOverTime) {
         try {
@@ -2727,10 +2728,10 @@ async function downloadChart(chartInstance, isOverTime = false) {
             
             applyExportStyles(desktopFontSizes);
             
-            chartInstance.options.devicePixelRatio = 4;
-            chartInstance.options.aspectRatio = 16 / 9;
-            if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
-            
+            console.error('DownloadChart fallback triggered:', error);
+            chartInstance.options.devicePixelRatio = originalPixelRatio; 
+            restoreStyles(originalState);
+            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
             chartInstance.resize();
             chartInstance.update('none');
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
@@ -2787,7 +2788,7 @@ async function downloadChart(chartInstance, isOverTime = false) {
             console.error('DownloadChart fallback triggered:', error);
             chartInstance.options.devicePixelRatio = originalPixelRatio; 
             restoreStyles(originalState);
-            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
             chartInstance.resize();
             chartInstance.update('none');
             simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); 
@@ -2802,6 +2803,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
     const chartContainer = chartInstance.canvas.parentElement;
     const originalContainerWidth = chartContainer.style.width; 
     const originalContainerMaxWidth = chartContainer.style.maxWidth;
+    const originalContainerAspectRatio = chartContainer.style.aspectRatio;
 
     const safeExtract = () => ({
         titleColor: chartInstance.options.plugins?.title?.color,
@@ -2842,13 +2844,13 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
     };
 
     const originalState = safeExtract();
-    const desktopFontSizes = { title: 20, yTitle: 16, yTicks: 14, xTicks: 13 };
+    const desktopFontSizes = { title: 36, yTitle: 28, yTicks: 24, xTicks: 22 };
     
     applyExportStyles(desktopFontSizes);
     
     chartInstance.options.devicePixelRatio = 4; 
     chartInstance.options.aspectRatio = 16 / 9;
-    if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; }
+    if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; chartContainer.style.aspectRatio = '16 / 9'; }
     
     chartInstance.resize();
     chartInstance.update('none');
@@ -2876,7 +2878,7 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
         
         chartInstance.options.devicePixelRatio = originalPixelRatio; 
         restoreStyles(originalState);
-        if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+        if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
         chartInstance.resize();
         chartInstance.update('none');
     }, 300);
@@ -3084,7 +3086,7 @@ function setupEventListeners() {
         ];
 
         const originalPixelRatio = window.devicePixelRatio;
-        const desktopFontSizes = { title: 20, legend: 12, yTitle: 16, yTicks: 14, xTicks: 13 };
+        const desktopFontSizes = { title: 36, legend: 20, yTitle: 28, yTicks: 24, xTicks: 22 };
 
         for (const target of chartsToExport) {
             const chart = target.instance;
@@ -3096,6 +3098,8 @@ function setupEventListeners() {
             const originalAspectRatio = chart.options.aspectRatio;
             const originalContainerWidth = chartContainer.style.width;
             const originalContainerMaxWidth = chartContainer.style.maxWidth;
+            const originalContainerAspectRatio = chartContainer.style.aspectRatio;
+            const originalContainerHeight = chartContainer.style.height;
             const isDonut = chart.config.type === 'doughnut';
 
             const originalColors = {
@@ -3157,6 +3161,8 @@ function setupEventListeners() {
             chart.options.aspectRatio = 16 / 9;
             chartContainer.style.width = '1600px';
             chartContainer.style.maxWidth = '1600px';
+            chartContainer.style.aspectRatio = '16 / 9';
+            chartContainer.style.height = 'auto';
         
             chart.resize();
             chart.update('none');
@@ -3212,6 +3218,8 @@ function setupEventListeners() {
             chart.options.aspectRatio = originalAspectRatio;
             chartContainer.style.width = originalContainerWidth;
             chartContainer.style.maxWidth = originalContainerMaxWidth;
+            chartContainer.style.aspectRatio = originalContainerAspectRatio;
+            chartContainer.style.height = originalContainerHeight;
             chart.resize();
             chart.update('none');
         }
