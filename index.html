@@ -1279,10 +1279,13 @@ const Render = {
                             Utils.getElement('commentsModalTitle').textContent = this.dataset.rideName;
                             Utils.getElement('commentsModalBody').textContent = this.dataset.fullText;
                             modal.classList.add('active');
-                            
-                            // Read geometry layout metrics instantly to break Chromium overlay isolation locks
-                            if (modal) { const forceRepaint = modal.offsetHeight; }
-                            
+                            if (modal) {
+                                modal.style.display = 'none';
+                                modal.offsetHeight;
+                                modal.style.display = 'flex';
+                                modal.style.transform = 'translateZ(0)';
+                                requestAnimationFrame(() => modal.style.transform = 'none');
+                            }
                             Modals._lockScroll();
                         });
                     } else {
@@ -1461,8 +1464,8 @@ const Spreadsheet = {
     },
     toggleColumn(column) {
         AppState.columns[column] = !AppState.columns[column];
-        const btn = document.querySelector(`[data-column="${column}"]`);
-        btn.classList.toggle('inactive');
+        const btn = document.querySelector(`.column-toggle[data-column="${column}"]`);
+        if (btn) btn.classList.toggle('inactive');
         Render.spreadsheet();
     },
     sortByColumn(column) {
@@ -2383,7 +2386,13 @@ const Modals = {
         Utils.getElement('editCoasterBtn').style.display = ''; // Enable editing for all years
         Utils.getElement('deleteCoasterBtn').style.display = ''; // Enable deleting for all years
         modal.classList.add('active');
-        modal.offsetHeight; // Forces synchronous document reflow to fix mobile rendering deadlocks
+        if (modal) {
+            modal.style.display = 'none';
+            modal.offsetHeight;
+            modal.style.display = 'flex';
+            modal.style.transform = 'translateZ(0)';
+            requestAnimationFrame(() => modal.style.transform = 'none');
+        }
         this._lockScroll();
     },
     closeDetail() {
@@ -2403,9 +2412,12 @@ const Modals = {
         const modal = Utils.getElement('addCoasterModal');
         modal.classList.add('active');
         
-        // Read geometry layout metrics instantly to break Chromium overlay isolation locks
         if (modal) {
-            const forceRepaint = modal.offsetHeight;
+            modal.style.display = 'none';
+            modal.offsetHeight;
+            modal.style.display = 'flex';
+            modal.style.transform = 'translateZ(0)';
+            requestAnimationFrame(() => modal.style.transform = 'none');
         }
         
         this._lockScroll();
@@ -2513,14 +2525,28 @@ const Tabs = {
                     } else if (generalView && generalView.style.display !== 'none') {
                         if (GeneralStats.instance) GeneralStats.update();
                     }
-                } else if (tabName === 'spreadsheet') {
-                    Render.spreadsheet();
-                    const tab = Utils.getElement('spreadsheetTab');
-                    if (tab) { const forceRepaint = tab.offsetHeight; }
-                } else if (tabName === 'rankings') {
-                    Render.rankings();
-                }
-            }
+        } else if (tabName === 'spreadsheet') {
+                            Render.spreadsheet();
+                            const tab = Utils.getElement('spreadsheetTab');
+                            if (tab) {
+                                tab.style.display = 'none';
+                                tab.offsetHeight;
+                                tab.style.display = 'block';
+                                tab.style.transform = 'translateZ(0)';
+                                requestAnimationFrame(() => tab.style.transform = 'none');
+                            }
+                        } else if (tabName === 'rankings') {
+                            Render.rankings();
+                            const tab = Utils.getElement('rankingsTab');
+                            if (tab) {
+                                tab.style.display = 'none';
+                                tab.offsetHeight;
+                                tab.style.display = 'block';
+                                tab.style.transform = 'translateZ(0)';
+                                requestAnimationFrame(() => tab.style.transform = 'none');
+                            }
+                        }
+                    }
 };
 
 const Forms = {
