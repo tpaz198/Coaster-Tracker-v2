@@ -862,12 +862,14 @@ function refreshDataForYear(year) {
     let hasOrphans = false;
     Object.keys(logs).forEach(id => {
         const master = masterCoasters[id];
-        if (!master) {
-            delete logs[id]; // Purge orphaned ID to prevent database ghosting
+        const log = logs[id];
+
+        // Sanity check: prevent crashes from manually edited/corrupted JSON imports
+        if (!master || !log || typeof log !== 'object') {
+            delete logs[id]; // Purge orphaned ID or malformed log to prevent database ghosting
             hasOrphans = true;
             return; 
         }
-        const log = logs[id];
         
         AppState.coasters.push({
             id: id,
@@ -1827,7 +1829,7 @@ const Chart = {
                 responsive: true, maintainAspectRatio: false, aspectRatio: 16 / 9,
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor },
+                    title: { display: true, text: '', font: { family: "'Space Grotesk', sans-serif", size: window.innerWidth <= 768 ? 22 : 26, weight: 'bold' }, color: textColor },
                     tooltip: { titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 } }
                 },
                 scales: {
@@ -1932,13 +1934,14 @@ const Chart = {
             maxRotation: 45,
             minRotation: 45,
             color: textColor,
-            font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 12 : 15, weight: '600' }
+            font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 12 : 18, weight: '600' }
         };
         
         this.instance.options.scales.y.grid.color = borderColor;
         this.instance.options.scales.y.ticks.color = textColor;
+        this.instance.options.scales.y.ticks.font = { family: "'Space Grotesk', sans-serif", size: isMobile ? 15 : 18 };
         if (this.mode === 'rating') {
-            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 18 : 22, weight: 'bold' } };
             this.instance.options.scales.y.min = 1;
             this.instance.options.scales.y.max = 10;
             this.instance.options.scales.y.reverse = false;
@@ -1987,7 +1990,7 @@ const OverTimeChart = {
                         display: false, position: 'right', align: 'center',
                         labels: { font: { family: "'Space Grotesk', sans-serif", size: 14 }, color: textColor, boxWidth: 14, boxHeight: 14, padding: 12, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 12, maxWidth: 140 }
                     },
-                    title: { display: true, text: 'Average Rating Over Time', font: { family: "'Space Grotesk', sans-serif", size: 22, weight: 'bold' }, color: textColor },
+                    title: { display: true, text: 'Average Rating Over Time', font: { family: "'Space Grotesk', sans-serif", size: window.innerWidth <= 768 ? 22 : 26, weight: 'bold' }, color: textColor },
                     tooltip: {
                         titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 },
                         callbacks: {
@@ -2016,10 +2019,10 @@ const OverTimeChart = {
                                 axis.ticks.sort((a, b) => a.value - b.value);
                             }
                         },
-                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' }, color: textColor },
-                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15 }, color: textColor }
+                        title: { display: true, text: 'Rating', font: { family: "'Space Grotesk', sans-serif", size: window.innerWidth <= 768 ? 18 : 22, weight: 'bold' }, color: textColor },
+                        ticks: { font: { family: "'Space Grotesk', sans-serif", size: window.innerWidth <= 768 ? 15 : 18 }, color: textColor }
                     },
-                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: 15, weight: '600' }, color: textColor } }
+                    x: { grid: { color: borderColor }, ticks: { font: { family: "'Space Grotesk', sans-serif", size: window.innerWidth <= 768 ? 15 : 18, weight: '600' }, color: textColor } }
                 }
             }
         });
@@ -2508,9 +2511,11 @@ const Tabs = {
                     if (GeneralStats.instance) GeneralStats.update();
                 }
             } else if (tabName === 'spreadsheet') {
-                Render.spreadsheet();
+                // Prevent UI freeze by allowing the tab to render before heavy DOM generation
+                Utils.getElement('tableBody').innerHTML = '<tr><td colspan="100%" style="padding: 2rem; text-align: center; color: var(--text-secondary);">Loading table data...</td></tr>';
+                setTimeout(() => Render.spreadsheet(), 25);
             } else if (tabName === 'rankings') {
-                Render.rankings();
+                setTimeout(() => Render.rankings(), 25);
             }
         }
 };
@@ -2998,13 +3003,14 @@ function setupEventListeners() {
                 await saveProfileToLocal(); 
                 
                 // Sync the UI Year Selector to prevent visual desync
-                const yearSelect = Utils.getElement('yearSelect');
-                if (yearSelect && [...yearSelect.options].some(opt => opt.value === ACTUAL_CURRENT_YEAR)) {
-                    yearSelect.value = ACTUAL_CURRENT_YEAR;
-                }
-                
-                refreshDataForYear(ACTUAL_CURRENT_YEAR);
-            } catch (err) {
+                    const yearSelect = Utils.getElement('yearSelect');
+                    if (yearSelect && [...yearSelect.options].some(opt => opt.value === ACTUAL_CURRENT_YEAR)) {
+                        yearSelect.value = ACTUAL_CURRENT_YEAR;
+                    }
+
+                    setUnsavedChanges(false);
+                    refreshDataForYear(ACTUAL_CURRENT_YEAR);
+                } catch (err) {
                 console.error("Import Error:", err);
                 alert("Invalid Profile JSON: " + err.message);
             }
@@ -3385,7 +3391,7 @@ function setupEventListeners() {
                 chart.options.plugins.legend.position = isMobile ? 'bottom' : 'right';
                 if (isMobile && chart.options.plugins.legend.labels) {
                     chart.options.plugins.legend.labels.boxWidth = 12;
-                    chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: 11 };
+                    chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: 13 };
                     chart.options.layout = { padding: 5 };
                 }
                 chart.update('none');
