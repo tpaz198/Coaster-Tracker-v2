@@ -170,10 +170,12 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .drag-handle { width: 32px; height: 40px; cursor: grab; opacity: 0.4; transition: opacity 0.2s; background-image: radial-gradient(circle, var(--text) 2px, transparent 2.5px); background-size: 8px 8px; background-position: center; background-repeat: repeat; flex-shrink: 0; touch-action: none; user-select: none; margin-left: 0.5rem; }
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
-.table-wrapper{overflow-x:auto;background:var(--bg-secondary);border-radius:10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:50vh;display:block; transform:translateZ(0); -webkit-transform:translateZ(0); will-change:transform;}
+.table-top-scroll{overflow-x:auto;overflow-y:hidden;width:100%;background:var(--bg-secondary);border:4px solid var(--primary);border-bottom:none;border-radius:10px 10px 0 0;margin-bottom:0;}
+.top-scroll-content{height:1px;}
+.table-wrapper{overflow-x:auto;overflow-y:auto;max-height:75vh;background:var(--bg-secondary);border-radius:0 0 10px 10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:50vh;display:block;}
 .coaster-table{display:table;border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);width:100%;min-width:100%;color:var(--text);}
-.coaster-table th{padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);background:transparent;}
-.coaster-table th:hover{background:rgba(255,255,255,0.15);}
+.coaster-table th{position:sticky;top:0;z-index:10;background:var(--primary);padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+.coaster-table th:hover{filter:brightness(1.1);}
 .coaster-table th.sorted-asc::after{content:' ▲';font-size:0.7em;color:var(--accent);}
 .coaster-table th.sorted-desc::after{content:' ▼';font-size:0.7em;color:var(--accent);}
 .coaster-table th[data-sort-priority]::before{content:attr(data-sort-priority);font-size:0.6em;vertical-align:super;color:var(--accent);margin-right:2px;font-weight:700;}
@@ -196,7 +198,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .comments-modal-body{font-size:1.05rem;line-height:1.7;color:var(--text);white-space:pre-wrap;}
 .coaster-table th[data-column="Ride"],.coaster-table td[data-column="Ride"]{min-width:90px;position:sticky;left:0;z-index:2;white-space:normal;}
 @media (max-width:768px){.coaster-table th[data-column="Ride"],.coaster-table td[data-column="Ride"]{min-width:72px;max-width:96px;}}
-.coaster-table th[data-column="Ride"]{background:#0e7490;}
+.coaster-table th[data-column="Ride"]{background:#0e7490;z-index:12;}
 .coaster-table td[data-column="Ride"]{background:var(--bg-secondary);}
 .coaster-table tr.new-credit-row td[data-column="Ride"]{background:var(--new-credit-bg);}
 .coaster-table tr.defunct-row td[data-column="Ride"]{background:var(--defunct-bg);}
@@ -637,7 +639,10 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
             <div class="table-refresh-row">
                 <button class="column-toggle" id="tableRefreshBtn" title="Reset table sort order" style="background:var(--accent);color:#fff;">↻ Refresh</button>
             </div>
-            <div class="table-wrapper">
+            <div class="table-top-scroll" id="topScrollWrapper">
+                <div class="top-scroll-content" id="topScrollContent"></div>
+            </div>
+            <div class="table-wrapper" id="tableWrapper">
                 <table class="coaster-table">
                     <thead id="tableHead"></thead>
                     <tbody id="tableBody"></tbody>
@@ -1272,8 +1277,10 @@ const Render = {
                     const fullText = coaster[column] || '—';
                     const span = document.createElement('span');
                     span.className = 'comments-inner';
-                    if (fullText.length > 75 && fullText !== '—') {
-                        span.textContent = fullText.slice(0, 75) + '...';
+                    span.textContent = (fullText.length > 75 && fullText !== '—') ? fullText.slice(0, 75) + '...' : fullText;
+                    td.appendChild(span);
+                    
+                    if (fullText !== '—') {
                         td.dataset.fullText = fullText;
                         td.dataset.rideName = coaster['Ride'] || '';
                         td.addEventListener('click', function(e) {
@@ -1284,10 +1291,7 @@ const Render = {
                             modal.classList.add('active');
                             Modals._lockScroll();
                         });
-                    } else {
-                        span.textContent = fullText;
                     }
-                    td.appendChild(span);
                 }
                 row.appendChild(td);
             });
@@ -1295,6 +1299,14 @@ const Render = {
         });
         tbody.innerHTML = '';
         tbody.appendChild(fragment);
+
+        setTimeout(() => {
+            const table = document.querySelector('.coaster-table');
+            const topContent = Utils.getElement('topScrollContent');
+            if (table && topContent) {
+                topContent.style.width = table.offsetWidth + 'px';
+            }
+        }, 50);
     },
     rankings() {
         const list = Utils.getElement('rankingsList');
@@ -1457,6 +1469,29 @@ const Spreadsheet = {
             btn.addEventListener('click', () => this.toggleColumn(column));
             togglesContainer.appendChild(btn);
         });
+
+        const tableWrap = Utils.getElement('tableWrapper');
+        const topScrollWrap = Utils.getElement('topScrollWrapper');
+        if (tableWrap && topScrollWrap) {
+            let isSyncingLeft = false;
+            let isSyncingRight = false;
+            
+            topScrollWrap.addEventListener('scroll', function() {
+                if (!isSyncingLeft) {
+                    isSyncingRight = true;
+                    tableWrap.scrollLeft = this.scrollLeft;
+                }
+                isSyncingLeft = false;
+            });
+            
+            tableWrap.addEventListener('scroll', function() {
+                if (!isSyncingRight) {
+                    isSyncingLeft = true;
+                    topScrollWrap.scrollLeft = this.scrollLeft;
+                }
+                isSyncingRight = false;
+            });
+        }
     },
     toggleColumn(column) {
         AppState.columns[column] = !AppState.columns[column];
@@ -1465,10 +1500,11 @@ const Spreadsheet = {
         Render.spreadsheet();
     },
     sortByColumn(column) {
-        const existing = AppState.sort.findIndex(s => s.column === column);
-        if (existing !== -1) {
-            const entry = AppState.sort[existing];
+        const existingIdx = AppState.sort.findIndex(s => s.column === column);
+        if (existingIdx !== -1) {
+            const entry = AppState.sort.splice(existingIdx, 1)[0];
             entry.direction = entry.direction === 'asc' ? 'desc' : 'asc';
+            AppState.sort.push(entry);
         } else {
             if (AppState.sort.length >= 3) AppState.sort.shift();
             AppState.sort.push({ column, direction: 'asc' });
@@ -1479,7 +1515,7 @@ const Spreadsheet = {
         const data = AppState.filtered || AppState.coasters;
         if (!AppState.sort.length) return data;
         const numericCols = new Set(['Rating', 'Ranking', 'Weighted Ranking', 'Opening Year']);
-        const emptyLastCols = new Set(['Ranking', 'Weighted Ranking']);
+        const emptyLastCols = new Set(['Ranking', 'Weighted Ranking', 'Rating']);
         const reversed = [...AppState.sort].reverse();
         
         return [...data].sort((a, b) => {
@@ -1503,6 +1539,8 @@ const Spreadsheet = {
                     if (aVal < bVal) return direction === 'asc' ? -1 : 1;
                     if (aVal > bVal) return direction === 'asc' ? 1 : -1;
                 } else {
+                    if (!aVal && bVal) return 1;
+                    if (aVal && !bVal) return -1;
                     const strA = String(aVal).toLowerCase();
                     const strB = String(bVal).toLowerCase();
                     if (strA < strB) return direction === 'asc' ? -1 : 1;
@@ -1557,12 +1595,13 @@ const GeneralStats = {
                     titleFont: { family: "'Space Grotesk', sans-serif", size: 18 }, bodyFont: { family: "'Space Grotesk', sans-serif", size: 16 },
                     callbacks: {
                         label: (context) => {
-                            const label = context.label || '';
+                            const rawLabel = context.label || '';
+                            const labelStr = Array.isArray(rawLabel) ? rawLabel.join(' ') : rawLabel;
                             const value = context.parsed || 0;
-                            if (label === 'Other' && this._otherDetails[detailKey] && this._otherDetails[detailKey].length > 0) {
+                            if (labelStr === 'Other' && this._otherDetails[detailKey] && this._otherDetails[detailKey].length > 0) {
                                 return [`Other: ${value}`, ...this._otherDetails[detailKey].map(x => `  • ${x.name}: ${x.count}`)];
                             }
-                            return `${label}: ${value}`;
+                            return `${labelStr}: ${value}`;
                         }
                     }
                 }
@@ -1730,7 +1769,7 @@ const GeneralStats = {
 
             sortedEntries.forEach(([key, count], idx) => {
                 if (idx < maxDisplay) {
-                    lbls.push(key);
+                    lbls.push(Utils.wrapLabel(key, 16));
                     vals.push(count);
                 } else {
                     other += count;
@@ -1906,8 +1945,8 @@ const Chart = {
         const dynamicColors = candidates.map(c => Utils.getRatingColor(c.val));
 
         const isMobile = window.innerWidth <= 768;
-        // Pass flat strings instead of arrays to force Chart.js to rotate the labels 45 degrees
-        this.instance.data.labels = candidates.map(c => isMobile ? Utils.truncateLabel(c.name, 13) : Utils.truncateLabel(c.name, 25));
+        // Passing arrays generated by wrapLabel allows Chart.js to split long names into multiple lines
+        this.instance.data.labels = candidates.map(c => isMobile ? Utils.wrapLabel(c.name, 13) : Utils.wrapLabel(c.name, 20));
         this.instance.data.datasets = [{
             type: this.mode === 'rating' ? 'bar' : 'line',
             data: dataPoints,
@@ -1950,7 +1989,7 @@ const Chart = {
             };
         } else {
             this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' } };
-            this.instance.options.scales.y.min = 0.5;
+            this.instance.options.scales.y.min = 0;
             delete this.instance.options.scales.y.max;
             this.instance.options.scales.y.reverse = true;
             const isWeighted = this.useWeightedRanking;
@@ -2540,11 +2579,13 @@ const Forms = {
             const baseId = `${park}_${ride}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
             
             id = baseId;
-            let counter = 1;
-            // Cleanly check if the specific generated ID string exists in master records
-            while (masterCoasters[id]) {
-                id = `${baseId}_${counter}`;
-                counter++;
+            const yearKey = `logs_${currentYearStr}`;
+            const currentLogs = userProfile[yearKey] || {};
+            
+            // Block duplicate coasters from being added in the same year
+            if (currentLogs[id]) {
+                alert("This ride is already logged for this year.");
+                return;
             }
         }
         
@@ -2604,7 +2645,7 @@ const submittedMetadata = {
             rating: parseFloat(Utils.getElement('rating').value) || 0,
             ranking: newRank,
             newCredit: Utils.getElement('newCredit').checked,
-            comments: Utils.getElement('comments').value
+            comments: Utils.getElement('comments').value.slice(0, 350)
         };
         
         // BUG 2 FIX: Robust ranking adjustments for both adding AND editing
@@ -2683,146 +2724,178 @@ async function downloadChart(chartInstance, isOverTime = false) {
     const isMobile = window.innerWidth <= 768;
     const originalAspectRatio = chartInstance.options.aspectRatio;
 
-    const safeExtract = () => ({
-        titleColor: chartInstance.options.plugins?.title?.color,
-        yTitleColor: chartInstance.options.scales?.y?.title?.color,
-        yTicksColor: chartInstance.options.scales?.y?.ticks?.color,
-        yGridColor: chartInstance.options.scales?.y?.grid?.color,
-        xTicksColor: chartInstance.options.scales?.x?.ticks?.color,
-        xGridColor: chartInstance.options.scales?.x?.grid?.color,
-        xTitleColor: chartInstance.options.scales?.x?.title?.color,
-        legendColor: chartInstance.options.plugins?.legend?.labels?.color,
-        titleSize: chartInstance.options.plugins?.title?.font?.size,
-        yTitleSize: chartInstance.options.scales?.y?.title?.font?.size,
-        yTicksSize: chartInstance.options.scales?.y?.ticks?.font?.size,
-        xTicksSize: chartInstance.options.scales?.x?.ticks?.font?.size,
-        xTitleSize: chartInstance.options.scales?.x?.title?.font?.size
-    });
-
-    const applyExportStyles = (fs) => {
-        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = '#000000'; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = fs.title * 2; }
-        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = '#000000'; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = fs.yTitle * 2; }
-        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = '#000000'; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = fs.yTicks * 2; }
-        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = '#808080';
-        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = '#000000'; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = fs.xTicks * 2; }
-        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = '#808080';
-        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = '#000000'; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = fs.yTitle * 2; }
-        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
-    };
-
-    const restoreStyles = (orig) => {
-        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = orig.titleColor; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = orig.titleSize; }
-        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = orig.yTitleColor; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = orig.yTitleSize; }
-        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = orig.yTicksColor; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = orig.yTicksSize; }
-        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = orig.yGridColor;
-        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = orig.xTicksColor; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = orig.xTicksSize; }
-        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = orig.xGridColor;
-        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = orig.xTitleColor; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = orig.xTitleSize; }
-        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = orig.legendColor;
-    };
-
-    const originalState = safeExtract();
-    const desktopFontSizes = { title: 36, yTitle: 28, yTicks: 24, xTicks: 22 };
+    const originalState = safeExtractChartStyles(chartInstance);
+    // Doubled values to perfectly match the General Chart font scaling
+    const desktopFontSizes = { title: 72, legend: 56, yTitle: 56, yTicks: 48, xTicks: 44 };
     const originalPixelRatio = chartInstance.options.devicePixelRatio;
-    const chartContainer = chartInstance.canvas.parentElement;
-    const originalContainerWidth = chartContainer.style.width;
-    const originalContainerMaxWidth = chartContainer.style.maxWidth;
-    const originalContainerAspectRatio = chartContainer.style.aspectRatio;
+    const chartCanvas = chartInstance.canvas;
+    const chartContainer = chartCanvas.parentElement;
+    const originalContainerWidth = chartContainer ? chartContainer.style.width : '';
+    const originalContainerMaxWidth = chartContainer ? chartContainer.style.maxWidth : '';
+    const originalContainerHeight = chartContainer ? chartContainer.style.height : '';
+    const originalContainerAspectRatio = chartContainer ? chartContainer.style.aspectRatio : '';
 
     if (isOverTime) {
         try {
             const legend = document.getElementById('otLegend');
-            const chartCanvas = chartInstance.canvas;
-            
-            applyExportStyles(desktopFontSizes);
-            
-            console.error('DownloadChart fallback triggered:', error);
-            chartInstance.options.devicePixelRatio = originalPixelRatio; 
-            restoreStyles(originalState);
-            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
+            applyExportStyles(chartInstance, desktopFontSizes);
+
+            chartInstance.options.devicePixelRatio = 4;
+            chartInstance.options.aspectRatio = 16 / 9;
+
+            if (chartContainer) {
+                chartContainer.style.width = '1600px';
+                chartContainer.style.maxWidth = '1600px';
+                chartContainer.style.height = 'auto';
+                chartContainer.style.aspectRatio = '16 / 9';
+            }
+
             chartInstance.resize();
             chartInstance.update('none');
+
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 200)));
-            
-            let legendCanvas = null; let legendScale = 2;
+
+            let legendCanvas = null;
+            let legendScale = 2;
             if (legend && legend.children.length > 0) {
-                const originalLegendWidth = legend.style.width; const originalLegendMaxWidth = legend.style.maxWidth;
-                if (isMobile) { legend.style.width = '1600px'; legend.style.maxWidth = '1600px'; }
-                const originalLegendStyle = { background: legend.style.background, border: legend.style.border, boxShadow: legend.style.boxShadow, justifyContent: legend.style.justifyContent, padding: legend.style.padding, display: legend.style.display, flexWrap: legend.style.flexWrap, gap: legend.style.gap };
+                const originalLegendWidth = legend.style.width;
+                const originalLegendMaxWidth = legend.style.maxWidth;
+                legend.style.width = '1600px';
+                legend.style.maxWidth = '1600px';
+
+                const originalLegendStyle = {
+                    background: legend.style.background,
+                    border: legend.style.border,
+                    boxShadow: legend.style.boxShadow,
+                    justifyContent: legend.style.justifyContent,
+                    padding: legend.style.padding,
+                    display: legend.style.display,
+                    flexWrap: legend.style.flexWrap,
+                    gap: legend.style.gap
+                };
+
+                legend.style.background = 'transparent';
+                legend.style.border = 'none';
+                legend.style.boxShadow = 'none';
+                legend.style.padding = '12px 0';
                 
-                legend.style.background = 'transparent'; legend.style.border = 'none'; legend.style.boxShadow = 'none'; legend.style.padding = '12px 0';
                 const legendItems = Array.from(legend.querySelectorAll('.ot-legend-item'));
-                const originalItemStyles = []; const originalLabelStyles = [];
-                legendItems.forEach((item, i) => { originalItemStyles[i] = { color: item.style.color, flexBasis: item.style.flexBasis, maxWidth: item.style.maxWidth }; item.style.color = '#000000'; item.style.flexBasis = 'auto'; item.style.maxWidth = 'none'; });
-                
-                const legendLabels = legend.querySelectorAll('.ot-legend-label');
-                legendLabels.forEach((label, i) => { originalLabelStyles[i] = { color: label.style.color, fontSize: label.style.fontSize }; label.style.color = '#000000'; label.style.fontSize = '34px'; });
-                
-                const legendSwatches = legend.querySelectorAll('.ot-legend-swatch');
+                const originalItemStyles = [];
+                const originalLabelStyles = [];
                 const originalSwatchStyles = [];
-                legendSwatches.forEach((swatch, i) => { originalSwatchStyles[i] = { width: swatch.style.width, height: swatch.style.height }; swatch.style.width = '24px'; swatch.style.height = '24px'; });
-                
-                legend.style.display = 'flex'; legend.style.flexWrap = 'wrap'; legend.style.justifyContent = 'center'; legend.style.gap = '10px 50px';
-                legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale });
-                if (legendCanvas.width > chartCanvas.width) { legendScale = (chartCanvas.width / legend.offsetWidth) * 0.95; legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale }); }
-                
-                legend.style.background = originalLegendStyle.background; legend.style.border = originalLegendStyle.border; legend.style.boxShadow = originalLegendStyle.boxShadow; legend.style.justifyContent = originalLegendStyle.justifyContent; legend.style.padding = originalLegendStyle.padding; legend.style.display = originalLegendStyle.display; legend.style.flexWrap = originalLegendStyle.flexWrap; legend.style.gap = originalLegendStyle.gap;
-                if (isMobile) { legend.style.width = originalLegendWidth; legend.style.maxWidth = originalLegendMaxWidth; }
-                legendItems.forEach((item, i) => { item.style.color = originalItemStyles[i].color; item.style.flexBasis = originalItemStyles[i].flexBasis; item.style.maxWidth = originalItemStyles[i].maxWidth; });
-                legendLabels.forEach((label, i) => { label.style.color = originalLabelStyles[i].color; label.style.fontSize = originalLabelStyles[i].fontSize; });
-                legendSwatches.forEach((swatch, i) => { swatch.style.width = originalSwatchStyles[i].width; swatch.style.height = originalSwatchStyles[i].height; });
+
+                legendItems.forEach((item, i) => {
+                    originalItemStyles[i] = { color: item.style.color, flexBasis: item.style.flexBasis, maxWidth: item.style.maxWidth };
+                    item.style.color = '#000000';
+                    item.style.flexBasis = 'auto';
+                    item.style.maxWidth = 'none';
+                });
+
+                const legendLabels = legend.querySelectorAll('.ot-legend-label');
+                legendLabels.forEach((label, i) => {
+                    originalLabelStyles[i] = { color: label.style.color, fontSize: label.style.fontSize };
+                    label.style.color = '#000000';
+                    label.style.fontSize = '64px';
+                });
+
+                const legendSwatches = legend.querySelectorAll('.ot-legend-swatch');
+                legendSwatches.forEach((swatch, i) => {
+                    originalSwatchStyles[i] = { width: swatch.style.width, height: swatch.style.height };
+                    swatch.style.width = '52px';
+                    swatch.style.height = '52px';
+                });
+
+                legend.style.display = 'flex';
+                legend.style.flexWrap = 'wrap';
+                legend.style.justifyContent = 'space-around';
+                legend.style.gap = '20px 40px';
+                legend.style.padding = '20px 40px';
+
+                if (typeof html2canvas === 'function') {
+                    legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale });
+                    if (legendCanvas.width > chartCanvas.width) {
+                        legendScale = (chartCanvas.width / legend.offsetWidth) * 0.95;
+                        legendCanvas = await html2canvas(legend, { backgroundColor: null, scale: legendScale });
+                    }
+                }
+
+                legend.style.background = originalLegendStyle.background;
+                legend.style.border = originalLegendStyle.border;
+                legend.style.boxShadow = originalLegendStyle.boxShadow;
+                legend.style.justifyContent = originalLegendStyle.justifyContent;
+                legend.style.padding = originalLegendStyle.padding;
+                legend.style.display = originalLegendStyle.display;
+                legend.style.flexWrap = originalLegendStyle.flexWrap;
+                legend.style.gap = originalLegendStyle.gap;
+                legend.style.width = originalLegendWidth;
+                legend.style.maxWidth = originalLegendMaxWidth;
+
+                legendItems.forEach((item, i) => {
+                    item.style.color = originalItemStyles[i].color;
+                    item.style.flexBasis = originalItemStyles[i].flexBasis;
+                    item.style.maxWidth = originalItemStyles[i].maxWidth;
+                });
+                legendLabels.forEach((label, i) => {
+                    label.style.color = originalLabelStyles[i].color;
+                    label.style.fontSize = originalLabelStyles[i].fontSize;
+                });
+                legendSwatches.forEach((swatch, i) => {
+                    swatch.style.width = originalSwatchStyles[i].width;
+                    swatch.style.height = originalSwatchStyles[i].height;
+                });
             }
-            
-            const exportCanvas = document.createElement('canvas'); const padding = 80; const legendHeight = legendCanvas ? legendCanvas.height + 60 : 0;
-            exportCanvas.width = chartCanvas.width + (padding * 2); exportCanvas.height = chartCanvas.height + (padding * 2) + legendHeight;
+
+            const exportCanvas = document.createElement('canvas');
+            const padding = 80;
+            const legendHeight = legendCanvas ? legendCanvas.height + 60 : 0;
+            exportCanvas.width = chartCanvas.width + (padding * 2);
+            exportCanvas.height = chartCanvas.height + (padding * 2) + legendHeight;
+
             const ctx = exportCanvas.getContext('2d');
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            
-            // Add shadow to the chart elements on export
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
             ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 4;
             ctx.shadowOffsetY = 4;
             ctx.drawImage(chartCanvas, padding, padding);
-            
-            // Reset shadow before drawing the custom HTML legend to avoid double-shadowing text
+
             ctx.shadowColor = 'transparent';
-            if (legendCanvas) { const legendX = (exportCanvas.width - legendCanvas.width) / 2; ctx.drawImage(legendCanvas, legendX, chartCanvas.height + padding + 60); }
-            
-            const link = document.createElement('a'); 
-            link.download = filename; 
-            link.href = exportCanvas.toDataURL('image/png'); 
+            if (legendCanvas) {
+                const legendX = (exportCanvas.width - legendCanvas.width) / 2;
+                ctx.drawImage(legendCanvas, legendX, chartCanvas.height + padding + 60);
+            }
+
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = exportCanvas.toDataURL('image/png');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
-            chartInstance.options.devicePixelRatio = originalPixelRatio; 
-            restoreStyles(originalState);
-            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; }
+        } catch (error) {
+            console.error('DownloadChart error:', error);
+            simpleDownload(chartInstance, filename, isMobile, originalAspectRatio);
+        } finally {
+            chartInstance.options.devicePixelRatio = originalPixelRatio;
+            restoreChartStyles(chartInstance, originalState);
+            chartInstance.options.aspectRatio = originalAspectRatio;
+            if (chartContainer) {
+                chartContainer.style.width = originalContainerWidth;
+                chartContainer.style.maxWidth = originalContainerMaxWidth;
+                chartContainer.style.height = originalContainerHeight;
+                chartContainer.style.aspectRatio = originalContainerAspectRatio;
+            }
             chartInstance.resize();
             chartInstance.update('none');
-        } catch (error) { 
-            console.error('DownloadChart fallback triggered:', error);
-            chartInstance.options.devicePixelRatio = originalPixelRatio; 
-            restoreStyles(originalState);
-            if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
-            chartInstance.resize();
-            chartInstance.update('none');
-            simpleDownload(chartInstance, filename, isMobile, originalAspectRatio); 
         }
     } else {
         simpleDownload(chartInstance, filename, isMobile, originalAspectRatio);
     }
 }
 
-function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) {
-    const originalPixelRatio = chartInstance.options.devicePixelRatio; 
-    const chartContainer = chartInstance.canvas.parentElement;
-    const originalContainerWidth = chartContainer.style.width; 
-    const originalContainerMaxWidth = chartContainer.style.maxWidth;
-    const originalContainerAspectRatio = chartContainer.style.aspectRatio;
-
-    const safeExtract = () => ({
+function safeExtractChartStyles(chartInstance) {
+    return {
         titleColor: chartInstance.options.plugins?.title?.color,
         yTitleColor: chartInstance.options.scales?.y?.title?.color,
         yTicksColor: chartInstance.options.scales?.y?.ticks?.color,
@@ -2836,75 +2909,139 @@ function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) 
         yTicksSize: chartInstance.options.scales?.y?.ticks?.font?.size,
         xTicksSize: chartInstance.options.scales?.x?.ticks?.font?.size,
         xTitleSize: chartInstance.options.scales?.x?.title?.font?.size
-    });
-
-    const applyExportStyles = (fs) => {
-        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = '#000000'; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = fs.title * 2; }
-        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = '#000000'; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = fs.yTitle * 2; }
-        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = '#000000'; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = fs.yTicks * 2; }
-        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = '#808080';
-        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = '#000000'; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = (fs.xTicks - 2) * 2; }
-        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = '#808080';
-        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = '#000000'; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = fs.yTitle * 2; }
-        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = '#000000';
     };
+}
 
-    const restoreStyles = (orig) => {
-        if (chartInstance.options.plugins?.title) { chartInstance.options.plugins.title.color = orig.titleColor; if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = orig.titleSize; }
-        if (chartInstance.options.scales?.y?.title) { chartInstance.options.scales.y.title.color = orig.yTitleColor; if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = orig.yTitleSize; }
-        if (chartInstance.options.scales?.y?.ticks) { chartInstance.options.scales.y.ticks.color = orig.yTicksColor; if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = orig.yTicksSize; }
-        if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = orig.yGridColor;
-        if (chartInstance.options.scales?.x?.ticks) { chartInstance.options.scales.x.ticks.color = orig.xTicksColor; if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = orig.xTicksSize; }
-        if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = orig.xGridColor;
-        if (chartInstance.options.scales?.x?.title) { chartInstance.options.scales.x.title.color = orig.xTitleColor; if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = orig.xTitleSize; }
-        if (chartInstance.options.plugins?.legend?.labels) chartInstance.options.plugins.legend.labels.color = orig.legendColor;
-    };
+function applyExportStyles(chartInstance, fs) {
+    if (chartInstance.options.plugins?.title) {
+        chartInstance.options.plugins.title.color = '#000000';
+        if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = fs.title;
+    }
+    if (chartInstance.options.scales?.y?.title) {
+        chartInstance.options.scales.y.title.color = '#000000';
+        if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = fs.yTitle;
+    }
+    if (chartInstance.options.scales?.y?.ticks) {
+        chartInstance.options.scales.y.ticks.color = '#000000';
+        if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = fs.yTicks;
+    }
+    if (chartInstance.options.scales?.y?.grid) {
+        chartInstance.options.scales.y.grid.color = '#808080';
+    }
+    if (chartInstance.options.scales?.x?.ticks) {
+        chartInstance.options.scales.x.ticks.color = '#000000';
+        if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = fs.xTicks;
+    }
+    if (chartInstance.options.scales?.x?.grid) {
+        chartInstance.options.scales.x.grid.color = '#808080';
+    }
+    if (chartInstance.options.scales?.x?.title) {
+        chartInstance.options.scales.x.title.color = '#000000';
+        if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = fs.xTitle || fs.yTitle;
+    }
+    if (chartInstance.options.plugins?.legend?.labels) {
+        chartInstance.options.plugins.legend.labels.color = '#000000';
+        if (chartInstance.options.plugins.legend.labels.font && fs.legend) {
+            chartInstance.options.plugins.legend.labels.font.size = fs.legend;
+        }
+    }
+}
 
-    const originalState = safeExtract();
-    const desktopFontSizes = { title: 36, yTitle: 28, yTicks: 24, xTicks: 22 };
-    
-    applyExportStyles(desktopFontSizes);
-    
-    chartInstance.options.devicePixelRatio = 4; 
+function restoreChartStyles(chartInstance, orig) {
+    if (!orig) return;
+    if (chartInstance.options.plugins?.title) {
+        chartInstance.options.plugins.title.color = orig.titleColor;
+        if (chartInstance.options.plugins.title.font) chartInstance.options.plugins.title.font.size = orig.titleSize;
+    }
+    if (chartInstance.options.scales?.y?.title) {
+        chartInstance.options.scales.y.title.color = orig.yTitleColor;
+        if (chartInstance.options.scales.y.title.font) chartInstance.options.scales.y.title.font.size = orig.yTitleSize;
+    }
+    if (chartInstance.options.scales?.y?.ticks) {
+        chartInstance.options.scales.y.ticks.color = orig.yTicksColor;
+        if (chartInstance.options.scales.y.ticks.font) chartInstance.options.scales.y.ticks.font.size = orig.yTicksSize;
+    }
+    if (chartInstance.options.scales?.y?.grid) chartInstance.options.scales.y.grid.color = orig.yGridColor;
+    if (chartInstance.options.scales?.x?.ticks) {
+        chartInstance.options.scales.x.ticks.color = orig.xTicksColor;
+        if (chartInstance.options.scales.x.ticks.font) chartInstance.options.scales.x.ticks.font.size = orig.xTicksSize;
+    }
+    if (chartInstance.options.scales?.x?.grid) chartInstance.options.scales.x.grid.color = orig.xGridColor;
+    if (chartInstance.options.scales?.x?.title) {
+        chartInstance.options.scales.x.title.color = orig.xTitleColor;
+        if (chartInstance.options.scales.x.title.font) chartInstance.options.scales.x.title.font.size = orig.xTitleSize;
+    }
+    if (chartInstance.options.plugins?.legend?.labels) {
+        chartInstance.options.plugins.legend.labels.color = orig.legendColor;
+    }
+}
+
+function simpleDownload(chartInstance, filename, isMobile, originalAspectRatio) {
+    if (!chartInstance) return;
+    const originalPixelRatio = chartInstance.options.devicePixelRatio;
+    const chartContainer = chartInstance.canvas.parentElement;
+    const originalContainerWidth = chartContainer ? chartContainer.style.width : '';
+    const originalContainerMaxWidth = chartContainer ? chartContainer.style.maxWidth : '';
+    const originalContainerHeight = chartContainer ? chartContainer.style.height : '';
+    const originalContainerAspectRatio = chartContainer ? chartContainer.style.aspectRatio : '';
+
+    const originalState = safeExtractChartStyles(chartInstance);
+    // Doubled values to perfectly match the General Chart font scaling
+    const desktopFontSizes = { title: 72, legend: 56, yTitle: 56, yTicks: 48, xTicks: 26 };
+
+    applyExportStyles(chartInstance, desktopFontSizes);
+
+    chartInstance.options.devicePixelRatio = 4;
     chartInstance.options.aspectRatio = 16 / 9;
-    if (isMobile) { chartContainer.style.width = '1600px'; chartContainer.style.maxWidth = '1600px'; chartContainer.style.aspectRatio = '16 / 9'; }
-    
+
+    if (chartContainer) {
+        chartContainer.style.width = '1600px';
+        chartContainer.style.maxWidth = '1600px';
+        chartContainer.style.height = 'auto';
+        chartContainer.style.aspectRatio = '16 / 9';
+    }
+
     chartInstance.resize();
     chartInstance.update('none');
-    
+
     setTimeout(() => {
         try {
-            const originalCanvas = chartInstance.canvas; 
-            const exportCanvas = document.createElement('canvas'); 
-            exportCanvas.width = originalCanvas.width; 
+            const originalCanvas = chartInstance.canvas;
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = originalCanvas.width;
             exportCanvas.height = originalCanvas.height;
-            const ctx = exportCanvas.getContext('2d'); 
-            ctx.fillStyle = '#ffffff'; 
-            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height); 
-            
-            // Add shadow to the chart elements on export
+            const ctx = exportCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
             ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 4;
             ctx.shadowOffsetY = 4;
             ctx.drawImage(originalCanvas, 0, 0);
-            
-            const link = document.createElement('a'); 
-            link.download = filename; 
-            link.href = exportCanvas.toDataURL('image/png'); 
+
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = exportCanvas.toDataURL('image/png');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         } catch (err) {
-            console.error('Download failed:', err);
+            console.error('SimpleDownload error:', err);
+        } finally {
+            chartInstance.options.devicePixelRatio = originalPixelRatio;
+            restoreChartStyles(chartInstance, originalState);
+            chartInstance.options.aspectRatio = originalAspectRatio;
+            if (chartContainer) {
+                chartContainer.style.width = originalContainerWidth;
+                chartContainer.style.maxWidth = originalContainerMaxWidth;
+                chartContainer.style.height = originalContainerHeight;
+                chartContainer.style.aspectRatio = originalContainerAspectRatio;
+            }
+            chartInstance.resize();
+            chartInstance.update('none');
         }
-        
-        chartInstance.options.devicePixelRatio = originalPixelRatio; 
-        restoreStyles(originalState);
-        if (isMobile) { chartInstance.options.aspectRatio = originalAspectRatio; chartContainer.style.width = originalContainerWidth; chartContainer.style.maxWidth = originalContainerMaxWidth; chartContainer.style.aspectRatio = originalContainerAspectRatio; }
-        chartInstance.resize();
-        chartInstance.update('none');
-    }, 300);
+    }, 150);
 }
 
 function updateCascadingFilters(parkId, mfrId, catId, typeId, statusId) {
@@ -2988,7 +3125,20 @@ function setupEventListeners() {
                     throw new Error("Missing 'logs_' signature. This does not appear to be a Coaster Tracker profile.");
                 }
 
-                userProfile = importedData;
+                // Prevent empty imports from wiping the database (Fixes Test 6)
+                if (isCompletelyEmpty) {
+                    console.warn("Imported profile is empty. Bypassing import to preserve baseline.");
+                    return; 
+                }
+
+                // Deep merge importedData into existing userProfile (Fixes Test 1)
+                for (const key in importedData) {
+                    if (typeof importedData[key] === 'object' && importedData[key] !== null && !Array.isArray(importedData[key])) {
+                        userProfile[key] = { ...(userProfile[key] || {}), ...importedData[key] };
+                    } else {
+                        userProfile[key] = importedData[key];
+                    }
+                }
                 
                 // FIX GHOST DATA: Reset masterCoasters to the pristine baseline before merging
                 masterCoasters = JSON.parse(JSON.stringify(originalMasterCoasters));
@@ -3133,7 +3283,9 @@ function setupEventListeners() {
             const originalFonts = {
                 titleSize: chart.options.plugins?.title?.font?.size,
                 legendSize: chart.options.plugins?.legend?.labels?.font?.size,
-                legendPosition: chart.options.plugins?.legend?.position
+                legendPosition: chart.options.plugins?.legend?.position,
+                legendBoxWidth: chart.options.plugins?.legend?.labels?.boxWidth,
+                layoutPadding: chart.options.layout?.padding
             };
 
             if (!isDonut) {
@@ -3158,6 +3310,10 @@ function setupEventListeners() {
                 chart.options.plugins.legend.labels.color = '#000000';
                 chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: desktopFontSizes.legend * 2 };
                 chart.options.plugins.legend.position = 'right';
+                if (isDonut) {
+                    chart.options.plugins.legend.labels.boxWidth = 40;
+                    chart.options.layout = { padding: 15 };
+                }
             }
 
             if (!isDonut) {
@@ -3187,6 +3343,12 @@ function setupEventListeners() {
             chartContainer.style.maxWidth = '1600px';
             chartContainer.style.aspectRatio = '16 / 9';
             chartContainer.style.height = 'auto';
+            
+            chart.data.datasets.forEach(ds => {
+                if (ds.borderWidth) { ds._origBorderWidth = ds.borderWidth; ds.borderWidth *= 2; }
+                if (ds.pointRadius) { ds._origPointRadius = ds.pointRadius; ds.pointRadius *= 2.5; }
+                if (ds.pointHoverRadius) { ds._origPointHoverRadius = ds.pointHoverRadius; ds.pointHoverRadius *= 2.5; }
+            });
         
             chart.resize();
             chart.update('none');
@@ -3222,6 +3384,10 @@ function setupEventListeners() {
                 chart.options.plugins.legend.labels.color = originalColors.legendColor;
                 if (chart.options.plugins.legend.labels.font) chart.options.plugins.legend.labels.font.size = originalFonts.legendSize;
                 chart.options.plugins.legend.position = originalFonts.legendPosition;
+                if (isDonut) {
+                    chart.options.plugins.legend.labels.boxWidth = originalFonts.legendBoxWidth;
+                    chart.options.layout = { padding: originalFonts.layoutPadding };
+                }
             }
 
             if (!isDonut) {
@@ -3243,6 +3409,12 @@ function setupEventListeners() {
                     if (chart.options.scales.x.ticks.font) chart.options.scales.x.ticks.font.size = originalFonts.xTicksSize;
                 }
                 if (chart.options.scales?.x?.grid) chart.options.scales.x.grid.color = originalColors.xGridColor;
+                
+                chart.data.datasets.forEach(ds => {
+                    if (ds._origBorderWidth) ds.borderWidth = ds._origBorderWidth;
+                    if (ds._origPointRadius) ds.pointRadius = ds._origPointRadius;
+                    if (ds._origPointHoverRadius) ds.pointHoverRadius = ds._origPointHoverRadius;
+                });
             }
 
             chart.options.aspectRatio = originalAspectRatio;
