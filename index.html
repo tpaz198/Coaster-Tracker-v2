@@ -33,7 +33,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;bac
 .data-transfer-btn{padding:0.5rem 0.65rem;border:2px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:1.2rem;cursor:pointer;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;font-weight:600;white-space:nowrap;flex:1;display:flex;align-items:center;justify-content:center;}
 .data-transfer-btn:hover{border-color:var(--primary);background:var(--bg-secondary);}
 .app-content{display:block;}
-.container{max-width:1400px;margin:0 auto;padding:0 1.5rem;}
+.container { max-width: 100%; width: 100%; margin: 0 auto; padding: 0 2.5rem; }
+@media (max-width: 768px) { .container { padding: 0 1rem; } }
 header{padding:2rem 0;border-bottom:1px solid var(--border);margin-bottom:2rem;}
 .header-content{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
 h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp(1.5rem,4vw,2.25rem);font-weight:900;color:var(--text);letter-spacing:0.5px;text-shadow:3px 3px 0px rgba(217,70,239,0.4),6px 6px 0px rgba(217,70,239,0.2);}
@@ -60,7 +61,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .chart-limit-btn.active,.ot-chart-limit-btn.active{background:var(--toggle-bg);}
 .chart-limit-btn.active:hover,.ot-chart-limit-btn.active:hover{background:var(--toggle-hover);}
 .chart-container{background:var(--bg-secondary);padding:1rem;border-radius:10px;border:3px solid var(--border);box-shadow:5px 5px 0px rgba(0,0,0,0.1);position:relative;width:100%;}
-.chart-aspect-wrapper{position:relative;width:100%;aspect-ratio:16/9;min-height:300px;max-width:100%;}
+.chart-aspect-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; min-height: 300px; max-height: 75vh; max-width: 100%; margin: 0 auto; }
 .chart-aspect-wrapper canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
 .chart-download-btn-container{display:flex;justify-content:center;margin-top:1rem;}
 .controls{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
@@ -171,8 +172,39 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .drag-handle:hover { opacity: 0.8; }
 .drag-handle:active { cursor: grabbing; }
 .table-top-scroll{overflow-x:auto;overflow-y:hidden;width:100%;background:var(--bg-secondary);border:4px solid var(--primary);border-bottom:none;border-radius:10px 10px 0 0;margin-bottom:0;}
-.top-scroll-content{height:1px;}
-.table-wrapper{overflow-x:auto;overflow-y:auto;max-height:75vh;background:var(--bg-secondary);border-radius:0 0 10px 10px;border:4px solid var(--primary);box-shadow:6px 6px 0px rgba(217,70,239,0.4),inset 0 0 20px rgba(0,0,0,0.05);position:relative;width:100%;min-height:50vh;display:block;}
+.top-scroll-content { height: 4px; }
+
+/* High-visibility scrollbars for Desktop Table */
+.table-top-scroll::-webkit-scrollbar,
+.table-wrapper::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+.table-top-scroll::-webkit-scrollbar-track,
+.table-wrapper::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 6px;
+}
+.table-top-scroll::-webkit-scrollbar-thumb,
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border: 3px solid var(--card-bg);
+    border-radius: 6px;
+}
+.table-top-scroll::-webkit-scrollbar-thumb:hover,
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+.table-wrapper::-webkit-scrollbar-corner {
+    background: var(--card-bg);
+}
+@supports not selector(::-webkit-scrollbar) {
+    .table-top-scroll,
+    .table-wrapper {
+        scrollbar-width: auto;
+        scrollbar-color: var(--primary) var(--card-bg);
+    }
+}
 .coaster-table{display:table;border-collapse:separate;border-spacing:0;font-size:1rem;background:var(--bg-secondary);width:100%;min-width:100%;color:var(--text);}
 .coaster-table th{position:sticky;top:0;z-index:10;background:var(--primary);padding:0.875rem;text-align:center;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.2);border-bottom:3px solid rgba(0,0,0,0.3);cursor:pointer;user-select:none;white-space:nowrap;font-size:17px;color:white;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
 .coaster-table th:hover{filter:brightness(1.1);}
@@ -709,7 +741,7 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
                         <select id="rating"></select>
                     </div>
                     <div class="form-group">
-                        <label for="ranking">Ranking (1-100)</label>
+                        <label for="ranking">Ranking (1-120)</label>
                         <select id="ranking">
                             <option value="">Not Ranked</option>
                         </select>
@@ -1104,18 +1136,18 @@ const DOM = {
             select.appendChild(option);
         }
     },
-    populateRankingSelect(selectId) {
-        const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
-        if (!select) return;
-        select.innerHTML = '<option value="">Not Ranked</option>';
-        const maxRank = typeof AppState !== 'undefined' ? Math.max(100, AppState.coasters.length + 1) : 100;
-        for (let rank = 1; rank <= maxRank; rank++) {
-            const option = document.createElement('option');
-            option.value = rank.toString();
-            option.textContent = rank.toString();
-            select.appendChild(option);
-        }
+  populateRankingSelect(selectId) {
+    const select = typeof selectId === 'string' ? Utils.getElement(selectId) : selectId;
+    if (!select) return;
+    select.innerHTML = '<option value="">Not Ranked</option>';
+    const maxRank = 120;
+    for (let rank = 1; rank <= maxRank; rank++) {
+        const option = document.createElement('option');
+        option.value = rank.toString();
+        option.textContent = rank.toString();
+        select.appendChild(option);
     }
+  }
 };
 
 // --- DRAG AND DROP RANKING ENGINE ---
@@ -1265,7 +1297,7 @@ const Render = {
                 if (column === 'Rating' && coaster[column]) {
                     td.textContent = parseFloat(coaster[column]).toFixed(2);
                 } else if (column === 'Weighted Ranking' && coaster[column]) {
-                    td.textContent = parseFloat(coaster[column]).toFixed(2);
+                    td.textContent = Math.round(parseFloat(coaster[column]));
                 } else {
                     td.textContent = coaster[column] || '—';
                 }
