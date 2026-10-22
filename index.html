@@ -936,10 +936,6 @@ function refreshDataForYear(year) {
     if (typeof GeneralStats !== 'undefined' && GeneralStats.instance) GeneralStats.update();
     if (typeof Chart !== 'undefined' && Chart.instance) Chart.update();
     if (typeof OverTimeChart !== 'undefined' && OverTimeChart.instance) OverTimeChart.update();
-    if (typeof Render !== 'undefined') {
-        if (Render.spreadsheet) Render.spreadsheet();
-        if (Render.rankings) Render.rankings();
-    }
 
     // Asynchronously save the cleaned profile if ghost data was removed
     if (hasOrphans) {
@@ -1465,27 +1461,6 @@ const Render = {
         });
         
         list.appendChild(fragment);
-
-        if (isReorderable) {
-            list.addEventListener('dragover', (e) => {
-                e.preventDefault(); 
-                
-                // NEW: We only move the placeholder now, never the dragged item
-                const placeholder = list.querySelector('.placeholder');
-                if (!placeholder) return;
-                
-                const afterElement = getDragAfterElement(list, e.clientY);
-                if (afterElement == null) {
-                    list.appendChild(placeholder);
-                } else {
-                    list.insertBefore(placeholder, afterElement);
-                }
-            });
-            
-            // Failsafe empty listeners signal to the polyfill that this is a valid drop zone
-            list.addEventListener('dragenter', (e) => e.preventDefault());
-            list.addEventListener('drop', (e) => e.preventDefault());
-        }
     }
 };
 
@@ -2100,8 +2075,16 @@ const OverTimeChart = {
         this.update();
     },
 
+    getValidYears() {
+        return Object.keys(userProfile)
+            .filter(k => k.startsWith('logs_'))
+            .map(k => k.replace('logs_', ''))
+            .filter(y => parseInt(y) <= parseInt(currentYearStr))
+            .sort();
+    },
+
     getYearlyAverages() {
-        const years = Object.keys(userProfile).filter(k => k.startsWith('logs_')).map(k => k.replace('logs_', '')).sort();
+        const years = this.getValidYears();
         const currentTotal = getBaselineTotal();
 
         return years.map(year => {
@@ -2132,7 +2115,7 @@ const OverTimeChart = {
     },
 
     getRideDataById(id) {
-        const years = Object.keys(userProfile).filter(k => k.startsWith('logs_')).map(k => k.replace('logs_', '')).sort();
+        const years = this.getValidYears();
         const currentTotal = getBaselineTotal();
 
         return years.map(year => {
@@ -2228,9 +2211,8 @@ const OverTimeChart = {
 
         const textColor   = Utils.getCSSVariable('--text');
         const borderColor = Utils.getCSSVariable('--border');
-        const years       = Object.keys(userProfile).map(k => k.replace('logs_', '')).sort().filter(y => parseInt(y) <= parseInt(currentYearStr));
+        const years       = this.getValidYears();
         const opts        = this.instance.options;
-        const yOpts       = opts.scales.y;
 
         const applyYAxis = (label, min, max, reverse, beginAtZero) => {
             yOpts.title.text  = label;
@@ -2514,7 +2496,7 @@ const Modals = {
         Utils.getElement('type').disabled = false;
         Utils.getElement('openingYear').disabled = false;
         Utils.getElement('lastRide').disabled = false;
-        Utils.getElement('newCredit').closest('.form-group').style.display = 'none';
+        Utils.getElement('newCredit').closest('.form-group').style.display = '';
         Utils.getElement('addCoasterModal').classList.add('active');
     }
 };
@@ -3563,6 +3545,28 @@ function setupEventListeners() {
         });
     })();
     
+const rankingsList = Utils.getElement('rankingsList');
+    if (rankingsList) {
+        rankingsList.addEventListener('dragover', (e) => {
+            if (AppState.filtered.length !== AppState.coasters.length) return;
+            e.preventDefault();
+            const placeholder = rankingsList.querySelector('.placeholder');
+            if (!placeholder) return;
+            const afterElement = getDragAfterElement(rankingsList, e.clientY);
+            if (afterElement == null) {
+                rankingsList.appendChild(placeholder);
+            } else {
+                rankingsList.insertBefore(placeholder, afterElement);
+            }
+        });
+        rankingsList.addEventListener('dragenter', (e) => {
+            if (AppState.filtered.length === AppState.coasters.length) e.preventDefault();
+        });
+        rankingsList.addEventListener('drop', (e) => {
+            if (AppState.filtered.length === AppState.coasters.length) e.preventDefault();
+        });
+    }
+
     Utils.getElement('detailModal').addEventListener('click', (e) => { if (e.target.id === 'detailModal') Modals.closeDetail(); });
     Utils.getElement('addCoasterModal').addEventListener('click', (e) => { if (e.target.id === 'addCoasterModal') Modals.closeAddCoaster(); });
     Utils.getElement('closeCommentsModal').addEventListener('click', () => { Utils.getElement('commentsModal').classList.remove('active'); Modals._unlockScroll(); });
