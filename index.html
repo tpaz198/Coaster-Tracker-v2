@@ -245,10 +245,17 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 .coaster-table th[data-column="Last Ride"],.coaster-table td[data-column="Last Ride"]{min-width:75px;}
 .coaster-table th[data-column="Status"],.coaster-table td[data-column="Status"]{min-width:75px;}
 .coaster-table th[data-column="New Credit"],.coaster-table td[data-column="New Credit"]{min-width:80px;}
-.coaster-table th[data-column="Rating"],.coaster-table td[data-column="Rating"]{min-width:55px;}
-.coaster-table td[data-column="Rating"]{font-weight:700;font-size:21px;}
-.coaster-table th[data-column="Ranking"],.coaster-table td[data-column="Ranking"]{min-width:60px;}
-.coaster-table td[data-column="Ranking"]{font-weight:800;font-size:21px;}
+.coaster-table th[data-column="Rating"],.coaster-table td[data-column="Rating"]{min-width:95px;position:sticky;right:var(--ranking-col-width, 110px);z-index:2;border-left:2px solid var(--border);}
+.coaster-table th[data-column="Rating"]{background:#0e7490;z-index:12;}
+.coaster-table td[data-column="Rating"]{font-weight:700;font-size:21px;background:var(--bg-secondary);}
+.coaster-table th[data-column="Ranking"],.coaster-table td[data-column="Ranking"]{min-width:110px;position:sticky;right:0;z-index:2;}
+.coaster-table th[data-column="Ranking"]{background:#0e7490;z-index:12;}
+.coaster-table td[data-column="Ranking"]{font-weight:800;font-size:21px;background:var(--bg-secondary);}
+.coaster-table tr.new-credit-row td[data-column="Rating"],.coaster-table tr.new-credit-row td[data-column="Ranking"]{background:var(--new-credit-bg);}
+.coaster-table tr.defunct-row td[data-column="Rating"],.coaster-table tr.defunct-row td[data-column="Ranking"]{background:var(--defunct-bg);}
+@media (prefers-color-scheme:dark){.coaster-table tr.new-credit-row td[data-column="Rating"],.coaster-table tr.new-credit-row td[data-column="Ranking"]{background:#2c534d;}
+.coaster-table tr.defunct-row td[data-column="Rating"],.coaster-table tr.defunct-row td[data-column="Ranking"]{background:#4e3d4a;}
+}
 .coaster-table th[data-column="Weighted Ranking"],.coaster-table td[data-column="Weighted Ranking"]{min-width:80px;}
 .coaster-table td[data-column="Weighted Ranking"]{font-weight:800;font-size:21px;}
 .chart-type-toggle{display:flex;gap:0;margin-bottom:1.25rem;background:var(--bg-secondary);border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
@@ -335,9 +342,9 @@ h1{font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive;font-size:clamp
 
 .ot-legend{display:flex;flex-wrap:wrap;gap:10px 24px;padding:12px 16px;justify-content:center;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);margin-top:8px;}
 .ot-legend-item{display:flex;align-items:center;gap:8px;}
-.ot-legend-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:transform 0.15s;border:2px solid transparent;}
+.ot-legend-swatch{width:16px;height:16px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:transform 0.15s;border:2px solid transparent;}
 .ot-legend-swatch:hover{transform:scale(1.35);border-color:var(--text);}
-.ot-legend-label{font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1;color:var(--text);white-space:nowrap;}
+.ot-legend-label{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;line-height:1;color:var(--text);white-space:nowrap;}
 .ot-color-picker{position:absolute;z-index:1000;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,0.25);display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:auto;}
 .ot-color-picker-cell{width:22px;height:22px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:transform 0.12s,border-color 0.12s;}
 .ot-color-picker-cell:hover{transform:scale(1.25);border-color:var(--text);}
@@ -879,10 +886,10 @@ const AppState = {
         'Last Ride': true,
         'Status': true,
         'New Credit': true,
-        'Rating': true,
-        'Ranking': true,
         'Weighted Ranking': false,
-        'Comments': false
+        'Comments': false,
+        'Rating': true,
+        'Ranking': true
     }
 };
 
@@ -1020,6 +1027,15 @@ const Utils = {
     getElement(id) { return document.getElementById(id); },
     getElements(selector) { return document.querySelectorAll(selector); },
     getCSSVariable(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); },
+    getChartFontSizes() {
+        const w = window.innerWidth;
+        if (w <= 768) {
+            return { title: 22, axisTitle: 18, ticks: 15, xTicksBar: 12, legend: 13, tooltipTitle: 18, tooltipBody: 16 };
+        } else if (w >= 1600) {
+            return { title: 34, axisTitle: 26, ticks: 22, xTicksBar: 21, legend: 22, tooltipTitle: 22, tooltipBody: 20 };
+        }
+        return { title: 28, axisTitle: 22, ticks: 18, xTicksBar: 18, legend: 18, tooltipTitle: 20, tooltipBody: 18 };
+    },
     getRatingColor(rating) {
         const r = Math.max(1, Math.min(10, rating));
         let red, green, blue;
@@ -1328,9 +1344,19 @@ const Render = {
         tbody.innerHTML = '';
         tbody.appendChild(fragment);
 
+        const tableEl = document.querySelector('.coaster-table');
+        const rankingTh = thead.querySelector('th[data-column="Ranking"]');
+        if (tableEl && rankingTh) {
+            tableEl.style.setProperty('--ranking-col-width', rankingTh.offsetWidth + 'px');
+        }
+
         setTimeout(() => {
             const table = document.querySelector('.coaster-table');
             const topContent = Utils.getElement('topScrollContent');
+            const rankHeader = thead.querySelector('th[data-column="Ranking"]');
+            if (table && rankHeader) {
+                table.style.setProperty('--ranking-col-width', rankHeader.offsetWidth + 'px');
+            }
             if (table && topContent) {
                 topContent.style.width = table.offsetWidth + 'px';
             }
@@ -1468,7 +1494,7 @@ const Spreadsheet = {
     initialize() {
         const togglesContainer = Utils.getElement('columnToggles');
         Object.keys(AppState.columns).forEach(column => {
-            if (column === 'Ride') return;
+            if (column === 'Ride' || column === 'Rating' || column === 'Ranking') return;
             const btn = document.createElement('button');
             btn.className = 'column-toggle' + (AppState.columns[column] ? '' : ' inactive');
             btn.textContent = column;
@@ -1827,7 +1853,7 @@ const GeneralStats = {
             return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         });
 
-        this.ageDistributionInstance.data.labels = ageLabels;
+this.ageDistributionInstance.data.labels = ageLabels;
         this.ageDistributionInstance.data.datasets[0].data = ageData;
         this.ageDistributionInstance.data.datasets[0].backgroundColor = gradientColors;
         this.ageDistributionInstance.options.plugins.title.text = `Coaster Age Distribution As Of ${currentYearStr}`;
@@ -1845,6 +1871,26 @@ const GeneralStats = {
             if (chart.options.scales.x.title) chart.options.scales.x.title.color = textColor;
             chart.options.scales.x.ticks.color = textColor;
             chart.options.scales.x.grid.color = borderColor;
+        });
+
+        const fs = Utils.getChartFontSizes();
+        [this.instance, this.newCreditsInstance, this.ageDistributionInstance, this.ratingAgeCorrInstance].forEach(chart => {
+            if (chart.options.plugins?.title?.font) chart.options.plugins.title.font.size = fs.title;
+            if (chart.options.plugins?.tooltip?.titleFont) chart.options.plugins.tooltip.titleFont.size = fs.tooltipTitle;
+            if (chart.options.plugins?.tooltip?.bodyFont) chart.options.plugins.tooltip.bodyFont.size = fs.tooltipBody;
+            if (chart.options.scales?.y?.title?.font) chart.options.scales.y.title.font.size = fs.axisTitle;
+            if (chart.options.scales?.y?.ticks?.font) chart.options.scales.y.ticks.font.size = fs.ticks;
+            if (chart.options.scales?.x?.title?.font) chart.options.scales.x.title.font.size = fs.axisTitle;
+            if (chart.options.scales?.x?.ticks?.font) chart.options.scales.x.ticks.font.size = fs.ticks;
+        });
+        [this.mfrBreakdownInstance, this.newMfrBreakdownInstance, this.parkBreakdownInstance, this.newParkBreakdownInstance].forEach(chart => {
+            if (chart.options.plugins?.title?.font) chart.options.plugins.title.font.size = fs.title;
+            if (chart.options.plugins?.legend?.labels) {
+                chart.options.plugins.legend.labels.font = { family: "'Space Grotesk', sans-serif", size: fs.legend };
+                chart.options.plugins.legend.labels.boxWidth = isMobile ? 12 : 22;
+            }
+            if (chart.options.plugins?.tooltip?.titleFont) chart.options.plugins.tooltip.titleFont.size = fs.tooltipTitle;
+            if (chart.options.plugins?.tooltip?.bodyFont) chart.options.plugins.tooltip.bodyFont.size = fs.tooltipBody;
         });
 
         this.instance.update();
@@ -1970,8 +2016,12 @@ const Chart = {
             borderRadius: this.mode === 'rating' ? 4 : 0
         }];
 
+        const fs = Utils.getChartFontSizes();
         this.instance.options.plugins.title.text = Utils.buildFilterTitle(limit, 'statsStatus', 'statsPark', 'statsManufacturer', 'statsCategory', 'statsType', candidates.length);
         this.instance.options.plugins.title.color = textColor;
+        this.instance.options.plugins.title.font.size = fs.title;
+        this.instance.options.plugins.tooltip.titleFont.size = fs.tooltipTitle;
+        this.instance.options.plugins.tooltip.bodyFont.size = fs.tooltipBody;
         
         // Deeply enforce autoSkip false and responsive font sizing so no labels are dropped
         this.instance.options.scales.x.ticks = {
@@ -1980,14 +2030,14 @@ const Chart = {
             maxRotation: 45,
             minRotation: 45,
             color: textColor,
-            font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 12 : 18, weight: '600' }
+            font: { family: "'Space Grotesk', sans-serif", size: fs.xTicksBar, weight: '600' }
         };
         
         this.instance.options.scales.y.grid.color = borderColor;
         this.instance.options.scales.y.ticks.color = textColor;
-        this.instance.options.scales.y.ticks.font = { family: "'Space Grotesk', sans-serif", size: isMobile ? 15 : 18 };
+        this.instance.options.scales.y.ticks.font = { family: "'Space Grotesk', sans-serif", size: fs.ticks };
         if (this.mode === 'rating') {
-            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: isMobile ? 18 : 22, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: 'Rating', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: fs.axisTitle, weight: 'bold' } };
             this.instance.options.scales.y.min = 1;
             this.instance.options.scales.y.max = 10;
             this.instance.options.scales.y.reverse = false;
@@ -1995,7 +2045,7 @@ const Chart = {
                 return value; // Standard number format
             };
         } else {
-            this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: 18, weight: 'bold' } };
+            this.instance.options.scales.y.title = { display: true, text: this.useWeightedRanking ? 'Weighted Ranking' : 'Ranking', color: textColor, font: { family: "'Space Grotesk', sans-serif", size: fs.axisTitle, weight: 'bold' } };
             this.instance.options.scales.y.min = 0;
             delete this.instance.options.scales.y.max;
             this.instance.options.scales.y.reverse = true;
@@ -2214,6 +2264,7 @@ const OverTimeChart = {
         const years       = this.getValidYears();
         const opts        = this.instance.options;
 
+        const fs = Utils.getChartFontSizes();
         const applyYAxis = (label, min, max, reverse, beginAtZero) => {
             yOpts.title.text  = label;
             if (min !== null) { yOpts.min = min; } else { delete yOpts.min; }
@@ -2221,11 +2272,17 @@ const OverTimeChart = {
             yOpts.reverse     = reverse;
             yOpts.beginAtZero = beginAtZero;
             yOpts.title.color = textColor;
+            yOpts.title.font.size = fs.axisTitle;
             yOpts.ticks.color = textColor;
+            yOpts.ticks.font.size = fs.ticks;
             yOpts.grid.color  = borderColor;
             opts.scales.x.ticks.color = textColor;
+            opts.scales.x.ticks.font.size = fs.ticks;
             opts.scales.x.grid.color  = borderColor;
             opts.plugins.title.color  = textColor;
+            opts.plugins.title.font.size = fs.title;
+            opts.plugins.tooltip.titleFont.size = fs.tooltipTitle;
+            opts.plugins.tooltip.bodyFont.size = fs.tooltipBody;
         };
 
         if (this.sourceMode === 'filters') {
@@ -2485,17 +2542,10 @@ const Modals = {
         Utils.getElement('comments').value = coaster.Comments || '';
         Utils.getElement('charCount').textContent = `${(coaster.Comments || '').length} / 350`;
         
-        // REMOVED 'manufacturer' and 'category' from this disabled list
-        ['rideName', 'parkName'].forEach(id => {
-            Utils.getElement(id).disabled = true;
+        // Enable all metadata fields (including Ride Name and Park for relocations/renames)
+        ['rideName', 'parkName', 'manufacturer', 'category', 'type', 'openingYear', 'lastRide'].forEach(id => {
+            Utils.getElement(id).disabled = false;
         });
-        
-        // EXPLICITLY ENABLE fields for editing
-        Utils.getElement('category').disabled = false;
-        Utils.getElement('manufacturer').disabled = false; 
-        Utils.getElement('type').disabled = false;
-        Utils.getElement('openingYear').disabled = false;
-        Utils.getElement('lastRide').disabled = false;
         Utils.getElement('newCredit').closest('.form-group').style.display = '';
         Utils.getElement('addCoasterModal').classList.add('active');
     }
@@ -2605,9 +2655,9 @@ const Forms = {
         
 const submittedMetadata = {
             ...(masterCoasters[id] || {}),
-            name: Utils.getElement('rideName').value,
-            park: Utils.getElement('parkName').value,
-            manufacturer: Utils.getElement('manufacturer').value,
+            name: Utils.getElement('rideName').value.trim(),
+            park: Utils.getElement('parkName').value.trim(),
+            manufacturer: Utils.getElement('manufacturer').value.trim(),
             category: Utils.getElement('category').value,
             type: Utils.getElement('type').value,
             openingYear: Utils.getElement('openingYear').value,
@@ -3478,7 +3528,7 @@ function setupEventListeners() {
     Utils.getElement('cancelAddBtn').addEventListener('click', () => Modals.closeAddCoaster());
     Utils.getElement('coasterForm').addEventListener('submit', (e) => Forms.handleSubmit(e));
     Utils.getElement('tableRefreshBtn').addEventListener('click', () => {
-        AppState.sort = []; const defaults = { 'Ride': true, 'Park': true, 'Manufacturer': true, 'Category': true, 'Type': true, 'Opening Year': true, 'Last Ride': true, 'Status': true, 'New Credit': true, 'Rating': true, 'Ranking': true, 'Weighted Ranking': false, 'Comments': false };
+        AppState.sort = []; const defaults = { 'Ride': true, 'Park': true, 'Manufacturer': true, 'Category': true, 'Type': true, 'Opening Year': true, 'Last Ride': true, 'Status': true, 'New Credit': true, 'Weighted Ranking': false, 'Comments': false, 'Rating': true, 'Ranking': true };
         Object.keys(defaults).forEach(col => { AppState.columns[col] = defaults[col]; }); document.querySelectorAll('#columnToggles .column-toggle').forEach(btn => { const col = btn.dataset.column; if (col) btn.classList.toggle('inactive', !AppState.columns[col]); }); Render.spreadsheet();
     });
     Utils.getElement('comments').addEventListener('input', () => Forms.updateCharCount());
